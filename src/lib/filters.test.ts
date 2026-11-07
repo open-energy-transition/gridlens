@@ -19,6 +19,8 @@ function record(overrides: Partial<CatalogueRecord> = {}): CatalogueRecord {
     why_it_supports_the_claim: '',
     notes: '',
     dataset_origin: 'esm_usage_catalog',
+    decision_type: 'Unit Commitment & Dispatch',
+    decision_basis: 'documented',
     ...overrides,
   };
 }
@@ -41,18 +43,27 @@ describe('applyFilters', () => {
   ];
 
   it('returns everything when every filter is "All" and search is empty', () => {
-    expect(applyFilters(records, { country: 'All', toolCategory: 'All', evidenceStrength: 'All', sourceType: 'All', search: '' })).toHaveLength(3);
+    expect(
+      applyFilters(records, { country: 'All', toolName: 'All', toolCategory: 'All', evidenceStrength: 'All', sourceType: 'All', search: '' }),
+    ).toHaveLength(3);
   });
 
   it('filters by country', () => {
-    const result = applyFilters(records, { country: 'Brazil', toolCategory: 'All', evidenceStrength: 'All', sourceType: 'All', search: '' });
+    const result = applyFilters(records, { country: 'Brazil', toolName: 'All', toolCategory: 'All', evidenceStrength: 'All', sourceType: 'All', search: '' });
     expect(result).toHaveLength(1);
     expect(result[0].tool_name).toBe('NEWAVE');
+  });
+
+  it('filters by tool name', () => {
+    const result = applyFilters(records, { country: 'All', toolName: 'PLEXOS', toolCategory: 'All', evidenceStrength: 'All', sourceType: 'All', search: '' });
+    expect(result).toHaveLength(1);
+    expect(result[0].tool_name).toBe('PLEXOS');
   });
 
   it('combines multiple filters with AND logic', () => {
     const result = applyFilters(records, {
       country: 'United States of America',
+      toolName: 'All',
       toolCategory: 'All',
       evidenceStrength: 'MEDIUM',
       sourceType: 'All',
@@ -63,7 +74,7 @@ describe('applyFilters', () => {
   });
 
   it('free-text search matches across all fields, case-insensitively', () => {
-    const result = applyFilters(records, { country: 'All', toolCategory: 'All', evidenceStrength: 'All', sourceType: 'All', search: 'pypsa' });
+    const result = applyFilters(records, { country: 'All', toolName: 'All', toolCategory: 'All', evidenceStrength: 'All', sourceType: 'All', search: 'pypsa' });
     expect(result).toHaveLength(1);
   });
 });

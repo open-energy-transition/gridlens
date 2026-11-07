@@ -20,6 +20,8 @@ const COLUMN_LABELS: Record<keyof CatalogueRecord, string> = {
   why_it_supports_the_claim: 'Justification',
   notes: 'Notes',
   dataset_origin: 'Dataset origin',
+  decision_type: 'Grid decision',
+  decision_basis: 'Decision basis',
 };
 
 const DEFAULT_COLUMNS: (keyof CatalogueRecord)[] = [
@@ -27,6 +29,7 @@ const DEFAULT_COLUMNS: (keyof CatalogueRecord)[] = [
   'institution_name',
   'tool_name',
   'tool_category',
+  'decision_type',
   'evidence_strength',
   'source_link',
 ];

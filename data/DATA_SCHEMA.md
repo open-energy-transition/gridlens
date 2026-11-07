@@ -83,6 +83,44 @@ interface for the authoritative field list.
 | `why_it_supports_the_claim` | yes | One sentence connecting the quote/source to the claim being made. |
 | `notes` | no | Anything else a reviewer should know. |
 
+## Derived field: `decision_type` / `decision_basis`
+
+These two fields answer "what grid decision is this tool actually used
+for" — a different axis from `tool_category` (the model's *technical
+class*, e.g. `production_cost_uc`) or `role` (the organization's
+*relationship* to the tool, e.g. `direct_user`/`commissioner`). They are
+**computed by `scripts/sync_dataset.py`**, never set by hand in the raw
+CSVs — see `classify_decision_from_text()` / `classify_decision_from_category()`
+in that script for the actual rule-based classifier.
+
+`decision_type` is one of: `Capacity & Resource Planning`,
+`Unit Commitment & Dispatch`, `Market Operations & Price Formation`,
+`Transmission & Network Planning`, `Renewable Integration & Decarbonization`,
+`Forecasting & Scenario Analysis`, `Policy & Regulatory Analysis`,
+`Academic & Research Studies`, `Independent & Commissioned Studies`,
+`Other / General Modeling`.
+
+`decision_basis` is one of:
+- `documented` — classified from real free-text `use_case` evidence
+  (`upstream_baseline.csv` rows). This is grounded in an actual quoted
+  source, same evidentiary bar as the rest of the dataset.
+- `inferred` — classified from the organization's sector (`category`
+  column) as a heuristic proxy, used only for `plexos_organizations.csv`
+  rows. **This is not a documented claim** — that raw schema has no
+  free-text use-case description, only a generic templated sentence
+  derived from `role` (see `ROLE_USE_CASE` in `sync_dataset.py`), which is
+  too vague to classify reliably by keyword. Inferring from sector (e.g.
+  a utility ISO → "Market Operations & Price Formation") is a reasonable
+  approximation, not evidence — the app's UI must keep this distinction
+  visible (see `GridDecisions.tsx`'s "Documented"/"Inferred" badges), and
+  any future extension of this classifier should preserve that honesty
+  rather than silently upgrading inferred rows to look documented.
+
+If you tighten this classification in the future (e.g. by enriching
+`plexos_organizations.csv` with real free-text use-case descriptions per
+row), update `decision_basis` to `documented` for those rows accordingly
+— don't leave stale `inferred` tags once real evidence exists.
+
 ## Evidence standards (applies to both files)
 
 1. **First-person evidence beats third-party mentions.** An organization's

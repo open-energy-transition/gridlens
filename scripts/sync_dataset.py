@@ -49,7 +49,105 @@ APP_SCHEMA = [
     "tool_category", "use_case", "evidence_strength", "source_type",
     "source_title", "source_date", "source_link", "exact_snippet_or_quote",
     "why_it_supports_the_claim", "notes", "dataset_origin",
+    "decision_type", "decision_basis",
 ]
+
+# --- Grid decision classification -------------------------------------
+#
+# "decision_type" answers "what grid decision is this tool used for?" --
+# a different axis from tool_category (the model's technical class, e.g.
+# production_cost_uc) or role (the organization's relationship to the
+# tool, e.g. direct_user/commissioner). See data/DATA_SCHEMA.md for the
+# full taxonomy and rationale.
+#
+# "decision_basis" flags how confidently we know this:
+#   "documented" -- classified from real free-text use_case evidence
+#                   (esm_usage_catalog rows have this; it's grounded in an
+#                   actual quoted source).
+#   "inferred"    -- classified from the organization's sector/category
+#                    as a heuristic proxy (plexos_organization_catalogue
+#                    rows only have role/category, not a documented use
+#                    case description, so this is an approximation, not a
+#                    verified claim).
+#
+# Keep this honest distinction visible in the UI -- don't present
+# "inferred" the same way as "documented".
+
+DECISION_TYPE_TEXT_RULES = [
+    ("Transmission & Network Planning", [
+        "transmission", "network planning", "interconnection", "distribution planning", "grid planning",
+        "grid-code", "grid code", "grid connection", "connection stud", "powerfactory", "pss/e", "pss e",
+        "rms ", "electromagnetic transient", " emt ", "emt stud", "compliance modelling", "dynamic model",
+    ]),
+    ("Market Operations & Price Formation", [
+        "market simulation", "price formation", "spot price", "auction", "tariff", "market operations",
+        "pld formation", "price discovery", "market price", "market modelling", "market/system modelling",
+        "electricity market", "market simulator",
+    ]),
+    ("Capacity & Resource Planning", [
+        "capacity expansion", "resource adequacy", "integrated resource plan", " irp ", "long-term planning",
+        "investment planning", "generation planning", "capacity planning", "infrastructure planning",
+        "generation expansion", "expansion planning", "least-cost", "prospectiva",
+        "energy outlook", "energy planning", "supply-demand", "igcep", "prodesen",
+    ]),
+    ("Unit Commitment & Dispatch", [
+        "unit commitment", "dispatch", "operation planning", "operational planning", "scheduling", "pmo",
+        "day-ahead", "production cost",
+    ]),
+    ("Renewable Integration & Decarbonization", [
+        "renewable integration", "decarbon", "net zero", "net-zero", "climate neutral",
+        "variable renewable", "energy transition", "carbon-free", "cfe", "renewable optimisation",
+        "renewable optimization", "phase-out", "100% renewable", "clean-electricity", "clean electricity",
+    ]),
+    ("Forecasting & Scenario Analysis", [
+        "forecast", "scenario generation", "demand forecasting",
+    ]),
+    ("Policy & Regulatory Analysis", ["regulat", "policy", "ministry"]),
+    ("Independent & Commissioned Studies", ["consultant", "consulting", "commissioned", "licens", "procurement"]),
+    ("Academic & Research Studies", ["research", "academic", "thesis", "university"]),
+]
+
+DECISION_TYPE_CATEGORY_RULES = [
+    ("Transmission & Network Planning", ["transmission", "tso", "distribution utility", "utility_distribution"]),
+    ("Market Operations & Price Formation", ["iso", "rto", "system operator", "single_buyer", "single buyer"]),
+    ("Policy & Regulatory Analysis", [
+        "government", "regulat", "international", "intergovernmental", "development_bank",
+        "development bank", "ngo", "non-profit", "not-for-profit", "financial institution", "funder",
+    ]),
+    ("Independent & Commissioned Studies", ["consultanc", "consultant", "vendor", "epc"]),
+    ("Academic & Research Studies", ["academic", "research", "university", "think_tank", "think tank"]),
+    ("Unit Commitment & Dispatch", [
+        "generation", "generator", "ipp", "independent power producer", "utility",
+        "vertically-integrated", "investor-owned",
+    ]),
+    ("Capacity & Resource Planning", [
+        "oil & gas", "mining", "industrial", "trading", "developer", "giga",
+        "datacenter", "hydrogen", "battery", "planning_agency", "planning agency",
+    ]),
+]
+
+DECISION_TYPE_FALLBACK = "Other / General Modeling"
+
+
+def classify_decision_from_text(use_case: str) -> str:
+    """Classify a decision type from real free-text use_case evidence."""
+    t = (use_case or "").lower()
+    for label, keywords in DECISION_TYPE_TEXT_RULES:
+        if any(kw in t for kw in keywords):
+            return label
+    return DECISION_TYPE_FALLBACK
+
+
+def classify_decision_from_category(category: str) -> str:
+    """Infer a decision type from an organization's sector when no
+    free-text use case is available (PLEXOS-organization-catalogue rows)."""
+    t = (category or "").strip().lower()
+    if not t:
+        return DECISION_TYPE_FALLBACK
+    for label, keywords in DECISION_TYPE_CATEGORY_RULES:
+        if any(kw in t for kw in keywords):
+            return label
+    return DECISION_TYPE_FALLBACK
 
 # plexos_organizations.csv's `role` -> a short use_case phrase, since that
 # raw schema doesn't have a free-text use_case field the way upstream_baseline
@@ -101,13 +199,21 @@ def map_plexos_row(row: dict) -> dict:
         "why_it_supports_the_claim": row.get("notes", "").strip(),
         "notes": f"role={role}; status={row.get('status', '')}; candidate_id={row.get('candidate_id', '')}",
         "dataset_origin": "plexos_organization_catalogue",
+        # No documented use-case text exists in this raw schema (ROLE_USE_CASE
+        # is a generic templated sentence, too vague to keyword-classify) --
+        # infer from the organization's sector instead, and say so honestly.
+        "decision_type": classify_decision_from_category(row.get("category", "")),
+        "decision_basis": "inferred",
     }
 
 
 def map_upstream_row(row: dict) -> dict:
     """upstream_baseline.csv is already in the app schema; just tag its origin."""
-    out = {k: row.get(k, "").strip() for k in APP_SCHEMA if k != "dataset_origin"}
+    out = {k: row.get(k, "").strip() for k in APP_SCHEMA if k not in ("dataset_origin", "decision_type", "decision_basis")}
     out["dataset_origin"] = "esm_usage_catalog"
+    # Real free-text use_case evidence exists here -- classify from it directly.
+    out["decision_type"] = classify_decision_from_text(row.get("use_case", ""))
+    out["decision_basis"] = "documented"
     return out
 
 

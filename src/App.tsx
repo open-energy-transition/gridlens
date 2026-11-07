@@ -11,6 +11,7 @@ import Hero from './components/common/Hero';
 import Overview from './sections/Overview';
 import Geographic from './sections/Geographic';
 import ToolsAndCategories from './sections/ToolsAndCategories';
+import GridDecisions from './sections/GridDecisions';
 import Institutions from './sections/Institutions';
 import TopUsersByTool from './sections/TopUsersByTool';
 import RecordsExport from './sections/RecordsExport';
@@ -26,6 +27,7 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const countries = useMemo(() => uniqSorted(catalogue, 'country_label'), []);
+  const toolNames = useMemo(() => uniqSorted(catalogue, 'tool_name'), []);
   const toolCategories = useMemo(() => uniqSorted(catalogue, 'tool_category'), []);
   const evidenceStrengths = useMemo(() => uniqSorted(catalogue, 'evidence_strength'), []);
   const sourceTypes = useMemo(() => uniqSorted(catalogue, 'source_type'), []);
@@ -56,6 +58,7 @@ export default function App() {
             filters={filters}
             onChange={setFilters}
             countries={countries}
+            toolNames={toolNames}
             toolCategories={toolCategories}
             evidenceStrengths={evidenceStrengths}
             sourceTypes={sourceTypes}
@@ -84,6 +87,7 @@ export default function App() {
           {section === 'overview' && <Overview records={filtered} onNavigate={setSection} />}
           {section === 'geographic' && <Geographic records={filtered} />}
           {section === 'tools' && <ToolsAndCategories records={filtered} />}
+          {section === 'decisions' && <GridDecisions records={filtered} />}
           {section === 'institutions' && <Institutions records={filtered} />}
           {section === 'top-users' && <TopUsersByTool allRecords={catalogue} />}
           {section === 'records' && <RecordsExport records={filtered} />}
