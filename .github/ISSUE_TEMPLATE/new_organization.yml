@@ -1,0 +1,43 @@
+name: New organization
+description: Report a new organization using an energy system modelling tool (PLEXOS, PyPSA, etc.)
+labels: ["dataset"]
+body:
+  - type: input
+    id: organization
+    attributes:
+      label: Organization name
+    validations:
+      required: true
+  - type: input
+    id: country
+    attributes:
+      label: Country
+    validations:
+      required: true
+  - type: input
+    id: tool
+    attributes:
+      label: Tool used
+      placeholder: "PLEXOS, PyPSA, etc."
+    validations:
+      required: true
+  - type: textarea
+    id: role
+    attributes:
+      label: Role
+      description: "direct_user / commissioner / consultant_modeler / research_user / subject_of_study / qa_reviewer — see data/DATA_SCHEMA.md"
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source URL
+      description: A working link to the evidence (the organization's own document preferred over a vendor case study)
+    validations:
+      required: true
+  - type: textarea
+    id: quote
+    attributes:
+      label: Supporting quote or summary
+    validations:
+      required: true

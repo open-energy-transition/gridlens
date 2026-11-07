@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate-and-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate dataset
+        run: python3 scripts/validate_dataset.py
+
+      - name: Regenerate merged dataset + app JSON
+        run: python3 scripts/sync_dataset.py
+
+      - name: Fail if sync produced an uncommitted diff
+        run: |
+          git diff --exit-code -- data/catalogue_merged.csv src/data/catalogue.json || \
+            (echo "::error::data/raw/*.csv changed but the generated files weren't re-synced and committed. Run 'npm run sync-data' and commit the result." && exit 1)
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npm run test
+      - run: npm run build
+      - run: npm run lint

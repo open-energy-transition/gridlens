@@ -1,0 +1,76 @@
+@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+@import "tailwindcss";
+
+@theme {
+  /* OET neutral scale — true grays (not blue-tinted slate), anchored by
+     OET's own white/#efefef grey pairing. */
+  --color-ink-50: #f7f7f7;
+  --color-ink-100: #efefef;
+  --color-ink-200: #dcdcdc;
+  --color-ink-300: #bdbdbd;
+  --color-ink-400: #8f8f8f;
+  --color-ink-500: #6b6b6b;
+  --color-ink-600: #4a4a4a;
+  --color-ink-700: #333333;
+  --color-ink-800: #202020;
+  --color-ink-900: #151515;
+  --color-ink-950: #0b0b0b;
+
+  /* OET brand red — primary accent, anchored at the exact style-guide hex. */
+  --color-brand-50: #fdeef0;
+  --color-brand-100: #fbd6db;
+  --color-brand-200: #f6adb8;
+  --color-brand-300: #ee7d8f;
+  --color-brand-400: #e84f68;
+  --color-brand-500: #e31937;
+  --color-brand-600: #c01230;
+  --color-brand-700: #9c0f28;
+  --color-brand-800: #7a0c20;
+  --color-brand-900: #5c0919;
+
+  /* OET sage — secondary accent, anchored at the exact style-guide hex. */
+  --color-sage-50: #f2f6f3;
+  --color-sage-100: #e1ebe3;
+  --color-sage-200: #c3d7c8;
+  --color-sage-300: #a1bfa8;
+  --color-sage-400: #8fac97;
+  --color-sage-500: #7c9885;
+  --color-sage-600: #678073;
+  --color-sage-700: #536760;
+  --color-sage-800: #3f4e4a;
+  --color-sage-900: #2c3633;
+
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Oswald", ui-sans-serif, system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+:root {
+  color-scheme: dark;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: #0b0b0b;
+  color: #efefef;
+  font-family: var(--font-sans);
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #333333;
+  border-radius: 9999px;
+}

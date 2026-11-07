@@ -1,0 +1,52 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- GridLens app icon v4 (recentered): a camera-aperture / iris motif,
+       centered on the tile's own center (60,60) and sized to fill it
+       confidently, instead of the earlier off-center v4 draft. -->
+  <defs>
+    <linearGradient id="tileBg4" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1c2420"/>
+      <stop offset="1" stop-color="#0a0d0b"/>
+    </linearGradient>
+    <linearGradient id="bladeA" x1="40" y1="40" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ff4d61"/>
+      <stop offset="1" stop-color="#c20f29"/>
+    </linearGradient>
+    <linearGradient id="bladeB" x1="40" y1="40" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#b9cdbf"/>
+      <stop offset="1" stop-color="#5e7a67"/>
+    </linearGradient>
+    <radialGradient id="core4" cx="60" cy="60" r="12" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="0.55" stop-color="#ffe9df"/>
+      <stop offset="1" stop-color="#ff8a6b" stop-opacity="0.2"/>
+    </radialGradient>
+    <filter id="bladeShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="1.2" stdDeviation="1.8" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+    <filter id="coreGlow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- squircle tile -->
+  <rect x="4" y="4" width="112" height="112" rx="26" fill="url(#tileBg4)"/>
+  <rect x="4" y="4" width="112" height="112" rx="26" stroke="#2c3630" stroke-width="1"/>
+  <rect x="4" y="4" width="112" height="56" rx="26" fill="#ffffff" opacity="0.035"/>
+
+  <!-- six-vane iris, centered, alternating red/sage -->
+  <g filter="url(#bladeShadow)">
+    <path d="M 92.51 69.94 Q 78.36 63.57 70.00 59.83 L 70.00 60.17 Q 78.36 56.43 92.51 50.06 Z" fill="url(#bladeA)"/>
+    <path d="M 52.35 26.87 Q 53.91 42.32 54.85 51.43 L 55.15 51.25 Q 47.73 45.89 35.13 36.81 Z" fill="url(#bladeA)"/>
+    <path d="M 35.13 83.19 Q 47.73 74.11 55.15 68.75 L 54.85 68.57 Q 53.91 77.68 52.35 93.13 Z" fill="url(#bladeA)"/>
+    <path d="M 84.87 36.81 Q 72.27 45.89 64.85 51.25 L 65.15 51.43 Q 66.09 42.32 67.65 26.87 Z" fill="url(#bladeB)"/>
+    <path d="M 27.49 50.06 Q 41.64 56.43 50.00 60.17 L 50.00 59.83 Q 41.64 63.57 27.49 69.94 Z" fill="url(#bladeB)"/>
+    <path d="M 67.65 93.13 Q 66.09 77.68 65.15 68.57 L 64.85 68.75 Q 72.27 74.11 84.87 83.19 Z" fill="url(#bladeB)"/>
+  </g>
+
+  <!-- glowing aperture core -->
+  <circle cx="60" cy="60" r="9" fill="url(#core4)" filter="url(#coreGlow)"/>
+</svg>
