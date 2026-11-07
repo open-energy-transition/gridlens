@@ -1,0 +1,50 @@
+[
+  {
+    "date": "7 Nov 2026",
+    "tag": "added",
+    "title": "UPME (Colombia) confirmed as a PLEXOS direct user",
+    "description": "Colombia's national energy planning unit's own 2020-2034 expansion plan states it acquired PLEXOS v8.2 — reversing 4 prior independent negative searches."
+  },
+  {
+    "date": "7 Nov 2026",
+    "tag": "added",
+    "title": "GRIDCo (Ghana Grid Company Limited) added",
+    "description": "Found via a World Bank procurement contract-award record, distinct from the existing Ghana Energy Commission entry."
+  },
+  {
+    "date": "7 Nov 2026",
+    "tag": "reclassified",
+    "title": "OCCTO (Japan) reversed from rejected to confirmed",
+    "description": "OCCTO's own committee materials (2018–2025) describing a multi-year internal PLEXOS-based evaluation outweighed the earlier data-source-only rejection."
+  },
+  {
+    "date": "7 Nov 2026",
+    "tag": "removed",
+    "title": "Tetra Tech / Turkmenistan entry removed",
+    "description": "Downgraded and removed after a second-pass evidence review found the original source didn't name Turkmenistan specifically."
+  },
+  {
+    "date": "7 Nov 2026",
+    "tag": "reclassified",
+    "title": "NEXT Group (South Korea) role corrected",
+    "description": "Changed from consultant_modeler to research_user to reflect its actual co-equal research role in the engagement."
+  },
+  {
+    "date": "6 Nov 2026",
+    "tag": "added",
+    "title": "62 new organizations added in a global expansion pass",
+    "description": "PJM, MISO, NESO (UK), TenneT, KPX, Eskom, and dozens more confirmed across North America, Europe, Asia, and Africa/Middle East."
+  },
+  {
+    "date": "7 Nov 2026",
+    "tag": "added",
+    "title": "New \"subject of study\" use cases added",
+    "description": "GECOL (Libya), Sudan Electricity Holding Company, and EMS (Serbia) added as organizations passively modeled in someone else's PLEXOS study, not direct users themselves."
+  },
+  {
+    "date": "Oct–Nov 2026",
+    "tag": "coverage",
+    "title": "Tracked country coverage expanded to 200 countries",
+    "description": "Grew from 163 to the full 200-country world list, surfacing gaps in Central Africa, the Pacific, and Caribbean microstates."
+  }
+]

@@ -1,0 +1,201 @@
+country,region,checklist_status
+United States,North America,covered
+Canada,North America,covered
+Mexico,North America,covered
+Guatemala,Central America,gap_confirmed
+Belize,Central America,gap_confirmed
+Honduras,Central America,gap_confirmed
+El Salvador,Central America,gap_confirmed
+Nicaragua,Central America,gap_confirmed
+Costa Rica,Central America,gap_confirmed
+Panama,Central America,gap_confirmed
+Cuba,Caribbean,gap_confirmed
+Dominican Republic,Caribbean,covered
+Haiti,Caribbean,gap_confirmed
+Jamaica,Caribbean,covered
+Trinidad and Tobago,Caribbean,covered
+Bahamas,Caribbean,covered
+Puerto Rico,Caribbean,covered
+Brazil,South America,covered
+Argentina,South America,covered
+Chile,South America,covered
+Peru,South America,covered
+Colombia,South America,covered
+Venezuela,South America,gap_confirmed
+Ecuador,South America,gap_confirmed
+Bolivia,South America,gap_confirmed
+Paraguay,South America,gap_confirmed
+Uruguay,South America,gap_confirmed
+Guyana,South America,covered
+Suriname,South America,gap_confirmed
+Sweden,Nordics,covered
+Norway,Nordics,covered
+Denmark,Nordics,gap_confirmed
+Finland,Nordics,covered
+Iceland,Nordics,gap_confirmed
+United Kingdom,Western Europe,covered
+Ireland,Western Europe,covered
+Germany,Western Europe,covered
+France,Western Europe,covered
+Netherlands,Western Europe,covered
+Belgium,Western Europe,covered
+Luxembourg,Western Europe,gap_confirmed
+Switzerland,Western Europe,covered
+Austria,Western Europe,covered
+Spain,Southern Europe,covered
+Portugal,Southern Europe,covered
+Italy,Southern Europe,covered
+Greece,Southern Europe,covered
+Malta,Southern Europe,gap_confirmed
+Cyprus,Southern Europe,gap_confirmed
+Poland,Eastern Europe,gap_confirmed
+Czech Republic,Eastern Europe,covered
+Slovakia,Eastern Europe,gap_confirmed
+Hungary,Eastern Europe,covered
+Romania,Eastern Europe,gap_confirmed
+Bulgaria,Eastern Europe,covered
+Ukraine,Eastern Europe,covered
+Belarus,Eastern Europe,gap_confirmed
+Moldova,Eastern Europe,covered
+Russia,Eastern Europe,covered
+Croatia,Balkans,covered
+Serbia,Balkans,covered
+Bosnia and Herzegovina,Balkans,covered
+Slovenia,Balkans,covered
+North Macedonia,Balkans,covered
+Albania,Balkans,covered
+Montenegro,Balkans,covered
+Kosovo,Balkans,covered
+Estonia,Baltics,covered
+Latvia,Baltics,covered
+Lithuania,Baltics,covered
+Saudi Arabia,Middle East,covered
+United Arab Emirates,Middle East,covered
+Qatar,Middle East,covered
+Kuwait,Middle East,gap_confirmed
+Bahrain,Middle East,gap_confirmed
+Oman,Middle East,covered
+Israel,Middle East,covered
+Jordan,Middle East,covered
+Lebanon,Middle East,covered
+Iraq,Middle East,gap_confirmed
+Iran,Middle East,gap_confirmed
+Yemen,Middle East,gap_confirmed
+Syria,Middle East,gap_confirmed
+Egypt,North Africa,covered
+Libya,North Africa,covered
+Tunisia,North Africa,covered
+Algeria,North Africa,covered
+Morocco,North Africa,covered
+Sudan,North Africa,covered
+Nigeria,West Africa,covered
+Ghana,West Africa,covered
+Senegal,West Africa,covered
+Ivory Coast,West Africa,covered
+Mali,West Africa,covered
+Guinea,West Africa,covered
+Benin,West Africa,covered
+Togo,West Africa,covered
+Sierra Leone,West Africa,covered
+Liberia,West Africa,covered
+Burkina Faso,West Africa,covered
+Niger,West Africa,covered
+Kenya,East Africa,gap_confirmed
+Tanzania,East Africa,covered
+Uganda,East Africa,covered
+Ethiopia,East Africa,covered
+Rwanda,East Africa,covered
+Burundi,East Africa,gap_confirmed
+Somalia,East Africa,gap_confirmed
+Djibouti,East Africa,gap_confirmed
+Eritrea,East Africa,gap_confirmed
+South Sudan,East Africa,covered
+South Africa,Southern Africa,covered
+Zimbabwe,Southern Africa,covered
+Zambia,Southern Africa,covered
+Botswana,Southern Africa,covered
+Namibia,Southern Africa,covered
+Mozambique,Southern Africa,covered
+Malawi,Southern Africa,covered
+Lesotho,Southern Africa,covered
+Eswatini,Southern Africa,covered
+Angola,Southern Africa,gap_confirmed
+DRC,Southern Africa,covered
+India,South Asia,covered
+Pakistan,South Asia,covered
+Bangladesh,South Asia,covered
+Sri Lanka,South Asia,covered
+Nepal,South Asia,gap_confirmed
+Bhutan,South Asia,covered
+Afghanistan,South Asia,gap_confirmed
+Maldives,South Asia,gap_confirmed
+China,East Asia,covered
+Japan,East Asia,covered
+South Korea,East Asia,covered
+North Korea,East Asia,gap_confirmed
+Taiwan,East Asia,covered
+Mongolia,East Asia,covered
+Hong Kong,East Asia,covered
+Indonesia,Southeast Asia,covered
+Thailand,Southeast Asia,covered
+Vietnam,Southeast Asia,covered
+Philippines,Southeast Asia,covered
+Malaysia,Southeast Asia,covered
+Singapore,Southeast Asia,covered
+Myanmar,Southeast Asia,covered
+Cambodia,Southeast Asia,gap_confirmed
+Laos,Southeast Asia,covered
+Brunei,Southeast Asia,gap_confirmed
+Timor-Leste,Southeast Asia,gap_confirmed
+Kazakhstan,Central Asia,covered
+Uzbekistan,Central Asia,covered
+Turkmenistan,Central Asia,gap_confirmed
+Kyrgyzstan,Central Asia,gap_confirmed
+Tajikistan,Central Asia,gap_confirmed
+Georgia,Caucasus,covered
+Armenia,Caucasus,covered
+Azerbaijan,Caucasus,covered
+Australia,Oceania,covered
+New Zealand,Oceania,covered
+Papua New Guinea,Oceania,gap_confirmed
+Fiji,Oceania,gap_confirmed
+Solomon Islands,Oceania,gap_confirmed
+Vanuatu,Oceania,gap_confirmed
+Samoa,Oceania,gap_confirmed
+Andorra,Western Europe,gap_confirmed
+Antigua and Barbuda,Caribbean,gap_confirmed
+Barbados,Caribbean,covered
+Cabo Verde,West Africa,gap_confirmed
+Cameroon,Central Africa,gap_confirmed
+Central African Republic,Central Africa,gap_confirmed
+Chad,Central Africa,candidate_pending
+Comoros,East Africa,gap_confirmed
+Congo (Republic of the),Central Africa,gap_confirmed
+Democratic Republic of the Congo,Central Africa,covered
+Dominica,Caribbean,covered
+Equatorial Guinea,Central Africa,gap_confirmed
+Gabon,Central Africa,gap_confirmed
+Gambia,West Africa,covered
+Grenada,Caribbean,gap_confirmed
+Guinea-Bissau,West Africa,gap_confirmed
+Kiribati,Oceania,gap_confirmed
+Liechtenstein,Western Europe,gap_confirmed
+Madagascar,East Africa,gap_confirmed
+Marshall Islands,Oceania,gap_confirmed
+Mauritania,West Africa,gap_confirmed
+Mauritius,East Africa,gap_confirmed
+Micronesia,Oceania,gap_confirmed
+Monaco,Western Europe,gap_confirmed
+Nauru,Oceania,gap_confirmed
+Palau,Oceania,gap_confirmed
+Palestine,Middle East,gap_confirmed
+Saint Kitts and Nevis,Caribbean,covered
+Saint Lucia,Caribbean,covered
+Saint Vincent and the Grenadines,Caribbean,gap_confirmed
+San Marino,Southern Europe,gap_confirmed
+Sao Tome and Principe,Central Africa,gap_confirmed
+Seychelles,East Africa,gap_confirmed
+Tonga,Oceania,gap_confirmed
+Turkey,Middle East,covered
+Tuvalu,Oceania,gap_confirmed
+Vatican City,Southern Europe,gap_confirmed
