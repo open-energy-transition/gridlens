@@ -94,18 +94,22 @@ DEPLOYMENT.md                  How to publish a build (GitHub Pages / Vercel / N
 
 data/
   raw/catalogue.jsonl            The entire dataset, one JSON object per line — edit to add any finding
+  raw/incoming/                   Staging dir for parallel research batches (see merge_batches.py)
   schema.json                     machine-checkable field contract (required fields, enums)
   catalogue_merged.csv            generated, do not hand-edit
   DATA_SCHEMA.md                  field reference + evidence standards
 
 research/
-  RESEARCH_PLAYBOOK.md            proven search techniques + taxonomy discipline
+  RESEARCH_PLAYBOOK.md            proven search techniques + taxonomy discipline + parallel-agent workflow
   world_country_checklist.csv     per-country coverage tracker
+  known_institutions.csv          generated context export for research agents (npm run export-known-institutions)
   history/                        point-in-time reports from the original research build
 
 scripts/
   validate_dataset.py              schema/enum/duplicate/alias checks
   sync_dataset.py                  regenerates the merged dataset + the app's bundled JSON
+  merge_batches.py                 merges parallel research batches into catalogue.jsonl
+  export_known_institutions.py     exports research/known_institutions.csv
 
 src/                              React + TypeScript app (Vite + Tailwind v4)
   data/catalogue.json              generated, what the app actually imports

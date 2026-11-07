@@ -13,7 +13,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "validate-data": "python3 scripts/validate_dataset.py",
-    "sync-data": "python3 scripts/validate_dataset.py && python3 scripts/sync_dataset.py"
+    "sync-data": "python3 scripts/validate_dataset.py && python3 scripts/sync_dataset.py",
+    "merge-batches": "python3 scripts/merge_batches.py",
+    "export-known-institutions": "python3 scripts/export_known_institutions.py"
   },
   "dependencies": {
     "lucide-react": "^1.70.0",

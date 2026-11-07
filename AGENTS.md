@@ -50,8 +50,10 @@ research/
   history/                       Point-in-time summaries from the original 419-organization research build (historical reference only, not maintained going forward)
 
 scripts/
-  validate_dataset.py            Run before every data change: schema/enum/duplicate/alias checks
-  sync_dataset.py                Regenerates data/catalogue_merged.csv + src/data/catalogue.json from the two raw CSVs
+  validate_dataset.py            Run before every data change: schema/enum/duplicate/alias checks against data/schema.json
+  sync_dataset.py                Regenerates data/catalogue_merged.csv + src/data/catalogue.json from catalogue.jsonl
+  merge_batches.py                Merges parallel research batches from data/raw/incoming/ into catalogue.jsonl (id-collision + duplicate checking)
+  export_known_institutions.py    Exports research/known_institutions.csv -- give this to research agents as context to avoid re-finding/duplicating known orgs
 
 src/                              The React + TypeScript app (Vite + Tailwind v4)
   data/catalogue.json             What the app imports — generated, never hand-edit
@@ -78,8 +80,10 @@ npm install
 npm run dev              # local dev server, http://localhost:5173
 npm run build             # tsc -b && vite build — must be 0 TypeScript errors before committing
 npm run test              # vitest — pure-logic regression tests (filters, choropleth bucket math)
-npm run validate-data     # check data/raw/*.csv before syncing
+npm run validate-data     # check data/raw/catalogue.jsonl against data/schema.json before syncing
 npm run sync-data         # validate, then regenerate catalogue_merged.csv + src/data/catalogue.json
+npm run merge-batches     # merge parallel research batches from data/raw/incoming/ into catalogue.jsonl
+npm run export-known-institutions  # regenerate research/known_institutions.csv for research-agent context
 ```
 Node version is pinned in `.nvmrc`. CI (`.github/workflows/ci.yml`) runs
 validate-data → sync-data (failing if that produces an uncommitted diff) →
@@ -87,10 +91,15 @@ test → build → lint on every push/PR — all four must pass.
 
 ## Workflow: contributing a dataset change
 
-1. Read `data/DATA_SCHEMA.md` (which raw file, which columns, which enum values).
-2. Add/edit/remove the row in the correct `data/raw/*.csv`. Never hand-edit
+1. Read `data/DATA_SCHEMA.md` (field reference, enum values).
+2. Append one JSON line to `data/raw/catalogue.jsonl`. Never hand-edit
    `data/catalogue_merged.csv` or `src/data/catalogue.json` — they're
    generated and will be overwritten.
+   - **Running more than one agent at once?** Don't write to
+     `catalogue.jsonl` directly from parallel workers — see
+     `research/RESEARCH_PLAYBOOK.md`'s "Running multiple research agents
+     in parallel" section (reserved id prefixes, `data/raw/incoming/`
+     staging, `npm run merge-batches`).
 3. `npm run sync-data` (runs validation first, then regenerates).
 4. Add a dated entry to `src/data/changelog.json` per
    `CHANGELOG_MAINTENANCE.md` — **every** organization added/removed/
@@ -100,7 +109,7 @@ test → build → lint on every push/PR — all four must pass.
    directly on artificialanalysis.ai's own changelog, which is 100% data
    events, zero UI announcements).
 5. `npm run build` — confirm it's still clean.
-6. Commit the raw CSV diff + regenerated `catalogue_merged.csv`/
+6. Commit the `catalogue.jsonl` diff + regenerated `catalogue_merged.csv`/
    `catalogue.json` + the changelog entry together, in one commit.
 
 ## Workflow: contributing an app change
@@ -140,11 +149,15 @@ codebase, follow them rather than introducing a new pattern:
 This repo is designed so a scheduled LLM agent (e.g. a weekly cron job) can
 run `research/RESEARCH_PLAYBOOK.md`'s loop autonomously: pick a gap from
 `research/world_country_checklist.csv`, search using the documented
-techniques, append verified findings to `data/raw/*.csv`, update the
-changelog, validate, sync, build, and open a pull request. If you are that
-agent: open a PR rather than pushing to main directly, and keep the PR
+techniques, append verified findings to `data/raw/catalogue.jsonl`, update
+the changelog, validate, sync, build, and open a pull request. If you are
+that agent: open a PR rather than pushing to main directly, and keep the PR
 scoped to one wave's findings (not a mix of dataset changes and unrelated
-app changes) so a human reviewer can evaluate the evidence quickly.
+app changes) so a human reviewer can evaluate the evidence quickly. If
+you're dispatching **multiple parallel sub-agents** for one wave, see
+`research/RESEARCH_PLAYBOOK.md`'s "Running multiple research agents in
+parallel" section first — don't have them write to `catalogue.jsonl`
+directly.
 
 ## Design history
 

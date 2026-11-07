@@ -19,6 +19,16 @@ summary.
    new status.
 5. `npm run sync-data`, add a changelog entry, `npm run build`, commit.
 
+## Running more than one agent at once
+
+**Never write directly to `catalogue.jsonl` from multiple agents in
+parallel** — see `RESEARCH_PLAYBOOK.md`'s "Running multiple research
+agents in parallel" section for the full workflow. Short version: each
+parallel worker gets a reserved unique id prefix and writes only to its
+own file under `data/raw/incoming/`; one `npm run merge-batches` call
+afterward consolidates everything with id-collision and duplicate
+checking before anything touches `catalogue.jsonl`.
+
 ## Don't delete a rejected lead
 
 A `status=rejected` row stays in the CSV (not deleted) so a future wave
