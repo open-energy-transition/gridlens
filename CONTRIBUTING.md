@@ -13,11 +13,11 @@ contributors and from scheduled LLM research agents.
    values.
 2. Read `research/RESEARCH_PLAYBOOK.md` — proven search techniques and
    evidence standards, so you're not starting from zero.
-3. Add/edit a row in `data/raw/plexos_organizations.csv` (PLEXOS-specific)
-   or `data/raw/upstream_baseline.csv` (any other tool).
+3. Append one JSON line to `data/raw/catalogue.jsonl` for the new
+   organization/tool (any tool, not just PLEXOS — it's one unified file).
 4. `npm run sync-data` to regenerate the merged dataset.
 5. Add a `src/data/changelog.json` entry per `CHANGELOG_MAINTENANCE.md`.
-6. Open a PR with: the raw CSV diff, the regenerated
+6. Open a PR with: the `catalogue.jsonl` diff, the regenerated
    `data/catalogue_merged.csv` + `src/data/catalogue.json`, the changelog
    entry, and **a source URL for every new/changed claim** in the PR
    description.

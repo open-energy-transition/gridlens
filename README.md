@@ -93,10 +93,10 @@ DEPLOYMENT.md                  How to publish a build (GitHub Pages / Vercel / N
 .nvmrc                         Pinned Node version
 
 data/
-  raw/plexos_organizations.csv   PLEXOS-specific research dataset — edit to add a PLEXOS finding
-  raw/upstream_baseline.csv      Any-other-tool dataset — edit to add a non-PLEXOS finding
+  raw/catalogue.jsonl            The entire dataset, one JSON object per line — edit to add any finding
+  schema.json                     machine-checkable field contract (required fields, enums)
   catalogue_merged.csv            generated, do not hand-edit
-  DATA_SCHEMA.md                  column reference + evidence standards
+  DATA_SCHEMA.md                  field reference + evidence standards
 
 research/
   RESEARCH_PLAYBOOK.md            proven search techniques + taxonomy discipline

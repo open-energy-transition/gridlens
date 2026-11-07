@@ -13,8 +13,8 @@ summary.
    (planning docs, procurement notices), then development-bank procurement
    APIs, then LinkedIn/vendor-archive/non-English-language search — see
    `RESEARCH_PLAYBOOK.md` for which have actually worked and why.
-3. Add confirmed findings to `../data/raw/plexos_organizations.csv` (or
-   `upstream_baseline.csv` for non-PLEXOS tools) — see `../data/AGENTS.md`.
+3. Add confirmed findings to `../data/raw/catalogue.jsonl` (one unified
+   file for every tool) — see `../data/AGENTS.md`.
 4. Update this folder's `world_country_checklist.csv` with the country's
    new status.
 5. `npm run sync-data`, add a changelog entry, `npm run build`, commit.

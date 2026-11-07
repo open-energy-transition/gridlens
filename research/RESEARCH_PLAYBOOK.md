@@ -16,8 +16,8 @@ LLM agent (or a human) picking this up cold, with no other context.
    (see `data/DATA_SCHEMA.md`), the source URL, and — critically — enough
    of a quote/paraphrase in `notes` that a future reviewer doesn't have to
    re-fetch the source to understand why it counts as evidence.
-4. Append the row to `data/raw/plexos_organizations.csv` (or
-   `data/raw/upstream_baseline.csv` for non-PLEXOS tools) with
+4. Append one JSON line to `data/raw/catalogue.jsonl` (one unified file
+   for every tool, not just PLEXOS) with
    `status=confirmed` only if the evidence is solid; use `status=candidate`
    for a lead that needs a second look, `status=rejected` for a dead end
    (keep it, don't delete — see below).
