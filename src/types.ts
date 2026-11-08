@@ -14,10 +14,13 @@ export interface CatalogueRecord {
   why_it_supports_the_claim: string;
   notes: string;
   dataset_origin: string;
+  decision_type: string;
+  decision_basis: string;
 }
 
 export interface Filters {
   country: string;
+  toolName: string;
   toolCategory: string;
   evidenceStrength: string;
   sourceType: string;
@@ -26,6 +29,7 @@ export interface Filters {
 
 export const EMPTY_FILTERS: Filters = {
   country: 'All',
+  toolName: 'All',
   toolCategory: 'All',
   evidenceStrength: 'All',
   sourceType: 'All',
@@ -36,6 +40,7 @@ export type Section =
   | 'overview'
   | 'geographic'
   | 'tools'
+  | 'decisions'
   | 'institutions'
   | 'top-users'
   | 'records'

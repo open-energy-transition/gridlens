@@ -1,12 +1,17 @@
 #!/usr/bin/env python3
 """
-Validate the raw data files before syncing them into the app.
+Validate data/raw/catalogue.jsonl before syncing it into the app.
 
 Run this BEFORE scripts/sync_dataset.py, on every data change (new rows,
 edits, removals). Catches the mistakes an LLM agent or a new contributor is
-most likely to make: wrong enum value, missing required field, duplicate
-candidate_id, a country spelled two different ways (which would split one
-country into two choropleth entries on the map).
+most likely to make: wrong enum value, missing required field, duplicate id,
+a country spelled two different ways (which would split one country into two
+choropleth entries on the map), a likely duplicate institution+tool pair.
+
+The field-by-field contract lives in data/schema.json (required fields,
+enums) -- this script reads that file as the single source of truth rather
+than duplicating the enum lists here. data/DATA_SCHEMA.md explains the
+rationale behind each field in prose.
 
 Usage:
   python3 scripts/validate_dataset.py
@@ -14,40 +19,14 @@ Usage:
 
 Exit code 0 = clean, 1 = problems found (prints them, does not fix anything).
 """
-import csv
+import json
 import sys
-from collections import Counter, defaultdict
+from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-PLEXOS_RAW = ROOT / "data" / "raw" / "plexos_organizations.csv"
-UPSTREAM_RAW = ROOT / "data" / "raw" / "upstream_baseline.csv"
-
-PLEXOS_REQUIRED_COLS = [
-    "candidate_id", "organization_name", "country", "category", "role",
-    "plexos_mentioned", "source_url", "ledger_id", "evidence_classification",
-    "historical_or_current", "already_represented", "batch_id", "status", "notes",
-]
-PLEXOS_REQUIRED_NONEMPTY = ["candidate_id", "organization_name", "country", "role", "source_url"]
-VALID_ROLES = {
-    "direct_user", "commissioner", "consultant_modeler", "research_user",
-    "subject_of_study", "qa_reviewer", "rejected",
-}
-VALID_EVIDENCE = {
-    "confirmed", "confirmed_commissioner", "confirmed_consultant_modeler",
-    "confirmed_direct_user", "confirmed_qa_reviewer", "confirmed_research_user",
-    "confirmed_subject_of_study", "probable", "probable_direct_user",
-}
-VALID_STATUS = {"confirmed", "candidate", "rejected", "gap_confirmed"}
-VALID_HISTORICAL = {"current", "historical"}
-
-UPSTREAM_REQUIRED_COLS = [
-    "country_label", "institution_name", "official_website", "tool_name",
-    "tool_category", "use_case", "evidence_strength", "source_type",
-    "source_title", "source_date", "source_link", "exact_snippet_or_quote",
-    "why_it_supports_the_claim", "notes",
-]
-VALID_EVIDENCE_STRENGTH = {"HIGH", "MEDIUM", "LOW"}
+CATALOGUE_RAW = ROOT / "data" / "raw" / "catalogue.jsonl"
+SCHEMA_PATH = ROOT / "data" / "schema.json"
 
 # Known alias clusters -- flag if more than one spelling of the SAME country
 # appears, since that silently splits one country into two choropleth
@@ -71,91 +50,110 @@ COUNTRY_ALIASES = [
 ]
 
 
-def load_csv(path: Path) -> list[dict]:
-    with path.open(newline="", encoding="utf-8") as f:
-        return list(csv.DictReader(f))
+def load_schema() -> dict:
+    return json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
 
 
-def check_columns(rows: list[dict], required: list[str], label: str, errors: list[str]) -> None:
-    if not rows:
-        errors.append(f"{label}: file is empty")
-        return
-    actual = set(rows[0].keys())
-    missing = [c for c in required if c not in actual]
-    if missing:
-        errors.append(f"{label}: missing column(s) {missing}")
-
-
-def validate_plexos(errors: list[str], warnings: list[str]) -> list[dict]:
-    rows = load_csv(PLEXOS_RAW)
-    check_columns(rows, PLEXOS_REQUIRED_COLS, "plexos_organizations.csv", errors)
-
-    seen_ids = Counter()
-    countries_seen = set()
-    for i, row in enumerate(rows, start=2):  # start=2: row 1 is the header
-        for col in PLEXOS_REQUIRED_NONEMPTY:
-            if not (row.get(col) or "").strip():
-                errors.append(f"plexos_organizations.csv line {i}: empty required field '{col}'")
-        role = (row.get("role") or "").strip()
-        if role and role not in VALID_ROLES:
-            errors.append(f"plexos_organizations.csv line {i}: invalid role '{role}' (valid: {sorted(VALID_ROLES)})")
-        status = (row.get("status") or "").strip()
-        if status and status not in VALID_STATUS:
-            warnings.append(f"plexos_organizations.csv line {i}: unusual status '{status}' (expected one of {sorted(VALID_STATUS)})")
-        ev = (row.get("evidence_classification") or "").strip()
-        if ev and ev not in VALID_EVIDENCE:
-            errors.append(f"plexos_organizations.csv line {i}: invalid evidence_classification '{ev}'")
-        hist = (row.get("historical_or_current") or "").strip()
-        if hist and hist not in VALID_HISTORICAL:
-            errors.append(f"plexos_organizations.csv line {i}: invalid historical_or_current '{hist}'")
-        cid = (row.get("candidate_id") or "").strip()
-        if cid:
-            seen_ids[cid] += 1
-        countries_seen.add((row.get("country") or "").strip())
-
-    dupes = [cid for cid, n in seen_ids.items() if n > 1]
-    if dupes:
-        errors.append(f"plexos_organizations.csv: duplicate candidate_id(s): {dupes}")
-
-    for cluster in COUNTRY_ALIASES:
-        hit = cluster & countries_seen
-        if len(hit) > 1:
-            warnings.append(f"plexos_organizations.csv: country alias split detected: {sorted(hit)} "
-                             f"-- pick one canonical spelling, see data/DATA_SCHEMA.md")
-    return rows
-
-
-def validate_upstream(errors: list[str], warnings: list[str]) -> list[dict]:
-    rows = load_csv(UPSTREAM_RAW)
-    check_columns(rows, UPSTREAM_REQUIRED_COLS, "upstream_baseline.csv", errors)
-    countries_seen = set()
-    for i, row in enumerate(rows, start=2):
-        if not (row.get("institution_name") or "").strip():
-            errors.append(f"upstream_baseline.csv line {i}: empty institution_name")
-        if not (row.get("tool_name") or "").strip():
-            errors.append(f"upstream_baseline.csv line {i}: empty tool_name")
-        ev = (row.get("evidence_strength") or "").strip()
-        if ev and ev not in VALID_EVIDENCE_STRENGTH:
-            errors.append(f"upstream_baseline.csv line {i}: invalid evidence_strength '{ev}' (expected HIGH/MEDIUM/LOW)")
-        countries_seen.add((row.get("country_label") or "").strip())
-
-    for cluster in COUNTRY_ALIASES:
-        hit = cluster & countries_seen
-        if len(hit) > 1:
-            warnings.append(f"upstream_baseline.csv: country alias split detected: {sorted(hit)}")
+def load_jsonl(path: Path) -> list[tuple[int, dict]]:
+    rows = []
+    with path.open(encoding="utf-8") as f:
+        for lineno, line in enumerate(f, start=1):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rows.append((lineno, json.loads(line)))
+            except json.JSONDecodeError as e:
+                rows.append((lineno, {"__parse_error__": str(e)}))
     return rows
 
 
 def main() -> int:
+    if not CATALOGUE_RAW.exists():
+        print(f"ERROR: missing {CATALOGUE_RAW}", file=sys.stderr)
+        return 1
+
+    schema = load_schema()
+    props = schema["properties"]
+    required = set(schema["required"])
+    enums = {name: set(spec["enum"]) for name, spec in props.items() if "enum" in spec}
+    known_fields = set(props.keys())
+
     errors: list[str] = []
     warnings: list[str] = []
 
-    plexos_rows = validate_plexos(errors, warnings)
-    upstream_rows = validate_upstream(errors, warnings)
+    parsed = load_jsonl(CATALOGUE_RAW)
+    seen_ids: Counter = Counter()
+    countries_seen: set[str] = set()
+    institution_tool_seen: Counter = Counter()
 
-    confirmed = [r for r in plexos_rows if (r.get("status") or "").strip() == "confirmed"]
-    print(f"plexos_organizations.csv: {len(plexos_rows)} rows ({len(confirmed)} confirmed, will be synced)")
-    print(f"upstream_baseline.csv: {len(upstream_rows)} rows")
+    for lineno, row in parsed:
+        if "__parse_error__" in row:
+            errors.append(f"catalogue.jsonl line {lineno}: invalid JSON ({row['__parse_error__']})")
+            continue
+
+        extra_fields = set(row.keys()) - known_fields
+        if extra_fields:
+            errors.append(f"catalogue.jsonl line {lineno}: unknown field(s) {sorted(extra_fields)} -- not in data/schema.json")
+
+        for field in required:
+            val = row.get(field)
+            if val is None or (isinstance(val, str) and not val.strip()):
+                errors.append(f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): missing required field '{field}'")
+
+        for field, allowed in enums.items():
+            val = row.get(field, "")
+            if val and val not in allowed:
+                errors.append(f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): invalid {field}='{val}' (valid: {sorted(allowed)})")
+
+        if not (row.get("institution_category") or "").strip():
+            warnings.append(f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): institution_category is empty -- fill it in when you know the organization's sector")
+
+        decision_type = (row.get("decision_type") or "").strip()
+        decision_basis = (row.get("decision_basis") or "").strip()
+        if decision_type and not decision_basis:
+            warnings.append(
+                f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): decision_type is set but decision_basis "
+                f"is blank -- sync_dataset.py will default it to 'documented', only correct if use_case/"
+                f"exact_snippet_or_quote actually supports that decision_type"
+            )
+
+        rid = (row.get("id") or "").strip()
+        if rid:
+            seen_ids[rid] += 1
+
+        country = (row.get("country_label") or "").strip()
+        if country:
+            countries_seen.add(country)
+
+        if (row.get("status") or "").strip() == "confirmed":
+            # Keyed on institution+tool+country -- institution+tool alone is too
+            # noisy (a consultancy legitimately using the same tool across many
+            # countries is not a duplicate; the same institution+tool+country
+            # appearing twice almost always is).
+            key = (
+                row.get("institution_name", "").strip().lower(),
+                row.get("tool_name", "").strip().lower(),
+                row.get("country_label", "").strip().lower(),
+            )
+            if key != ("", "", ""):
+                institution_tool_seen[key] += 1
+
+    dupes = [rid for rid, n in seen_ids.items() if n > 1]
+    if dupes:
+        errors.append(f"catalogue.jsonl: duplicate id(s): {dupes}")
+
+    dup_pairs = [k for k, n in institution_tool_seen.items() if n > 1]
+    if dup_pairs:
+        warnings.append(f"catalogue.jsonl: same institution+tool appears in multiple confirmed rows (check for a true duplicate): {dup_pairs}")
+
+    for cluster in COUNTRY_ALIASES:
+        hit = cluster & countries_seen
+        if len(hit) > 1:
+            warnings.append(f"catalogue.jsonl: country alias split detected: {sorted(hit)} -- pick one canonical spelling, see data/DATA_SCHEMA.md")
+
+    confirmed = sum(1 for _, r in parsed if "__parse_error__" not in r and (r.get("status") or "").strip() == "confirmed")
+    print(f"catalogue.jsonl: {len(parsed)} rows ({confirmed} confirmed, will be synced)")
 
     if warnings:
         print(f"\n{len(warnings)} warning(s):")

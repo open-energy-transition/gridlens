@@ -16,13 +16,14 @@ LLM agent (or a human) picking this up cold, with no other context.
    (see `data/DATA_SCHEMA.md`), the source URL, and — critically — enough
    of a quote/paraphrase in `notes` that a future reviewer doesn't have to
    re-fetch the source to understand why it counts as evidence.
-4. Append the row to `data/raw/plexos_organizations.csv` (or
-   `data/raw/upstream_baseline.csv` for non-PLEXOS tools) with
+4. Append one JSON line to `data/raw/catalogue.jsonl` (one unified file
+   for every tool, not just PLEXOS) with
    `status=confirmed` only if the evidence is solid; use `status=candidate`
    for a lead that needs a second look, `status=rejected` for a dead end
    (keep it, don't delete — see below).
 5. Update `research/world_country_checklist.csv`: mark the country's
-   `checklist_status` (`confirmed` / `gap_confirmed` / `not_started`).
+   `checklist_status` (`covered` / `gap_confirmed` / `candidate_pending` /
+   `not_started`).
 6. Run `npm run validate-data` then `npm run sync-data`.
 7. Add an entry to `src/data/changelog.json` per `CHANGELOG_MAINTENANCE.md`
    — every add/remove/reclassify gets a dated entry there, in the same
@@ -102,12 +103,42 @@ it — that just re-confirms the same negative and wastes effort.
 
 ## Avoiding duplicates
 
-Before adding a row, check `data/catalogue_merged.csv` for the same
-institution name (watch for alias spellings — "National Grid ESO" renamed
-to "NESO", abbreviations vs. full names) and the same country under a
-different spelling (`scripts/validate_dataset.py` flags known alias
-clusters, but new ones can appear — add them to the `COUNTRY_ALIASES` list
-in that script if found).
+Before adding a row, check `research/known_institutions.csv` (regenerate
+it fresh with `npm run export-known-institutions` before a new wave) for
+the same institution name (watch for alias spellings — "National Grid ESO"
+renamed to "NESO", abbreviations vs. full names) and the same country
+under a different spelling (`scripts/validate_dataset.py` flags known
+alias clusters, but new ones can appear — add them to the
+`COUNTRY_ALIASES` list in that script if found). This file is also what
+you should hand to every parallel research agent as context in the
+workflow below, so they don't waste effort re-finding (or, worse,
+near-duplicating under a slightly different name) organizations that are
+already confirmed.
+
+## Running multiple research agents in parallel
+
+Never have more than one agent write directly to `data/raw/catalogue.jsonl`
+at the same time — concurrent writers to one file is a real corruption
+risk (interleaved writes, lost updates). Instead:
+
+1. **Before dispatching**, run `npm run export-known-institutions` fresh
+   and give every worker the resulting `research/known_institutions.csv`
+   as context (see "Avoiding duplicates" above).
+2. **Reserve each worker a unique id prefix** up front, e.g. `W23-A-`,
+   `W23-B-`, `W23-C-` for wave 23's three workers. Tell each worker to id
+   its new rows `W23-A-0001`, `W23-A-0002`, etc. — unique prefixes make
+   id collisions between workers impossible even with zero coordination
+   while they run.
+3. **Each worker writes only to its own file** under
+   `data/raw/incoming/`, e.g. `data/raw/incoming/W23-A.jsonl` — never to
+   `catalogue.jsonl` directly. See `data/raw/incoming/README.md`.
+4. **Once every worker finishes**, run `npm run merge-batches` ONCE (not
+   per-worker) — it checks every staged file for id collisions and likely
+   institution+tool+country duplicates (against both each other and the
+   existing catalogue) before writing anything, and aborts cleanly with no
+   partial write if it finds a collision.
+5. Then the normal pipeline: `npm run validate-data && npm run sync-data`,
+   changelog entry, `npm run build`, commit.
 
 ## What "done" looks like for a research wave
 

@@ -5,6 +5,7 @@ interface FilterBarProps {
   filters: Filters;
   onChange: (f: Filters) => void;
   countries: string[];
+  toolNames: string[];
   toolCategories: string[];
   evidenceStrengths: string[];
   sourceTypes: string[];
@@ -48,6 +49,7 @@ export default function FilterBar({
   filters,
   onChange,
   countries,
+  toolNames,
   toolCategories,
   evidenceStrengths,
   sourceTypes,
@@ -57,6 +59,7 @@ export default function FilterBar({
 }: FilterBarProps) {
   const hasActiveFilters =
     filters.country !== 'All' ||
+    filters.toolName !== 'All' ||
     filters.toolCategory !== 'All' ||
     filters.evidenceStrength !== 'All' ||
     filters.sourceType !== 'All' ||
@@ -82,6 +85,12 @@ export default function FilterBar({
           value={filters.country}
           options={countries}
           onChange={(v) => onChange({ ...filters, country: v })}
+        />
+        <Select
+          label="Tool"
+          value={filters.toolName}
+          options={toolNames}
+          onChange={(v) => onChange({ ...filters, toolName: v })}
         />
         <Select
           label="Tool category"
@@ -118,7 +127,7 @@ export default function FilterBar({
           <button
             type="button"
             onClick={() =>
-              onChange({ country: 'All', toolCategory: 'All', evidenceStrength: 'All', sourceType: 'All', search: '' })
+              onChange({ country: 'All', toolName: 'All', toolCategory: 'All', evidenceStrength: 'All', sourceType: 'All', search: '' })
             }
             className="flex items-center gap-1 rounded-lg border border-ink-800 px-2.5 py-1.5 text-xs font-medium text-ink-400 hover:text-ink-200"
           >

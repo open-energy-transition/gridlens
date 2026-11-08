@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/open-energy-transition/gridlens/data/schema.json",
+  "title": "GridLens catalogue record",
+  "description": "One JSON object per line in data/raw/catalogue.jsonl. See data/DATA_SCHEMA.md for the full field-by-field rationale -- this file is the machine-checkable contract scripts/validate_dataset.py enforces.",
+  "type": "object",
+  "required": [
+    "id", "institution_name", "country_label", "tool_name", "role",
+    "use_case", "evidence_strength", "source_url", "why_it_supports_the_claim",
+    "status", "historical_or_current"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+$",
+      "description": "Unique, stable identifier. Never renumber/reuse an existing id -- other rows' `notes` may cross-reference it by exact string (e.g. \"see ORG-AFME-0010\")."
+    },
+    "institution_name": { "type": "string", "minLength": 1 },
+    "institution_category": {
+      "type": "string",
+      "enum": [
+        "", "academic_research", "consultancy", "development_bank",
+        "energy_company_diversified", "government_agency", "government_regulator",
+        "industry_association", "international_body", "ngo_foundation",
+        "project_developer", "think_tank", "utility_distribution",
+        "utility_generation", "utility_iso_rto", "utility_tso", "vendor", "other"
+      ],
+      "description": "Empty string means not yet classified -- validate_dataset.py warns (not errors) on this, since older migrated rows may not have it yet. Fill it in for every new entry."
+    },
+    "official_website": { "type": "string" },
+    "country_label": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Canonical country name. Check data/DATA_SCHEMA.md's alias list before using an unfamiliar spelling."
+    },
+    "tool_name": { "type": "string", "minLength": 1 },
+    "tool_category": {
+      "type": "string",
+      "enum": [
+        "", "production_cost_uc", "capacity_expansion", "planning_expansion",
+        "market_simulation", "energy_system_optimization", "forecasting",
+        "distribution_planning", "other"
+      ]
+    },
+    "tool_explicitly_named": {
+      "type": "boolean",
+      "description": "Does the source explicitly name this tool (vs. a generic \"energy system model\")?"
+    },
+    "role": {
+      "type": "string",
+      "enum": [
+        "direct_user", "commissioner", "consultant_modeler",
+        "research_user", "subject_of_study", "qa_reviewer"
+      ]
+    },
+    "use_case": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What the tool is actually used for. Be as specific as the evidence allows -- this is what Grid Decisions classification reads."
+    },
+    "decision_type": {
+      "type": "string",
+      "enum": [
+        "", "Capacity & Resource Planning", "Unit Commitment & Dispatch",
+        "Market Operations & Price Formation", "Transmission & Network Planning",
+        "Renewable Integration & Decarbonization", "Forecasting & Scenario Analysis",
+        "Policy & Regulatory Analysis", "Academic & Research Studies",
+        "Independent & Commissioned Studies", "Other / General Modeling"
+      ],
+      "description": "Leave blank if you don't have specific evidence of the decision purpose -- scripts/sync_dataset.py will infer one from institution_category and mark decision_basis='inferred' automatically. Fill it in directly (with real evidence in use_case/exact_snippet_or_quote) when you do, and the sync script will respect it as decision_basis='documented'."
+    },
+    "decision_basis": {
+      "type": "string",
+      "enum": ["", "documented", "inferred"],
+      "description": "Leave blank -- scripts/sync_dataset.py sets this automatically based on whether decision_type was filled in directly (documented) or inferred by the script (inferred). Don't hand-set this to 'documented' unless decision_type is backed by real evidence."
+    },
+    "evidence_strength": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
+    "source_type": { "type": "string" },
+    "source_title": { "type": "string" },
+    "source_date": { "type": "string" },
+    "source_url": { "type": "string", "minLength": 1 },
+    "exact_snippet_or_quote": {
+      "type": "string",
+      "description": "A direct quote, strongly preferred over paraphrase. See data/DATA_SCHEMA.md's evidence standards."
+    },
+    "why_it_supports_the_claim": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["confirmed", "candidate", "rejected", "gap_confirmed"],
+      "description": "Only status=confirmed rows sync into the app."
+    },
+    "historical_or_current": { "type": "string", "enum": ["current", "historical"] },
+    "batch_id": {
+      "type": "string",
+      "description": "Free-text provenance tag for which research pass/session found this row, e.g. 'weekly_llm_scan_2027w03'. Shown to end users as the record's dataset origin."
+    },
+    "notes": { "type": "string" }
+  }
+}

@@ -10,7 +10,7 @@
 
 ## Dataset contributions only
 
-- [ ] Added/edited the row in `data/raw/plexos_organizations.csv` or `data/raw/upstream_baseline.csv` (not the generated files)
+- [ ] Added/edited the line in `data/raw/catalogue.jsonl` (not the generated files)
 - [ ] Ran `npm run sync-data` and committed the regenerated `data/catalogue_merged.csv` + `src/data/catalogue.json`
 - [ ] Added a `src/data/changelog.json` entry per `CHANGELOG_MAINTENANCE.md`
 - [ ] Every new/changed claim has a working source URL (linked above)

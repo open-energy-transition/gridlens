@@ -1,19 +1,28 @@
 # AGENTS.md — data/
 
 Before touching anything in this directory, read `data/DATA_SCHEMA.md` in
-full — it has the complete column reference, enum values, and evidence
+full — it has the complete field reference, enum values, and evidence
 standards. This file is just the auto-loaded summary.
 
-## The two files you actually edit
+## The one file you edit
 
-- `raw/plexos_organizations.csv` — new PLEXOS-specific organization? Add a
-  row here. Required: `candidate_id` (unique), `organization_name`,
-  `country`, `role` (one of `direct_user`/`commissioner`/
-  `consultant_modeler`/`research_user`/`subject_of_study`/`qa_reviewer`/
-  `rejected`), `source_url`, `evidence_classification`, `status` (only
-  `status=confirmed` rows sync into the app).
-- `raw/upstream_baseline.csv` — new organization using any OTHER tool
-  (PyPSA, Antares, etc.)? Add a row here, in the app's own display schema.
+- `raw/catalogue.jsonl` — the entire dataset, one JSON object per line,
+  every organization/tool across PLEXOS and every other energy-system-
+  modelling tool. **Append one line for a new organization**, using an
+  existing line as a template. Required: `id` (unique, never reuse/renumber
+  — other rows cross-reference ids by exact string in `notes`),
+  `institution_name`, `country_label`, `tool_name`, `role` (one of
+  `direct_user`/`commissioner`/`consultant_modeler`/`research_user`/
+  `subject_of_study`/`qa_reviewer`), `use_case`, `evidence_strength`
+  (`HIGH`/`MEDIUM`/`LOW`), `source_url`, `why_it_supports_the_claim`,
+  `status` (only `status=confirmed` rows sync into the app),
+  `historical_or_current`.
+- Leave `decision_type`/`decision_basis` blank unless you have real
+  evidence for the specific grid-decision purpose — `sync_dataset.py`
+  infers them automatically otherwise and marks that honestly.
+- Fill in `institution_category` (enum in `data/schema.json`) for every
+  new entry — it's the fallback signal used when `decision_type` can't be
+  set directly.
 
 ## Never hand-edit
 
@@ -23,12 +32,12 @@ standards. This file is just the auto-loaded summary.
 ## After any edit
 
 ```bash
-npm run sync-data   # validates, then regenerates the two generated files above
+npm run sync-data   # validates against data/schema.json, then regenerates the two generated files above
 npm run build        # confirm the app still builds
 ```
 Then add a `../src/data/changelog.json` entry per
-`../CHANGELOG_MAINTENANCE.md` — every organization added/removed/
-reclassified needs one, in the same change.
+`../CHANGELOG_MAINTENANCE.md` for dataset-content changes (new/removed/
+reclassified organization) — not needed for pure data-quality fixes.
 
 ## Non-negotiable
 
