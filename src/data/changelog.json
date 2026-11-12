@@ -1,5 +1,11 @@
 [
   {
+    "date": "10 Nov 2026",
+    "tag": "coverage",
+    "title": "Latin America and the Caribbean searched across five modelling tools",
+    "description": "Latin America and the Caribbean grew from 40 to 213 rows and from 15 to 30 countries; confirmed rows rose from 40 to 132 (PLEXOS 52, SDDP 58, PyPSA 11, PROMOD 5, plus 6 for Brazil's NEWAVE/DECOMP/DESSEM tool chain), and confirmed rows with a verbatim quote from 6 to 120."
+  },
+  {
     "date": "9 Nov 2026",
     "tag": "coverage",
     "title": "North America re-searched across five modelling tools",
