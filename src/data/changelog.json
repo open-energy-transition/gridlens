@@ -1,5 +1,11 @@
 [
   {
+    "date": "13 Nov 2026",
+    "tag": "coverage",
+    "title": "Europe searched across five modelling tools",
+    "description": "Europe grew from 129 to 507 rows and from 32 to 40 countries; confirmed rows rose from 129 to 360 (PLEXOS 179, SDDP 30, PyPSA 95, PROMOD 2, Bid3 35, plus 19 for other tools), and confirmed rows with a verbatim quote from 34 to 348."
+  },
+  {
     "date": "10 Nov 2026",
     "tag": "coverage",
     "title": "Latin America and the Caribbean searched across five modelling tools",
