@@ -1,5 +1,11 @@
 [
   {
+    "date": "15 Nov 2026",
+    "tag": "coverage",
+    "title": "Asia and Oceania searched across five modelling tools",
+    "description": "Asia and Oceania grew from 124 to 329 rows and from 24 to 27 countries; confirmed rows rose from 124 to 254 (PLEXOS 168, SDDP 16, PyPSA 44, PROMOD 9, plus 17 for other tools), and confirmed rows with a verbatim quote from 31 to 235."
+  },
+  {
     "date": "14 Nov 2026",
     "tag": "coverage",
     "title": "Africa searched across five modelling tools",
