@@ -1,17 +1,22 @@
 import { describe, it, expect } from 'vitest';
 import { applyFilters, countBy, uniqSorted, uniqueCount, safe } from './filters';
-import type { CatalogueRecord } from '../types';
+import type { CatalogueRecord, Filters } from '../types';
+import { EMPTY_FILTERS } from '../types';
 
 function record(overrides: Partial<CatalogueRecord> = {}): CatalogueRecord {
   return {
     country_label: 'Brazil',
     institution_name: 'ONS',
+    institution_category: 'utility_iso_rto',
+    role: 'direct_user',
     official_website: '',
     tool_name: 'NEWAVE',
     tool_category: 'production_cost',
     use_case: 'Planning',
+    summary: '',
     evidence_strength: 'HIGH',
     source_type: 'news_release',
+    source_group: 'industry',
     source_title: '',
     source_date: '',
     source_link: 'https://example.com',
@@ -39,13 +44,12 @@ describe('applyFilters', () => {
   const records = [
     record({ country_label: 'Brazil', tool_name: 'NEWAVE' }),
     record({ country_label: 'United States of America', tool_name: 'PLEXOS', evidence_strength: 'MEDIUM' }),
-    record({ country_label: 'United States of America', tool_name: 'PyPSA' }),
+    record({ country_label: 'United States of America', tool_name: 'PyPSA', institution_category: 'academic_research', source_group: 'academic' }),
   ];
+  const f = (overrides: Partial<Filters> = {}): Filters => ({ ...EMPTY_FILTERS, ...overrides });
 
   it('returns everything when every filter is "All" and search is empty', () => {
-    expect(
-      applyFilters(records, { country: 'All', toolName: 'All', toolCategory: 'All', evidenceStrength: 'All', sourceType: 'All', search: '' }),
-    ).toHaveLength(3);
+    expect(applyFilters(records, f())).toHaveLength(3);
   });
 
   it('matches a category anywhere in a multi-category record', () => {
@@ -53,40 +57,39 @@ describe('applyFilters', () => {
       record({ tool_category: 'capacity_expansion; production_cost' }),
       record({ tool_category: 'power_flow_dynamics' }),
     ];
-    const f = { country: 'All', toolName: 'All', evidenceStrength: 'All', sourceType: 'All', search: '' };
-    expect(applyFilters(multi, { ...f, toolCategory: 'production_cost' })).toHaveLength(1);
-    expect(applyFilters(multi, { ...f, toolCategory: 'capacity_expansion' })).toHaveLength(1);
-    expect(applyFilters(multi, { ...f, toolCategory: 'other' })).toHaveLength(0);
+    expect(applyFilters(multi, f({ toolCategory: 'production_cost' }))).toHaveLength(1);
+    expect(applyFilters(multi, f({ toolCategory: 'capacity_expansion' }))).toHaveLength(1);
+    expect(applyFilters(multi, f({ toolCategory: 'other' }))).toHaveLength(0);
   });
 
   it('filters by country', () => {
-    const result = applyFilters(records, { country: 'Brazil', toolName: 'All', toolCategory: 'All', evidenceStrength: 'All', sourceType: 'All', search: '' });
+    const result = applyFilters(records, f({ country: 'Brazil' }));
     expect(result).toHaveLength(1);
     expect(result[0].tool_name).toBe('NEWAVE');
   });
 
   it('filters by tool name', () => {
-    const result = applyFilters(records, { country: 'All', toolName: 'PLEXOS', toolCategory: 'All', evidenceStrength: 'All', sourceType: 'All', search: '' });
+    const result = applyFilters(records, f({ toolName: 'PLEXOS' }));
     expect(result).toHaveLength(1);
     expect(result[0].tool_name).toBe('PLEXOS');
   });
 
+  it('filters by organization group, licence and source group', () => {
+    expect(applyFilters(records, f({ orgType: 'grid_operator' }))).toHaveLength(2);
+    expect(applyFilters(records, f({ orgType: 'research' }))[0].tool_name).toBe('PyPSA');
+    expect(applyFilters(records, f({ license: 'open_source' })).map((r) => r.tool_name)).toEqual(['PyPSA']);
+    expect(applyFilters(records, f({ license: 'proprietary' })).map((r) => r.tool_name)).toEqual(['PLEXOS']);
+    expect(applyFilters(records, f({ sourceGroup: 'academic' }))).toHaveLength(1);
+  });
+
   it('combines multiple filters with AND logic', () => {
-    const result = applyFilters(records, {
-      country: 'United States of America',
-      toolName: 'All',
-      toolCategory: 'All',
-      evidenceStrength: 'MEDIUM',
-      sourceType: 'All',
-      search: '',
-    });
+    const result = applyFilters(records, f({ country: 'United States of America', evidenceStrength: 'MEDIUM' }));
     expect(result).toHaveLength(1);
     expect(result[0].tool_name).toBe('PLEXOS');
   });
 
   it('free-text search matches across all fields, case-insensitively', () => {
-    const result = applyFilters(records, { country: 'All', toolName: 'All', toolCategory: 'All', evidenceStrength: 'All', sourceType: 'All', search: 'pypsa' });
-    expect(result).toHaveLength(1);
+    expect(applyFilters(records, f({ search: 'pypsa' }))).toHaveLength(1);
   });
 });
 

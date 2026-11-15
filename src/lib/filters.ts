@@ -1,5 +1,7 @@
 import type { CatalogueRecord, Filters } from '../types';
 import { splitCategories } from './toolCategories';
+import { orgGroup } from './orgTypes';
+import { toolInfo } from './tools';
 
 export function safe(value: unknown): string {
   if (value === null || value === undefined) return '';
@@ -22,7 +24,9 @@ export function applyFilters(records: CatalogueRecord[], filters: Filters): Cata
     if (filters.toolName !== 'All' && safe(r.tool_name) !== filters.toolName) return false;
     if (filters.toolCategory !== 'All' && !splitCategories(r.tool_category).includes(filters.toolCategory)) return false;
     if (filters.evidenceStrength !== 'All' && safe(r.evidence_strength) !== filters.evidenceStrength) return false;
-    if (filters.sourceType !== 'All' && safe(r.source_type) !== filters.sourceType) return false;
+    if (filters.orgType !== 'All' && orgGroup(r) !== filters.orgType) return false;
+    if (filters.license !== 'All' && toolInfo(r.tool_name)?.license !== filters.license) return false;
+    if (filters.sourceGroup !== 'All' && r.source_group !== filters.sourceGroup) return false;
     if (search) {
       const haystack = Object.values(r).map((v) => safe(v).toLowerCase()).join(' | ');
       if (!haystack.includes(search)) return false;

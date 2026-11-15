@@ -3,10 +3,13 @@ import type { CatalogueRecord } from '../types';
 const ALL_COLUMNS: (keyof CatalogueRecord)[] = [
   'country_label',
   'institution_name',
+  'institution_category',
+  'role',
   'official_website',
   'tool_name',
   'tool_category',
   'use_case',
+  'summary',
   'evidence_strength',
   'source_type',
   'source_title',

@@ -1,12 +1,16 @@
 export interface CatalogueRecord {
   country_label: string;
   institution_name: string;
+  institution_category: string;
+  role: string;
   official_website: string;
   tool_name: string;
   tool_category: string;
   use_case: string;
+  summary: string;
   evidence_strength: string;
   source_type: string;
+  source_group: string;
   source_title: string;
   source_date: string;
   source_link: string;
@@ -22,8 +26,10 @@ export interface Filters {
   country: string;
   toolName: string;
   toolCategory: string;
+  orgType: string;
+  license: string;
   evidenceStrength: string;
-  sourceType: string;
+  sourceGroup: string;
   search: string;
 }
 
@@ -31,8 +37,10 @@ export const EMPTY_FILTERS: Filters = {
   country: 'All',
   toolName: 'All',
   toolCategory: 'All',
+  orgType: 'All',
+  license: 'All',
   evidenceStrength: 'All',
-  sourceType: 'All',
+  sourceGroup: 'All',
   search: '',
 };
 

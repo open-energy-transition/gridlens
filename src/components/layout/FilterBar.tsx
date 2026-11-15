@@ -1,5 +1,8 @@
 import { Search, SlidersHorizontal, X, Menu } from 'lucide-react';
 import { categoryLabel } from '../../lib/toolCategories';
+import { orgGroupLabel, SOURCE_GROUP_LABELS } from '../../lib/orgTypes';
+import { LICENSE_LABELS } from '../../lib/tools';
+import { EMPTY_FILTERS } from '../../types';
 import type { Filters } from '../../types';
 
 interface FilterBarProps {
@@ -9,7 +12,8 @@ interface FilterBarProps {
   toolNames: string[];
   toolCategories: string[];
   evidenceStrengths: string[];
-  sourceTypes: string[];
+  orgTypes: string[];
+  sourceGroups: string[];
   onToggleSidebar: () => void;
   resultCount: number;
   totalCount: number;
@@ -55,7 +59,8 @@ export default function FilterBar({
   toolNames,
   toolCategories,
   evidenceStrengths,
-  sourceTypes,
+  orgTypes,
+  sourceGroups,
   onToggleSidebar,
   resultCount,
   totalCount,
@@ -65,7 +70,9 @@ export default function FilterBar({
     filters.toolName !== 'All' ||
     filters.toolCategory !== 'All' ||
     filters.evidenceStrength !== 'All' ||
-    filters.sourceType !== 'All' ||
+    filters.orgType !== 'All' ||
+    filters.license !== 'All' ||
+    filters.sourceGroup !== 'All' ||
     filters.search.trim() !== '';
 
   return (
@@ -103,16 +110,31 @@ export default function FilterBar({
           onChange={(v) => onChange({ ...filters, toolCategory: v })}
         />
         <Select
+          label="Licence"
+          value={filters.license}
+          options={['open_source', 'proprietary']}
+          optionLabel={(o) => LICENSE_LABELS[o] ?? o}
+          onChange={(v) => onChange({ ...filters, license: v })}
+        />
+        <Select
+          label="Organization type"
+          value={filters.orgType}
+          options={orgTypes}
+          optionLabel={orgGroupLabel}
+          onChange={(v) => onChange({ ...filters, orgType: v })}
+        />
+        <Select
           label="Evidence strength"
           value={filters.evidenceStrength}
           options={evidenceStrengths}
           onChange={(v) => onChange({ ...filters, evidenceStrength: v })}
         />
-        <Select
-          label="Source type"
-          value={filters.sourceType}
-          options={sourceTypes}
-          onChange={(v) => onChange({ ...filters, sourceType: v })}
+<Select
+          label="Source"
+          value={filters.sourceGroup}
+          options={sourceGroups}
+          optionLabel={(o) => SOURCE_GROUP_LABELS[o] ?? o}
+          onChange={(v) => onChange({ ...filters, sourceGroup: v })}
         />
         <label className="flex flex-col gap-1 text-xs font-medium text-ink-400">
           Search
@@ -131,7 +153,7 @@ export default function FilterBar({
           <button
             type="button"
             onClick={() =>
-              onChange({ country: 'All', toolName: 'All', toolCategory: 'All', evidenceStrength: 'All', sourceType: 'All', search: '' })
+              onChange(EMPTY_FILTERS)
             }
             className="flex items-center gap-1 rounded-lg border border-ink-800 px-2.5 py-1.5 text-xs font-medium text-ink-400 hover:text-ink-200"
           >
