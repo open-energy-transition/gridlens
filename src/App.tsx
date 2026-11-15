@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { LayoutDashboard, Building2, Globe2, Wrench } from 'lucide-react';
 import catalogueData from './data/catalogue.json';
 import type { CatalogueRecord, Filters, Section } from './types';
 import { EMPTY_FILTERS } from './types';
 import { applyFilters, uniqSorted, uniqueCount } from './lib/filters';
+import { useRoute, getPageTitle } from './lib/routes';
 import Sidebar from './components/layout/Sidebar';
 import FilterBar from './components/layout/FilterBar';
 import KpiCard from './components/kpi/KpiCard';
@@ -22,9 +23,9 @@ import Footer from './components/layout/Footer';
 const catalogue = catalogueData as CatalogueRecord[];
 
 export default function App() {
-  const [section, setSection] = useState<Section>('overview');
-  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+  const { section, tool, navigateTo } = useRoute();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
 
   const countries = useMemo(() => uniqSorted(catalogue, 'country_label'), []);
   const toolNames = useMemo(() => uniqSorted(catalogue, 'tool_name'), []);
@@ -35,15 +36,21 @@ export default function App() {
   const filtered = useMemo(() => applyFilters(catalogue, filters), [filters]);
 
   function handleSelectSection(s: Section) {
-    setSection(s);
+    navigateTo(s);
     setSidebarOpen(false);
   }
 
   const isStaticPage = section === 'about' || section === 'changelog';
 
+  // Update page title and scroll to top on navigation
+  useEffect(() => {
+    document.title = getPageTitle(section);
+    window.scrollTo(0, 0);
+  }, [section]);
+
   return (
     <div className="flex min-h-screen bg-ink-950 text-ink-100">
-      <Sidebar active={section} onSelect={handleSelectSection} open={sidebarOpen} />
+      <Sidebar active={section} onSelect={handleSelectSection} open={sidebarOpen} recordCount={catalogue.length} />
       {sidebarOpen && (
         <button
           type="button"
@@ -84,12 +91,12 @@ export default function App() {
             </div>
           )}
 
-          {section === 'overview' && <Overview records={filtered} onNavigate={setSection} />}
+          {section === 'overview' && <Overview records={filtered} onNavigate={handleSelectSection} />}
           {section === 'geographic' && <Geographic records={filtered} />}
           {section === 'tools' && <ToolsAndCategories records={filtered} />}
           {section === 'decisions' && <GridDecisions records={filtered} />}
           {section === 'institutions' && <Institutions records={filtered} />}
-          {section === 'top-users' && <TopUsersByTool allRecords={catalogue} />}
+          {section === 'top-users' && <TopUsersByTool allRecords={catalogue} tool={tool} onToolChange={(t) => navigateTo('top-users', t)} />}
           {section === 'records' && <RecordsExport records={filtered} />}
           {section === 'about' && <About />}
           {section === 'changelog' && <ChangelogPage />}

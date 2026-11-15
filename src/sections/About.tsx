@@ -1,9 +1,16 @@
 import { ExternalLink, Database, ShieldCheck, Search } from 'lucide-react';
+import catalogueData from '../data/catalogue.json';
+import type { CatalogueRecord } from '../types';
+import { safe } from '../lib/filters';
 import SectionHeader from '../components/common/SectionHeader';
 import Card from '../components/common/Card';
 import GitHubIcon from '../components/common/GitHubIcon';
 
 const GITHUB_URL = 'https://github.com/open-energy-transition/esm-usage-catalog';
+
+const catalogue = catalogueData as CatalogueRecord[];
+const recordCount = catalogue.length;
+const countryCount = new Set(catalogue.map(r => safe(r.country_label)).filter(Boolean)).size;
 
 export default function About() {
   return (
@@ -60,7 +67,7 @@ export default function About() {
               </a>{' '}
               dataset with an independent, more extensive worldwide catalogue
               of organizations using PLEXOS specifically — merged into a
-              single dataset of 509 records across 149 countries, with no
+              single dataset of {recordCount} records across {countryCount} countries, with no
               backend: everything runs client-side against a static dataset.
             </p>
           </div>

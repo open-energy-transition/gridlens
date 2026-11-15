@@ -1,33 +1,30 @@
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { colorFor, CHART_GRID, CHART_AXIS, CHART_TICK, CHART_TOOLTIP_BG, CHART_TOOLTIP_BORDER, CHART_TOOLTIP_TEXT, CHART_CURSOR } from '../../lib/colors';
+import { colorFor } from '../../lib/colors';
 
 interface HorizontalBarChartProps {
   data: { name: string; count: number }[];
-  height?: number;
   colorIndex?: number;
 }
 
-export default function HorizontalBarChart({ data, height = 420, colorIndex = 0 }: HorizontalBarChartProps) {
+/**
+ * Ranked bar list: each row shows the full name with its count, and the bar
+ * underneath. Long names wrap instead of being cut off or overlapping.
+ */
+export default function HorizontalBarChart({ data, colorIndex = 0 }: HorizontalBarChartProps) {
   const fill = colorFor(colorIndex);
+  const max = Math.max(1, ...data.map((d) => d.count));
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <BarChart data={data} layout="vertical" margin={{ top: 4, right: 24, bottom: 4, left: 4 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke={CHART_GRID} horizontal={false} />
-        <XAxis type="number" stroke={CHART_AXIS} tick={{ fill: CHART_TICK, fontSize: 12 }} allowDecimals={false} />
-        <YAxis
-          type="category"
-          dataKey="name"
-          width={200}
-          stroke={CHART_AXIS}
-          tick={{ fill: '#bdbdbd', fontSize: 12 }}
-          interval={0}
-        />
-        <Tooltip
-          contentStyle={{ background: CHART_TOOLTIP_BG, border: `1px solid ${CHART_TOOLTIP_BORDER}`, borderRadius: 8, color: CHART_TOOLTIP_TEXT }}
-          cursor={{ fill: CHART_CURSOR }}
-        />
-        <Bar dataKey="count" fill={fill} radius={[0, 4, 4, 0]} maxBarSize={18} />
-      </BarChart>
-    </ResponsiveContainer>
+    <ol className="space-y-2.5">
+      {data.map((d) => (
+        <li key={d.name}>
+          <div className="mb-1 flex items-baseline justify-between gap-3 text-sm">
+            <span className="text-ink-200">{d.name}</span>
+            <span className="shrink-0 tabular-nums text-ink-400">{d.count}</span>
+          </div>
+          <div className="h-2 rounded-full bg-ink-800" aria-hidden="true">
+            <div className="h-2 rounded-full" style={{ width: `${(100 * d.count) / max}%`, background: fill }} />
+          </div>
+        </li>
+      ))}
+    </ol>
   );
 }
