@@ -37,11 +37,8 @@
     "tool_name": { "type": "string", "minLength": 1 },
     "tool_category": {
       "type": "string",
-      "enum": [
-        "", "production_cost_uc", "capacity_expansion", "planning_expansion",
-        "market_simulation", "energy_system_optimization", "forecasting",
-        "distribution_planning", "other"
-      ]
+      "description": "What the modelling was used for: one or more of capacity_expansion, production_cost, power_flow_dynamics, other, separated by '; '; or unspecified when the evidence names the tool but not what it was used for.",
+      "pattern": "^((capacity_expansion|production_cost|power_flow_dynamics|other|unspecified)(; (capacity_expansion|production_cost|power_flow_dynamics|other|unspecified))*)?$"
     },
     "tool_explicitly_named": {
       "type": "boolean",

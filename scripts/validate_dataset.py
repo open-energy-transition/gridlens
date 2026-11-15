@@ -98,6 +98,7 @@ def main() -> int:
     props = schema["properties"]
     required = set(schema["required"])
     enums = {name: set(spec["enum"]) for name, spec in props.items() if "enum" in spec}
+    patterns = {name: re.compile(spec["pattern"]) for name, spec in props.items() if "pattern" in spec}
     known_fields = set(props.keys())
 
     errors: list[str] = []
@@ -126,6 +127,11 @@ def main() -> int:
             val = row.get(field, "")
             if val and val not in allowed:
                 errors.append(f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): invalid {field}='{val}' (valid: {sorted(allowed)})")
+
+        for field, pattern in patterns.items():
+            val = row.get(field, "")
+            if isinstance(val, str) and val and not pattern.fullmatch(val):
+                errors.append(f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): invalid {field}='{val}' ({props[field].get('description') or 'pattern ' + pattern.pattern})")
 
         if not (row.get("institution_category") or "").strip():
             warnings.append(f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): institution_category is empty -- fill it in when you know the organization's sector")

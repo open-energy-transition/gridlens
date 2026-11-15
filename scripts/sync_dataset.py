@@ -54,8 +54,8 @@ APP_SCHEMA = [
 # --- Grid decision classification -------------------------------------
 #
 # "decision_type" answers "what grid decision is this tool used for?" --
-# a different axis from tool_category (the model's technical class, e.g.
-# production_cost_uc) or role (the organization's relationship to the
+# a different axis from tool_category (the kind of modelling, e.g.
+# production_cost) or role (the organization's relationship to the
 # tool, e.g. direct_user/commissioner). See data/DATA_SCHEMA.md for the
 # full taxonomy and rationale.
 #
