@@ -1,4 +1,5 @@
 import { Search, SlidersHorizontal, X, Menu } from 'lucide-react';
+import { categoryLabel } from '../../lib/toolCategories';
 import type { Filters } from '../../types';
 
 interface FilterBarProps {
@@ -19,11 +20,13 @@ function Select({
   value,
   options,
   onChange,
+  optionLabel = (o) => o,
 }: {
   label: string;
   value: string;
   options: string[];
   onChange: (v: string) => void;
+  optionLabel?: (option: string) => string;
 }) {
   return (
     <label className="flex flex-col gap-1 text-xs font-medium text-ink-400">
@@ -31,13 +34,13 @@ function Select({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        title={value}
+        title={value === 'All' ? value : optionLabel(value)}
         className="w-40 truncate rounded-lg border border-ink-800 bg-ink-900 px-2.5 py-1.5 text-sm text-ink-200 outline-none focus:border-brand-500 sm:w-44"
       >
         <option value="All">All</option>
         {options.map((opt) => (
           <option key={opt} value={opt}>
-            {opt}
+            {optionLabel(opt)}
           </option>
         ))}
       </select>
@@ -96,6 +99,7 @@ export default function FilterBar({
           label="Tool category"
           value={filters.toolCategory}
           options={toolCategories}
+          optionLabel={categoryLabel}
           onChange={(v) => onChange({ ...filters, toolCategory: v })}
         />
         <Select

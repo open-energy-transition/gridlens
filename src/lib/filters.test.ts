@@ -8,7 +8,7 @@ function record(overrides: Partial<CatalogueRecord> = {}): CatalogueRecord {
     institution_name: 'ONS',
     official_website: '',
     tool_name: 'NEWAVE',
-    tool_category: 'production_cost_uc',
+    tool_category: 'production_cost',
     use_case: 'Planning',
     evidence_strength: 'HIGH',
     source_type: 'news_release',
@@ -46,6 +46,17 @@ describe('applyFilters', () => {
     expect(
       applyFilters(records, { country: 'All', toolName: 'All', toolCategory: 'All', evidenceStrength: 'All', sourceType: 'All', search: '' }),
     ).toHaveLength(3);
+  });
+
+  it('matches a category anywhere in a multi-category record', () => {
+    const multi = [
+      record({ tool_category: 'capacity_expansion; production_cost' }),
+      record({ tool_category: 'power_flow_dynamics' }),
+    ];
+    const f = { country: 'All', toolName: 'All', evidenceStrength: 'All', sourceType: 'All', search: '' };
+    expect(applyFilters(multi, { ...f, toolCategory: 'production_cost' })).toHaveLength(1);
+    expect(applyFilters(multi, { ...f, toolCategory: 'capacity_expansion' })).toHaveLength(1);
+    expect(applyFilters(multi, { ...f, toolCategory: 'other' })).toHaveLength(0);
   });
 
   it('filters by country', () => {
