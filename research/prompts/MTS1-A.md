@@ -82,7 +82,7 @@ end — flush after every finding, so progress survives a crash).
   "official_website": "https://... (or empty string if unknown)",
   "country_label": "Canonical country name exactly as it appears in multi_tool_search_checklist.csv's country column -- do not invent a new spelling",
   "tool_name": "PLEXOS | PyPSA | PROMOD | Bid3 | SDDP",
-  "tool_category": "one of: production_cost_uc, capacity_expansion, planning_expansion, market_simulation, energy_system_optimization, forecasting, distribution_planning, other",
+  "tool_category": "one or more of: capacity_expansion, production_cost, power_flow_dynamics, other (separated by '; '), or unspecified if the evidence does not say what the tool was used for",
   "tool_explicitly_named": true,
   "role": "one of: direct_user, commissioner, consultant_modeler, research_user, subject_of_study, qa_reviewer",
   "use_case": "A SPECIFIC sentence describing what the tool is actually used for, drawn from the real evidence -- not a generic placeholder like 'uses the tool for planning'. Specific text here is what lets this entry be classified as 'documented' rather than a weaker 'inferred' guess downstream.",

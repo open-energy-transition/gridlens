@@ -4,6 +4,7 @@ import catalogueData from './data/catalogue.json';
 import type { CatalogueRecord, Filters, Section } from './types';
 import { EMPTY_FILTERS } from './types';
 import { applyFilters, uniqSorted, uniqueCount } from './lib/filters';
+import { splitCategories, TOOL_CATEGORIES } from './lib/toolCategories';
 import { useRoute, getPageTitle } from './lib/routes';
 import Sidebar from './components/layout/Sidebar';
 import FilterBar from './components/layout/FilterBar';
@@ -29,7 +30,10 @@ export default function App() {
 
   const countries = useMemo(() => uniqSorted(catalogue, 'country_label'), []);
   const toolNames = useMemo(() => uniqSorted(catalogue, 'tool_name'), []);
-  const toolCategories = useMemo(() => uniqSorted(catalogue, 'tool_category'), []);
+  const toolCategories = useMemo(() => {
+    const present = new Set(catalogue.flatMap((r) => splitCategories(r.tool_category)));
+    return TOOL_CATEGORIES.map((c) => c.id).filter((id) => present.has(id));
+  }, []);
   const evidenceStrengths = useMemo(() => uniqSorted(catalogue, 'evidence_strength'), []);
   const sourceTypes = useMemo(() => uniqSorted(catalogue, 'source_type'), []);
 

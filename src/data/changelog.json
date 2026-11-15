@@ -2,6 +2,12 @@
   {
     "date": "15 Nov 2026",
     "tag": "reclassified",
+    "title": "Tool categories: capacity expansion, production cost, power flow & dynamics",
+    "description": "Seven overlapping tool categories became three modelling domains plus Other, each with a description on the Tools & Categories page. Every record was re-read and assigned all domains its evidence describes, so a study can count as both capacity expansion and production cost. Of 1065 published records, 407 are production cost, 425 capacity expansion, 40 power flow & dynamics and 6 other; 78 have more than one. 265 are Unspecified: the source confirms the tool is used but not what for, and tools such as PLEXOS serve several of these purposes."
+  },
+  {
+    "date": "15 Nov 2026",
+    "tag": "reclassified",
     "title": "One name per institution and per tool",
     "description": "81 spelling variants of the same organizations were unified (for example Wartsila, Wärtsilä Energy and Wärtsilä North America are now Wärtsilä): 917 to 859 institutions. Model variants are counted under their tool (PyPSA-Eur, PyPSA-GB and others under PyPSA, with the variant kept in the notes), and tool spelling variants were unified (BID3, PSCAD V5): 42 to 32 tools. 9 rows that became exact duplicates (same organization, country, tool and role, or the same source) were merged, keeping every source: 1073 to 1065 published records. Data validation now rejects new name and tool variants."
   },

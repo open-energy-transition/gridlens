@@ -1,4 +1,5 @@
 import type { CatalogueRecord, Filters } from '../types';
+import { splitCategories } from './toolCategories';
 
 export function safe(value: unknown): string {
   if (value === null || value === undefined) return '';
@@ -19,7 +20,7 @@ export function applyFilters(records: CatalogueRecord[], filters: Filters): Cata
   return records.filter((r) => {
     if (filters.country !== 'All' && safe(r.country_label) !== filters.country) return false;
     if (filters.toolName !== 'All' && safe(r.tool_name) !== filters.toolName) return false;
-    if (filters.toolCategory !== 'All' && safe(r.tool_category) !== filters.toolCategory) return false;
+    if (filters.toolCategory !== 'All' && !splitCategories(r.tool_category).includes(filters.toolCategory)) return false;
     if (filters.evidenceStrength !== 'All' && safe(r.evidence_strength) !== filters.evidenceStrength) return false;
     if (filters.sourceType !== 'All' && safe(r.source_type) !== filters.sourceType) return false;
     if (search) {
