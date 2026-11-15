@@ -56,7 +56,7 @@ export default function Overview({ records, onNavigate }: OverviewProps) {
             {data.length === 0 ? (
               <EmptyState />
             ) : (
-              <HorizontalBarChart data={data} height={Math.max(320, data.length * 26)} />
+              <HorizontalBarChart data={data} />
             )}
           </Card>
         </div>

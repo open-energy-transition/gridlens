@@ -11,6 +11,7 @@ import {
   History,
 } from 'lucide-react';
 import type { Section } from '../../types';
+import { routeToPath } from '../../lib/routes';
 import GitHubIcon from '../common/GitHubIcon';
 
 interface NavItem {
@@ -32,12 +33,14 @@ const NAV_ITEMS: NavItem[] = [
 ];
 
 interface SidebarProps {
+  open: boolean;
   active: Section;
   onSelect: (s: Section) => void;
-  open: boolean;
+  recordCount: number;
 }
 
-export default function Sidebar({ active, onSelect, open }: SidebarProps) {
+export default function Sidebar({ active, onSelect, open, recordCount }: SidebarProps) {
+
   return (
     <aside
       className={`fixed inset-y-0 left-0 z-30 flex w-64 shrink-0 flex-col border-r border-ink-800 bg-ink-950 transition-transform duration-200 md:static md:translate-x-0 ${
@@ -63,10 +66,15 @@ export default function Sidebar({ active, onSelect, open }: SidebarProps) {
         {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
           const isActive = id === active;
           return (
-            <button
+            <a
               key={id}
-              type="button"
-              onClick={() => onSelect(id)}
+              href={routeToPath(id)}
+              onClick={(e) => {
+                // Let the browser handle new-tab / new-window clicks; navigate in-app otherwise.
+                if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                e.preventDefault();
+                onSelect(id);
+              }}
               className={`flex w-full items-center gap-3 rounded-lg border-l-2 px-3 py-2.5 text-sm font-medium transition-colors ${
                 isActive
                   ? 'border-brand-500 bg-brand-500/10 text-brand-300'
@@ -75,12 +83,12 @@ export default function Sidebar({ active, onSelect, open }: SidebarProps) {
             >
               <Icon size={18} strokeWidth={1.75} />
               {label}
-            </button>
+            </a>
           );
         })}
       </nav>
       <div className="border-t border-ink-800 px-5 py-3">
-        <p className="text-xs text-ink-600">Client-side only &middot; 509 records</p>
+        <p className="text-xs text-ink-600">Client-side only &middot; {recordCount} records</p>
       </div>
       <a
         href="https://openenergytransition.org/"

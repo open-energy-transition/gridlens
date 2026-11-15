@@ -20,7 +20,7 @@ export default function Institutions({ records }: InstitutionsProps) {
         description="The top 25 institutions by number of catalogued records in the current selection."
       />
       <Card title="Top 25 institutions">
-        {data.length === 0 ? <EmptyState /> : <HorizontalBarChart data={data} height={Math.max(420, data.length * 24)} />}
+        {data.length === 0 ? <EmptyState /> : <HorizontalBarChart data={data} />}
       </Card>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { Building2, Globe2, FileStack, Download } from 'lucide-react';
 import type { CatalogueRecord } from '../types';
 import { countBy, safe, uniqueCount, uniqSorted } from '../lib/filters';
@@ -13,11 +13,20 @@ import EmptyState from '../components/common/EmptyState';
 
 interface TopUsersByToolProps {
   allRecords: CatalogueRecord[];
+  tool?: string;
+  onToolChange?: (selectedTool: string) => void;
 }
 
-export default function TopUsersByTool({ allRecords }: TopUsersByToolProps) {
+export default function TopUsersByTool({ allRecords, tool: routeTool, onToolChange }: TopUsersByToolProps) {
   const tools = useMemo(() => uniqSorted(allRecords, 'tool_name'), [allRecords]);
-  const [tool, setTool] = useState(() => (tools.includes('PLEXOS') ? 'PLEXOS' : tools[0] ?? ''));
+  // The selected tool lives in the URL (/top-users/<tool>), so back/forward and shared links work.
+  const tool = routeTool
+    ? (tools.find(t => t.toLowerCase() === routeTool.toLowerCase()) ?? tools[0] ?? '')
+    : (tools.includes('PLEXOS') ? 'PLEXOS' : tools[0] ?? '');
+
+  function handleToolChange(selectedTool: string) {
+    onToolChange?.(selectedTool);
+  }
 
   const toolRecords = useMemo(
     () => allRecords.filter((r) => safe(r.tool_name) === tool),
@@ -39,7 +48,7 @@ export default function TopUsersByTool({ allRecords }: TopUsersByToolProps) {
         <span className="text-xs font-semibold uppercase tracking-wide text-ink-500">Tool</span>
         <select
           value={tool}
-          onChange={(e) => setTool(e.target.value)}
+          onChange={(e) => handleToolChange(e.target.value)}
           className="rounded-lg border border-ink-800 bg-ink-900 px-3 py-2 text-sm text-ink-200 outline-none focus:border-brand-500"
         >
           {tools.map((t) => (
@@ -62,10 +71,10 @@ export default function TopUsersByTool({ allRecords }: TopUsersByToolProps) {
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card title={`Top institutions using ${tool}`}>
-              <HorizontalBarChart data={institutionData} height={Math.max(300, institutionData.length * 26)} colorIndex={1} />
+              <HorizontalBarChart data={institutionData} colorIndex={1} />
             </Card>
             <Card title={`Top countries using ${tool}`}>
-              <HorizontalBarChart data={countryData} height={Math.max(300, countryData.length * 26)} colorIndex={2} />
+              <HorizontalBarChart data={countryData} colorIndex={2} />
             </Card>
           </div>
 
