@@ -30,13 +30,12 @@ export function applyFilters(records: CatalogueRecord[], filters: Filters): Cata
   });
 }
 
-export function countBy(records: CatalogueRecord[], field: keyof CatalogueRecord, includeEmpty = false) {
+export function countBy(records: CatalogueRecord[], field: keyof CatalogueRecord) {
   const counts = new Map<string, number>();
   for (const r of records) {
     const v = safe(r[field]);
-    if (!v && !includeEmpty) continue;
-    const key = v || '(empty)';
-    counts.set(key, (counts.get(key) ?? 0) + 1);
+    if (!v) continue;
+    counts.set(v, (counts.get(v) ?? 0) + 1);
   }
   return Array.from(counts.entries())
     .map(([name, count]) => ({ name, count }))

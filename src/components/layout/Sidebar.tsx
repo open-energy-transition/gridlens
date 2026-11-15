@@ -53,10 +53,10 @@ export default function Sidebar({ active, onSelect, open, recordCount }: Sidebar
           GridLens
         </p>
         <a
-          href="https://github.com/open-energy-transition/esm-usage-catalog"
+          href="https://github.com/open-energy-transition/gridlens"
           target="_blank"
           rel="noreferrer"
-          aria-label="View source data on GitHub"
+          aria-label="GridLens on GitHub"
           className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-ink-500 transition-colors hover:bg-ink-900 hover:text-ink-200"
         >
           <GitHubIcon size={18} />
