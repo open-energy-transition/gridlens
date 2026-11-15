@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Landmark,
   LineChart,
@@ -17,6 +17,8 @@ import type { CatalogueRecord } from '../types';
 import SectionHeader from '../components/common/SectionHeader';
 import Card from '../components/common/Card';
 import EmptyState from '../components/common/EmptyState';
+import { IMPACT_INFO, IMPACT_ORDER, impactOf, type Impact } from '../lib/impact';
+import { orgGroup, orgGroupLabel } from '../lib/orgTypes';
 
 interface GridDecisionsProps {
   records: CatalogueRecord[];
@@ -58,17 +60,43 @@ function groupByDecisionType(records: CatalogueRecord[]) {
   return Array.from(groups.entries()).sort((a, b) => b[1].length - a[1].length);
 }
 
-function exampleRecordsFor(records: CatalogueRecord[]): CatalogueRecord[] {
-  // Prefer records with real documented evidence (a quote) over inferred ones.
-  const documented = records.filter((r) => r.decision_basis === 'documented' && r.exact_snippet_or_quote.trim());
-  const documentedNoQuote = records.filter((r) => r.decision_basis === 'documented' && !r.exact_snippet_or_quote.trim());
-  const inferred = records.filter((r) => r.decision_basis !== 'documented');
-  return [...documented, ...documentedNoQuote, ...inferred].slice(0, 3);
+const PAGE = 3;
+const MORE = 6;
+
+const IMPACT_STYLE: Record<Impact, string> = {
+  high: 'bg-emerald-500/15 text-emerald-400',
+  medium: 'bg-sky-500/15 text-sky-400',
+  low: 'bg-ink-800 text-ink-400',
+};
+
+function ImpactBadge({ impact }: { impact: Impact }) {
+  return (
+    <span
+      className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${IMPACT_STYLE[impact]}`}
+      title={IMPACT_INFO[impact].description}
+    >
+      {IMPACT_INFO[impact].label}
+    </span>
+  );
+}
+
+/** Highest impact first; within a level, documented use cases with a summary first. */
+function rankExamples(records: CatalogueRecord[]) {
+  const score = (r: CatalogueRecord) =>
+    IMPACT_ORDER.indexOf(impactOf(r)) * 4 + (r.decision_basis === 'documented' ? 0 : 2) + (r.summary.trim() ? 0 : 1);
+  return [...records].sort((a, b) => score(a) - score(b));
 }
 
 function DecisionCard({ decisionType, records }: { decisionType: string; records: CatalogueRecord[] }) {
   const Icon = DECISION_ICONS[decisionType] ?? HelpCircle;
-  const examples = useMemo(() => exampleRecordsFor(records), [records]);
+  const ranked = useMemo(() => rankExamples(records), [records]);
+  const byImpact = useMemo(() => {
+    const c: Record<Impact, number> = { high: 0, medium: 0, low: 0 };
+    for (const r of records) c[impactOf(r)] += 1;
+    return c;
+  }, [records]);
+  const [shown, setShown] = useState(PAGE);
+  const examples = ranked.slice(0, shown);
 
   return (
     <Card>
@@ -84,40 +112,36 @@ function DecisionCard({ decisionType, records }: { decisionType: string; records
             </span>
           </div>
           <p className="mt-1 text-xs text-ink-500">{DECISION_DESCRIPTIONS[decisionType] ?? ''}</p>
+          <p className="mt-1.5 text-xs text-ink-500">
+            {IMPACT_ORDER.filter((i) => byImpact[i]).map((i, k) => (
+              <span key={i}>
+                {k > 0 && ' · '}
+                <span className="tabular-nums text-ink-300">{byImpact[i]}</span> {IMPACT_INFO[i].label.toLowerCase()}
+              </span>
+            ))}
+          </p>
         </div>
       </div>
 
       <div className="space-y-3">
         {examples.map((r, i) => {
-          const snippet = r.exact_snippet_or_quote.trim() || r.use_case.trim();
+          const text = r.summary.trim() || r.use_case.trim();
           return (
             <div key={i} className="rounded-lg border border-ink-800 bg-ink-950/60 p-3">
-              <div className="flex items-center justify-between gap-2">
-                <span className="truncate text-sm font-medium text-ink-200" title={r.institution_name}>
-                  {r.institution_name}
-                </span>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${
-                    r.decision_basis === 'documented'
-                      ? 'bg-emerald-500/15 text-emerald-400'
-                      : 'bg-amber-500/15 text-amber-400'
-                  }`}
-                  title={
-                    r.decision_basis === 'documented'
-                      ? 'Classified from a documented, source-quoted use case'
-                      : 'Inferred from the organization type -- not a documented use case'
-                  }
-                >
-                  {r.decision_basis === 'documented' ? 'Documented' : 'Inferred'}
-                </span>
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-sm font-medium text-ink-200">{r.institution_name}</span>
+                <ImpactBadge impact={impactOf(r)} />
               </div>
               <div className="mt-1 text-xs text-ink-500">
-                {r.tool_name} · {r.country_label}
+                {r.tool_name} · {r.country_label} · {orgGroupLabel(orgGroup(r))}
+                {r.decision_basis !== 'documented' && (
+                  <span title="The grid decision was inferred, not stated in the source"> · decision inferred</span>
+                )}
               </div>
-              {snippet && <p className="mt-2 line-clamp-3 text-xs text-ink-400">&ldquo;{snippet}&rdquo;</p>}
+              {text && <p className="mt-2 text-sm leading-relaxed text-ink-300">{text}</p>}
               {r.source_link && (
                 <a
-                  href={r.source_link}
+                  href={r.source_link.split(';')[0].trim()}
                   target="_blank"
                   rel="noreferrer"
                   className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-brand-400 hover:text-brand-300"
@@ -129,6 +153,20 @@ function DecisionCard({ decisionType, records }: { decisionType: string; records
           );
         })}
       </div>
+      {ranked.length > PAGE && (
+        <div className="mt-3 flex gap-3 text-xs font-medium">
+          {shown < ranked.length && (
+            <button type="button" onClick={() => setShown((n) => n + MORE)} className="text-brand-400 hover:text-brand-300">
+              Show {Math.min(MORE, ranked.length - shown)} more of {ranked.length - shown}
+            </button>
+          )}
+          {shown > PAGE && (
+            <button type="button" onClick={() => setShown(PAGE)} className="text-ink-400 hover:text-ink-200">
+              Show less
+            </button>
+          )}
+        </div>
+      )}
     </Card>
   );
 }
@@ -140,8 +178,16 @@ export default function GridDecisions({ records }: GridDecisionsProps) {
     <div>
       <SectionHeader
         title="Grid Decisions"
-        description="What grid decisions is each tool actually used for -- capacity planning, dispatch, market operations, and more. Filter by tool or country above to see how the picture changes."
+        description="What grid decisions each tool is actually used for, with the highest-impact examples first. Filter by tool, country or organization type above to see what your peers did."
       />
+      <div className="mb-5 flex flex-wrap gap-x-6 gap-y-2 text-xs text-ink-400">
+        {IMPACT_ORDER.map((i) => (
+          <span key={i} className="flex items-center gap-2">
+            <ImpactBadge impact={i} />
+            {IMPACT_INFO[i].description}
+          </span>
+        ))}
+      </div>
       {groups.length === 0 ? (
         <EmptyState />
       ) : (
