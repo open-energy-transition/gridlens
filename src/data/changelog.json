@@ -1,5 +1,11 @@
 [
   {
+    "date": "14 Nov 2026",
+    "tag": "coverage",
+    "title": "Africa searched across five modelling tools",
+    "description": "Africa grew from 73 to 159 rows and from 35 to 38 countries; confirmed rows rose from 73 to 115 (PLEXOS 85, SDDP 7, PyPSA 15, plus 8 for other tools), and confirmed rows with a verbatim quote from 10 to 78."
+  },
+  {
     "date": "13 Nov 2026",
     "tag": "coverage",
     "title": "Europe searched across five modelling tools",
