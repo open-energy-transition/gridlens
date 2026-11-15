@@ -20,7 +20,9 @@ Usage:
 Exit code 0 = clean, 1 = problems found (prints them, does not fix anything).
 """
 import json
+import re
 import sys
+import unicodedata
 from collections import Counter
 from pathlib import Path
 
@@ -48,6 +50,25 @@ COUNTRY_ALIASES = [
     {"DRC", "Democratic Republic of Congo", "Democratic Republic of the Congo", "DR Congo"},
     {"Turkey", "Türkiye", "Turkiye"},
 ]
+
+
+# Institution names that normalize to the same key are one organization
+# spelled two ways (Wärtsilä / Wartsila, "ZESCO" / "ZESCO Limited") and split
+# its counts. Keys listed here are genuinely different organizations.
+NAME_KEY_DIFFERENT_ORGS = {
+    "ministry of energy",      # one ministry per country, the row's country disambiguates
+    "regulatory authorities",  # national regulators vs the I-SEM regulatory authorities
+}
+_LEGAL_SUFFIXES = {"inc", "ltd", "limited", "llc", "llp", "plc", "gmbh", "ag", "sa", "corp",
+                   "corporation", "co", "company", "oy", "oyj", "pty", "pvt", "private", "the"}
+
+
+def institution_key(name: str) -> str:
+    """Accent/case/punctuation/legal-suffix/parenthesis-insensitive key ('' for non-Latin names)."""
+    s = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().casefold()
+    s = re.sub(r"\([^)]*\)|\[[^\]]*\]", " ", s)
+    words = re.sub(r"[^a-z0-9]+", " ", s).split()
+    return " ".join(w for w in words if w not in _LEGAL_SUFFIXES)
 
 
 def load_schema() -> dict:
@@ -146,6 +167,29 @@ def main() -> int:
     dup_pairs = [k for k, n in institution_tool_seen.items() if n > 1]
     if dup_pairs:
         warnings.append(f"catalogue.jsonl: same institution+tool appears in multiple confirmed rows (check for a true duplicate): {dup_pairs}")
+
+    by_key: dict[str, set[str]] = {}
+    for _, r in parsed:
+        name = (r.get("institution_name") or "").strip()
+        key = institution_key(name) if "__parse_error__" not in r else ""
+        if key and key not in NAME_KEY_DIFFERENT_ORGS:
+            by_key.setdefault(key, set()).add(name)
+    for names in by_key.values():
+        if len(names) > 1:
+            errors.append(f"catalogue.jsonl: one institution spelled {len(names)} ways, use one name: {sorted(names)}")
+
+    # One name per tool: no case/punctuation variants ("BID3" / "Bid3") and no
+    # model variants as separate tools ("PyPSA-Eur" belongs under "PyPSA"; name
+    # the variant in notes).
+    tools = {(r.get("tool_name") or "").strip() for _, r in parsed if "__parse_error__" not in r} - {""}
+    tool_key = lambda t: re.sub(r"[^a-z0-9]+", "", t.casefold())
+    for t in sorted(tools):
+        same = sorted(u for u in tools if u != t and tool_key(u) == tool_key(t))
+        parent = next((b for b in tools if b != t and re.match(re.escape(b) + r"[-\s]", t, re.I)), None)
+        if same and t < same[0]:
+            errors.append(f"catalogue.jsonl: one tool spelled several ways, use one name: {[t] + same}")
+        if parent:
+            errors.append(f"catalogue.jsonl: tool '{t}' is a variant of '{parent}': use '{parent}' and name the variant in notes")
 
     for cluster in COUNTRY_ALIASES:
         hit = cluster & countries_seen

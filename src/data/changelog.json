@@ -1,6 +1,12 @@
 [
   {
     "date": "15 Nov 2026",
+    "tag": "reclassified",
+    "title": "One name per institution and per tool",
+    "description": "81 spelling variants of the same organizations were unified (for example Wartsila, Wärtsilä Energy and Wärtsilä North America are now Wärtsilä): 917 to 859 institutions. Model variants are counted under their tool (PyPSA-Eur, PyPSA-GB and others under PyPSA, with the variant kept in the notes), and tool spelling variants were unified (BID3, PSCAD V5): 42 to 32 tools. 9 rows that became exact duplicates (same organization, country, tool and role, or the same source) were merged, keeping every source: 1073 to 1065 published records. Data validation now rejects new name and tool variants."
+  },
+  {
+    "date": "15 Nov 2026",
     "tag": "coverage",
     "title": "Middle East, Central Asia and Caucasus searched across five modelling tools",
     "description": "Middle East, Central Asia and Caucasus grew from 32 to 110 rows and from 16 to 19 countries; confirmed rows rose from 32 to 72 (PLEXOS 51, SDDP 4, PyPSA 15, PROMOD 1, plus 1 for other tools), and confirmed rows with a verbatim quote from 1 to 62."
