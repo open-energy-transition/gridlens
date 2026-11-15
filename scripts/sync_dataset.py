@@ -31,8 +31,10 @@ make it into the merged/app dataset.
 """
 import csv
 import json
+import re
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 ROOT = Path(__file__).resolve().parent.parent
 CATALOGUE_RAW = ROOT / "data" / "raw" / "catalogue.jsonl"
@@ -40,16 +42,37 @@ MERGED_CSV_OUT = ROOT / "data" / "catalogue_merged.csv"
 APP_JSON_OUT = ROOT / "src" / "data" / "catalogue.json"
 
 # The app only ever reads these fields (src/types.ts's CatalogueRecord) --
-# everything else in catalogue.jsonl (id, institution_category, role,
-# tool_explicitly_named, status, historical_or_current, batch_id) is
-# research/provenance metadata that doesn't need its own UI yet.
+# everything else in catalogue.jsonl (id, tool_explicitly_named, status,
+# historical_or_current, batch_id) is research/provenance metadata.
 APP_SCHEMA = [
-    "country_label", "institution_name", "official_website", "tool_name",
-    "tool_category", "use_case", "evidence_strength", "source_type",
+    "country_label", "institution_name", "institution_category", "role", "official_website", "tool_name",
+    "tool_category", "use_case", "summary", "evidence_strength", "source_type", "source_group",
     "source_title", "source_date", "source_link", "exact_snippet_or_quote",
     "why_it_supports_the_claim", "notes", "dataset_origin",
     "decision_type", "decision_basis",
 ]
+
+# The dashboard tracks only the tools listed in src/data/tools.json; rows for
+# other tools stay in catalogue.jsonl but are not published.
+TRACKED_TOOLS = {t["name"] for t in json.loads((ROOT / "src" / "data" / "tools.json").read_text(encoding="utf-8"))}
+
+# Academic & research vs industry & government sources, from the source type
+# and the publishing site.
+ACADEMIC_HOSTS = re.compile(
+    r"(^|\.)(doi\.org|arxiv\.org|mdpi\.com|sciencedirect\.com|researchgate\.net|springer\.com|"
+    r"link\.springer\.com|ieee\.org|ieeexplore\.ieee\.org|wiley\.com|tandfonline\.com|iop\.org|"
+    r"zenodo\.org|ssrn\.com|osti\.gov|lbl\.gov|nrel\.gov|hal\.science|semanticscholar\.org|"
+    r"frontiersin\.org|nature\.com|cell\.com|elsevier\.com|openreview\.net|scholar\.google\.com)$"
+    r"|\.edu$|\.edu\.[a-z]{2}$|\.ac\.[a-z]{2}$"
+)
+
+
+def source_group(row) -> str:
+    if (row.get("source_type") or "").strip() == "academic_paper":
+        return "academic"
+    host = urlparse((row.get("source_url") or "").split(";")[0].strip()).netloc.lower().split(":")[0]
+    host = host[4:] if host.startswith("www.") else host
+    return "academic" if host and ACADEMIC_HOSTS.search(host) else "industry"
 
 # --- Grid decision classification -------------------------------------
 #
@@ -188,12 +211,16 @@ def map_record(row):
     return {
         "country_label": row.get("country_label", "").strip(),
         "institution_name": row.get("institution_name", "").strip(),
+        "institution_category": row.get("institution_category", "").strip(),
+        "role": row.get("role", "").strip(),
         "official_website": row.get("official_website", "").strip(),
         "tool_name": row.get("tool_name", "").strip(),
         "tool_category": row.get("tool_category", "").strip(),
         "use_case": use_case,
+        "summary": (row.get("summary") or "").strip(),
         "evidence_strength": row.get("evidence_strength", "").strip() or "MEDIUM",
         "source_type": row.get("source_type", "").strip(),
+        "source_group": source_group(row),
         "source_title": row.get("source_title", "").strip(),
         "source_date": row.get("source_date", "").strip(),
         "source_link": row.get("source_url", "").strip(),
@@ -212,7 +239,8 @@ def main():
         return 1
 
     raw_rows = load_jsonl(CATALOGUE_RAW)
-    confirmed_rows = [r for r in raw_rows if (r.get("status") or "").strip() == "confirmed"]
+    confirmed_rows = [r for r in raw_rows if (r.get("status") or "").strip() == "confirmed"
+                      and (r.get("tool_name") or "").strip() in TRACKED_TOOLS]
     merged = [map_record(r) for r in confirmed_rows]
 
     MERGED_CSV_OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -226,7 +254,8 @@ def main():
 
     countries = {r["country_label"] for r in merged if r["country_label"]}
     institutions = {r["institution_name"] for r in merged if r["institution_name"]}
-    print(f"Merged {len(merged)} records (of {len(raw_rows)} total rows in catalogue.jsonl) "
+    print(f"Merged {len(merged)} records (confirmed rows for the {len(TRACKED_TOOLS)} tracked tools, "
+          f"of {len(raw_rows)} total rows in catalogue.jsonl) "
           f"across {len(countries)} countries and {len(institutions)} institutions.")
     print(f"Wrote {MERGED_CSV_OUT.relative_to(ROOT)}")
     print(f"Wrote {APP_JSON_OUT.relative_to(ROOT)}")

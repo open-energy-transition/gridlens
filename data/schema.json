@@ -92,6 +92,10 @@
       "type": "string",
       "description": "Free-text provenance tag for which research pass/session found this row, e.g. 'weekly_llm_scan_2027w03'. Shown to end users as the record's dataset origin."
     },
+    "summary": {
+      "type": "string",
+      "description": "One sentence on what the organization did with the tool and which decision it informed, from the evidence only (e.g. 'Used PLEXOS to ...')."
+    },
     "notes": { "type": "string" }
   }
 }

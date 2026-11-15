@@ -1,7 +1,8 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import type { CatalogueRecord, Section } from '../types';
-import { countBy } from '../lib/filters';
+import { splitCategories, TOOL_CATEGORIES } from '../lib/toolCategories';
 import HorizontalBarChart from '../components/charts/HorizontalBarChart';
+import LicenseBadge from '../components/common/LicenseBadge';
 import SectionHeader from '../components/common/SectionHeader';
 import Card from '../components/common/Card';
 import EmptyState from '../components/common/EmptyState';
@@ -12,43 +13,46 @@ interface OverviewProps {
   onNavigate?: (section: Section) => void;
 }
 
-export default function Overview({ records, onNavigate }: OverviewProps) {
-  const [topN, setTopN] = useState(20);
+/** Records per tool within each modelling category (a record counts in every category it covers). */
+function toolsByCategory(records: CatalogueRecord[]) {
+  return TOOL_CATEGORIES.map((c, i) => {
+    const counts = new Map<string, number>();
+    let total = 0;
+    for (const r of records) {
+      if (!splitCategories(r.tool_category).includes(c.id)) continue;
+      total += 1;
+      counts.set(r.tool_name, (counts.get(r.tool_name) ?? 0) + 1);
+    }
+    const tools = [...counts].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count);
+    return { category: c, colorIndex: i, total, tools };
+  }).filter((g) => g.total > 0);
+}
 
-  const allTools = useMemo(() => countBy(records, 'tool_name'), [records]);
-  const maxN = Math.max(5, allTools.length);
-  const shown = Math.min(topN, maxN);
-  const data = allTools.slice(0, shown);
+export default function Overview({ records, onNavigate }: OverviewProps) {
+  const groups = useMemo(() => toolsByCategory(records), [records]);
 
   return (
     <div>
       <SectionHeader
         title="Overview"
-        description="Tool usage across the current filtered selection, ranked by record count."
+        description="Evidence per modelling domain: how many records show each tool in use, in the current selection."
       />
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <Card title="Top tools by record count">
-            <div className="mb-4 flex flex-wrap items-center gap-6">
-              <label className="flex items-center gap-3 text-sm text-ink-400">
-                Top N
-                <input
-                  type="range"
-                  min={5}
-                  max={maxN}
-                  value={shown}
-                  onChange={(e) => setTopN(Number(e.target.value))}
-                  className="accent-brand-500"
-                />
-                <span className="w-6 text-ink-200">{shown}</span>
-              </label>
-            </div>
-            {data.length === 0 ? (
-              <EmptyState />
-            ) : (
-              <HorizontalBarChart data={data} />
-            )}
-          </Card>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:col-span-2">
+          {groups.length === 0 ? (
+            <EmptyState />
+          ) : (
+            groups.map((g) => (
+              <Card key={g.category.id}>
+                <div className="mb-1 flex items-baseline justify-between gap-3">
+                  <h3 className="font-display text-sm font-semibold text-ink-100">{g.category.label}</h3>
+                  <span className="shrink-0 text-sm tabular-nums text-ink-400">{g.total} records</span>
+                </div>
+                <p className="mb-4 text-xs leading-relaxed text-ink-500">{g.category.description}</p>
+                <HorizontalBarChart data={g.tools} colorIndex={g.colorIndex} badge={(name) => <LicenseBadge tool={name} />} />
+              </Card>
+            ))
+          )}
         </div>
         <div>
           <Changelog limit={5} onSeeMore={() => onNavigate?.('changelog')} />

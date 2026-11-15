@@ -5,6 +5,7 @@ import type { CatalogueRecord, Filters, Section } from './types';
 import { EMPTY_FILTERS } from './types';
 import { applyFilters, uniqSorted, uniqueCount } from './lib/filters';
 import { splitCategories, TOOL_CATEGORIES } from './lib/toolCategories';
+import { orgGroup, ORG_GROUPS } from './lib/orgTypes';
 import { useRoute, getPageTitle } from './lib/routes';
 import Sidebar from './components/layout/Sidebar';
 import FilterBar from './components/layout/FilterBar';
@@ -35,7 +36,11 @@ export default function App() {
     return TOOL_CATEGORIES.map((c) => c.id).filter((id) => present.has(id));
   }, []);
   const evidenceStrengths = useMemo(() => uniqSorted(catalogue, 'evidence_strength'), []);
-  const sourceTypes = useMemo(() => uniqSorted(catalogue, 'source_type'), []);
+  const orgTypes = useMemo(() => {
+    const present = new Set(catalogue.map(orgGroup));
+    return ORG_GROUPS.map((g) => g.id).filter((id) => present.has(id));
+  }, []);
+  const sourceGroups = useMemo(() => ['industry', 'academic'].filter((g) => catalogue.some((r) => r.source_group === g)), []);
 
   const filtered = useMemo(() => applyFilters(catalogue, filters), [filters]);
 
@@ -72,7 +77,8 @@ export default function App() {
             toolNames={toolNames}
             toolCategories={toolCategories}
             evidenceStrengths={evidenceStrengths}
-            sourceTypes={sourceTypes}
+            orgTypes={orgTypes}
+            sourceGroups={sourceGroups}
             onToggleSidebar={() => setSidebarOpen((o) => !o)}
             resultCount={filtered.length}
             totalCount={catalogue.length}

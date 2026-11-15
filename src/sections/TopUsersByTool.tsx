@@ -4,6 +4,8 @@ import type { CatalogueRecord } from '../types';
 import { countBy, safe, uniqueCount, uniqSorted } from '../lib/filters';
 import { downloadCsv } from '../lib/csv';
 import KpiCard from '../components/kpi/KpiCard';
+import LicenseBadge from '../components/common/LicenseBadge';
+import { toolInfo } from '../lib/tools';
 import HorizontalBarChart from '../components/charts/HorizontalBarChart';
 import VerticalBarChart from '../components/charts/VerticalBarChart';
 import DataTable from '../components/table/DataTable';
@@ -57,6 +59,13 @@ export default function TopUsersByTool({ allRecords, tool: routeTool, onToolChan
             </option>
           ))}
         </select>
+        <LicenseBadge tool={tool} />
+        {toolInfo(tool) && (
+          <a href={toolInfo(tool)!.url} target="_blank" rel="noreferrer" className="text-xs text-ink-500 hover:text-ink-300">
+            {toolInfo(tool)!.vendor}
+            {toolInfo(tool)!.licenseName ? ` · ${toolInfo(tool)!.licenseName}` : ''}
+          </a>
+        )}
       </div>
 
       {toolRecords.length === 0 ? (

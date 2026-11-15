@@ -1,0 +1,16 @@
+[
+  { "name": "PLEXOS", "vendor": "Energy Exemplar", "license": "proprietary", "url": "https://www.energyexemplar.com/plexos" },
+  { "name": "PyPSA", "vendor": "PyPSA community", "license": "open_source", "licenseName": "MIT", "url": "https://pypsa.org" },
+  { "name": "SDDP", "vendor": "PSR", "license": "proprietary", "url": "https://www.psr-inc.com/en/software/sddp/" },
+  { "name": "Bid3", "vendor": "AFRY", "license": "proprietary", "url": "https://afry.com/en/service/bid3-power-market-modelling" },
+  { "name": "PROMOD", "vendor": "Hitachi Energy", "license": "proprietary", "url": "https://www.hitachienergy.com/products-and-solutions/energy-portfolio-management/enterprise/promod" },
+  { "name": "PSS/E", "vendor": "Siemens", "license": "proprietary", "url": "https://www.siemens.com/pss-e" },
+  { "name": "DIgSILENT PowerFactory", "vendor": "DIgSILENT", "license": "proprietary", "url": "https://www.digsilent.de/en/powerfactory.html" },
+  { "name": "PSCAD", "vendor": "Manitoba Hydro International", "license": "proprietary", "url": "https://www.pscad.com" },
+  { "name": "LEAP", "vendor": "Stockholm Environment Institute", "license": "proprietary", "url": "https://leap.sei.org" },
+  { "name": "TIMES", "vendor": "IEA-ETSAP", "license": "open_source", "licenseName": "GPL-3.0 (runs on commercial GAMS)", "url": "https://github.com/etsap-TIMES/TIMES_model" },
+  { "name": "INTEGRAL", "vendor": "FGH", "license": "proprietary", "url": "https://www.fgh-ma.de/en/products/integral" },
+  { "name": "Sienna", "vendor": "NREL", "license": "open_source", "licenseName": "BSD-3-Clause", "url": "https://www.nrel.gov/analysis/sienna.html" },
+  { "name": "Balmorel", "vendor": "Balmorel community", "license": "open_source", "licenseName": "ISC", "url": "https://github.com/balmorelcommunity/Balmorel" },
+  { "name": "Antares", "vendor": "RTE", "license": "open_source", "licenseName": "MPL-2.0", "url": "https://antares-simulator.org" }
+]
