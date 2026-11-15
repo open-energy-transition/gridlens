@@ -1,5 +1,11 @@
 [
   {
+    "date": "16 Nov 2026",
+    "tag": "reclassified",
+    "title": "Tracked tools, organization types and impact-rated grid decisions",
+    "description": "GridLens now tracks 14 tools (PLEXOS, PyPSA, SDDP, Bid3, PROMOD, PSS/E, PowerFactory, PSCAD, LEAP, TIMES, INTEGRAL, Sienna, Balmorel, Antares), each marked open source or proprietary; 19 records for other tools are no longer published (1065 to 1046 records). Every institution now has one organization type, used by a new Organization type filter and by an impact rating on Grid Decisions (402 high, 275 medium, 369 lower impact). Each record has a one-sentence summary of what was done with the tool, written from its evidence; 212 say the source does not state the purpose. Sources are grouped as industry & government (781) or academic & research (265)."
+  },
+  {
     "date": "15 Nov 2026",
     "tag": "reclassified",
     "title": "Tool categories: capacity expansion, production cost, power flow & dynamics",

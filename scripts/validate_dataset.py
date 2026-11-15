@@ -180,6 +180,14 @@ def main() -> int:
         key = institution_key(name) if "__parse_error__" not in r else ""
         if key and key not in NAME_KEY_DIFFERENT_ORGS:
             by_key.setdefault(key, set()).add(name)
+    cats_of: dict[str, set[str]] = {}
+    for _, r in parsed:
+        if "__parse_error__" not in r:
+            cats_of.setdefault((r.get("institution_name") or "").strip(), set()).add((r.get("institution_category") or "").strip())
+    for name, cats in sorted(cats_of.items()):
+        if len(cats) > 1:
+            errors.append(f"catalogue.jsonl: institution '{name}' has several institution_category values {sorted(cats)}: use one")
+
     for names in by_key.values():
         if len(names) > 1:
             errors.append(f"catalogue.jsonl: one institution spelled {len(names)} ways, use one name: {sorted(names)}")
