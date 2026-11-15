@@ -87,10 +87,9 @@ describe('countBy', () => {
     expect(result[1]).toEqual({ name: 'PyPSA', count: 1 });
   });
 
-  it('excludes empty values unless includeEmpty is true', () => {
+  it('skips empty values', () => {
     const records = [record({ tool_name: '' }), record({ tool_name: 'PLEXOS' })];
     expect(countBy(records, 'tool_name')).toHaveLength(1);
-    expect(countBy(records, 'tool_name', true)).toHaveLength(2);
   });
 });
 

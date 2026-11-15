@@ -14,12 +14,11 @@ interface OverviewProps {
 
 export default function Overview({ records, onNavigate }: OverviewProps) {
   const [topN, setTopN] = useState(20);
-  const [includeEmpty, setIncludeEmpty] = useState(false);
 
-  const data = useMemo(
-    () => countBy(records, 'tool_name', includeEmpty).slice(0, topN),
-    [records, includeEmpty, topN]
-  );
+  const allTools = useMemo(() => countBy(records, 'tool_name'), [records]);
+  const maxN = Math.max(5, allTools.length);
+  const shown = Math.min(topN, maxN);
+  const data = allTools.slice(0, shown);
 
   return (
     <div>
@@ -36,21 +35,12 @@ export default function Overview({ records, onNavigate }: OverviewProps) {
                 <input
                   type="range"
                   min={5}
-                  max={40}
-                  value={topN}
+                  max={maxN}
+                  value={shown}
                   onChange={(e) => setTopN(Number(e.target.value))}
                   className="accent-brand-500"
                 />
-                <span className="w-6 text-ink-200">{topN}</span>
-              </label>
-              <label className="flex items-center gap-2 text-sm text-ink-400">
-                <input
-                  type="checkbox"
-                  checked={includeEmpty}
-                  onChange={(e) => setIncludeEmpty(e.target.checked)}
-                  className="accent-brand-500"
-                />
-                Include empty tool_name
+                <span className="w-6 text-ink-200">{shown}</span>
               </label>
             </div>
             {data.length === 0 ? (
