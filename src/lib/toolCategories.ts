@@ -24,7 +24,7 @@ export const TOOL_CATEGORIES: CategoryInfo[] = [
     label: 'Production cost',
     description:
       'Simulates how a given system is operated, often hour by hour: unit commitment and economic dispatch, market prices, hydro-thermal scheduling, adequacy and reliability.',
-    examples: 'PLEXOS, PROMOD, Bid3, SDDP, NEWAVE / DECOMP / DESSEM',
+    examples: 'PLEXOS, PyPSA, PROMOD, Bid3, SDDP, NEWAVE / DECOMP / DESSEM',
   },
   {
     id: 'power_flow_dynamics',
@@ -43,7 +43,7 @@ export const TOOL_CATEGORIES: CategoryInfo[] = [
     id: 'unspecified',
     label: 'Unspecified',
     description:
-      'The source confirms the organization uses the tool but not what for, for example a licence purchase, a client list or a job posting. Many tools serve several of the purposes above (PLEXOS covers both capacity expansion and production cost), so the tool name alone does not tell us.',
+      'The source confirms the organization uses the tool but not what for, for example a licence purchase, a client list or a job posting. Many tools serve several of the purposes above (PLEXOS and PyPSA both cover capacity expansion and production cost), so the tool name alone does not tell us.',
     examples: '',
   },
 ];
