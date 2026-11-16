@@ -154,17 +154,59 @@ def main() -> int:
             countries_seen.add(country)
 
         if (row.get("status") or "").strip() == "confirmed":
-            # Keyed on institution+tool+country -- institution+tool alone is too
+            # Keyed on institution+tool+project -- institution+tool alone is too
             # noisy (a consultancy legitimately using the same tool across many
-            # countries is not a duplicate; the same institution+tool+country
+            # countries is not a duplicate; the same institution+tool+project
             # appearing twice almost always is).
+            pid = (row.get("project_id") or "").strip() or (row.get("id") or "").strip()
             key = (
                 row.get("institution_name", "").strip().lower(),
                 row.get("tool_name", "").strip().lower(),
-                row.get("country_label", "").strip().lower(),
+                pid.lower(),
             )
             if key != ("", "", ""):
                 institution_tool_seen[key] += 1
+
+    # --- New optional field validation ---
+
+    # project_id: string if present
+    # project_title: string if present
+    # study_countries: array of strings if present
+    # geo_scope: enum if present
+    GEO_SCOPE_VALUES = {"national", "multi_country", "global"}
+
+    for lineno, row in parsed:
+        if "__parse_error__" in row:
+            continue
+
+        # geo_scope enum check
+        gs = row.get("geo_scope")
+        if gs is not None:
+            if not isinstance(gs, str) or gs.strip() not in GEO_SCOPE_VALUES:
+                errors.append(f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): invalid geo_scope='{gs}' (valid: {sorted(GEO_SCOPE_VALUES)})")
+
+        sr = row.get("study_region")
+        if sr is not None and not isinstance(sr, str):
+            errors.append(f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): study_region must be a string")
+
+        # study_countries type check
+        sc = row.get("study_countries")
+        if sc is not None:
+            if not isinstance(sc, list) or not all(isinstance(c, str) for c in sc):
+                errors.append(f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): study_countries must be an array of strings")
+
+    # Rows sharing a project_id must have the same tool_name
+    project_tool_names: dict[str, set[str]] = {}
+    for lineno, row in parsed:
+        if "__parse_error__" in row:
+            continue
+        pid = (row.get("project_id") or "").strip()
+        if pid:
+            tool = (row.get("tool_name") or "").strip()
+            project_tool_names.setdefault(pid, set()).add(tool)
+    for pid, tools in project_tool_names.items():
+        if len(tools) > 1:
+            errors.append(f"catalogue.jsonl: project_id '{pid}' has different tool_name(s): {sorted(tools)} -- all rows in a project must use the same tool")
 
     dupes = [rid for rid, n in seen_ids.items() if n > 1]
     if dupes:

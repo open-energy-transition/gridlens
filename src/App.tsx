@@ -29,7 +29,7 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
 
-  const countries = useMemo(() => uniqSorted(catalogue, 'country_label'), []);
+  const countries = useMemo(() => [...new Set(catalogue.flatMap((r) => r.countries))].sort((a, b) => a.localeCompare(b)), []);
   const toolNames = useMemo(() => uniqSorted(catalogue, 'tool_name'), []);
   const toolCategories = useMemo(() => {
     const present = new Set(catalogue.flatMap((r) => splitCategories(r.tool_category)));
@@ -91,12 +91,12 @@ export default function App() {
             <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <KpiCard
                 icon={LayoutDashboard}
-                label="Applications"
+                label="Projects"
                 value={filtered.length}
                 context={`of ${catalogue.length} total`}
               />
-              <KpiCard icon={Globe2} label="Countries" value={uniqueCount(filtered, 'country_label')} />
-              <KpiCard icon={Building2} label="Institutions" value={uniqueCount(filtered, 'institution_name')} />
+              <KpiCard icon={Globe2} label="Countries" value={new Set(filtered.flatMap((r) => r.countries)).size} />
+              <KpiCard icon={Building2} label="Institutions" value={new Set(filtered.flatMap((r) => r.organizations.map((o) => o.name))).size} />
               <KpiCard icon={Wrench} label="Tools" value={uniqueCount(filtered, 'tool_name')} />
             </div>
           )}
@@ -104,7 +104,7 @@ export default function App() {
           {section === 'overview' && <Overview records={filtered} onNavigate={handleSelectSection} />}
           {section === 'geographic' && <Geographic records={filtered} />}
           {section === 'tools' && <ToolsAndCategories records={filtered} />}
-          {section === 'decisions' && <GridDecisions records={filtered} />}
+          {section === 'decisions' && <GridDecisions records={filtered} country={filters.country === 'All' ? undefined : filters.country} />}
           {section === 'institutions' && <Institutions records={filtered} />}
           {section === 'top-users' && <TopUsersByTool allRecords={catalogue} tool={tool} onToolChange={(t) => navigateTo('top-users', t)} />}
           {section === 'records' && <RecordsExport records={filtered} />}

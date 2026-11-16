@@ -50,6 +50,7 @@ APP_SCHEMA = [
     "source_title", "source_date", "source_link", "exact_snippet_or_quote",
     "why_it_supports_the_claim", "notes", "dataset_origin",
     "decision_type", "decision_basis",
+    "project_id", "project_title", "organizations", "countries", "geo_scope", "region_label", "sources",
 ]
 
 # The dashboard tracks only the tools listed in src/data/tools.json; rows for
@@ -233,6 +234,109 @@ def map_record(row):
     }
 
 
+# --- Projects ---------------------------------------------------------
+#
+# Raw rows are (organization, project) evidence; the app shows one record
+# per project. Rows sharing project_id and tool_name are one project; a row
+# without project_id is a project of its own. The flat fields of a project
+# come from its lead row (highest impact, then strongest evidence), so a
+# project reads like a record but also lists every organization, country
+# and source.
+
+GLOBAL_LABEL = re.compile(r"^(global|international|world)", re.I)
+REGION_LABEL = re.compile(r"^(european union|europe|pan-european|multi-country|africa|asia|latin america|middle east)"
+                          r"|[/;]", re.I)
+DECISION_MAKERS = {"utility_tso", "utility_iso_rto", "utility_distribution", "utility_generation",
+                   "energy_company_diversified", "project_developer", "government_regulator", "government_agency"}
+RESEARCH = {"academic_research", "think_tank"}
+EVIDENCE_RANK = {"HIGH": 0, "MEDIUM": 1, "LOW": 2}
+CATEGORY_ORDER = ["capacity_expansion", "production_cost", "power_flow_dynamics", "other", "unspecified"]
+
+
+COUNTRY_NAME = re.compile(r"^[A-Z][\w .'’-]{1,40}$")
+
+
+def label_scope(label):
+    if GLOBAL_LABEL.search(label):
+        return "global"
+    return "national" if COUNTRY_NAME.match(label) and not REGION_LABEL.search(label) else "multi_country"
+
+
+def label_countries(label):
+    """Countries named in a label: "Spain" -> [Spain]; "Albania, Serbia (regional model)" -> [Albania, Serbia]."""
+    bare = re.sub(r"\([^)]*\)", "", label)
+    if label_scope(label) == "national":
+        return [label]
+    parts = [p.strip() for p in re.split(r"[,/;]", bare)]
+    return [p for p in parts if p in KNOWN_COUNTRIES]
+
+
+# Country names used as a national label anywhere in the data (set in main()).
+KNOWN_COUNTRIES = set()
+
+
+def impact_rank(row):
+    """Mirrors src/lib/impact.ts: decision-makers, then advisers, then research and subjects of study."""
+    cat = (row.get("institution_category") or "").strip()
+    if (row.get("role") or "").strip() == "subject_of_study":
+        return 2
+    return 0 if cat in DECISION_MAKERS else 2 if cat in RESEARCH else 1
+
+
+def project_record(rows):
+    rows = sorted(rows, key=lambda r: (impact_rank(r), EVIDENCE_RANK.get((r.get("evidence_strength") or "").strip(), 1),
+                                       r.get("id", "")))
+    lead = rows[0]
+    labels = [(r.get("country_label") or "").strip() for r in rows]
+    # The countries a study models; without them, the countries the rows are filed under.
+    studied = [c.strip() for r in rows for c in r.get("study_countries") or [] if c.strip()]
+    # A study that names its region but not its countries covers the region, not its partners' home countries.
+    regional = any((r.get("study_region") or "").strip() for r in rows)
+    countries = list(dict.fromkeys(studied or ([] if regional else [c for l in labels for c in label_countries(l)])))
+    regions = [l for l in labels if l and label_scope(l) != "national"]
+    if any(GLOBAL_LABEL.search(p.strip()) for l in labels for p in l.split("/")):
+        regions.insert(0, "Global")
+    scopes = {(r.get("geo_scope") or "").strip() for r in rows} - {""} or {label_scope(l) for l in labels if l}
+    if "global" in scopes:
+        geo_scope = "global"
+    elif "multi_country" in scopes or len(countries) > 1:
+        geo_scope = "multi_country"
+    else:
+        geo_scope = "national"
+    named = [(r.get("study_region") or "").strip() for r in rows if (r.get("study_region") or "").strip()]
+    region = (named + regions)[0] if (named or regions) and geo_scope != "national" else ""
+    orgs, sources = {}, {}
+    for r in rows:
+        name = (r.get("institution_name") or "").strip()
+        orgs.setdefault(name, {"name": name, "role": (r.get("role") or "").strip(),
+                               "institution_category": (r.get("institution_category") or "").strip(),
+                               "country_label": (r.get("country_label") or "").strip()})
+        link = (r.get("source_url") or "").strip()
+        sources.setdefault(link, {"title": (r.get("source_title") or "").strip(), "date": (r.get("source_date") or "").strip(),
+                                  "link": link, "quote": (r.get("exact_snippet_or_quote") or "").strip(),
+                                  "source_type": (r.get("source_type") or "").strip()})
+    cats = {c.strip() for r in rows for c in (r.get("tool_category") or "").split(";") if c.strip()}
+    if len(cats) > 1:
+        cats.discard("unspecified")
+    rec = map_record(lead)
+    rec.update(
+        country_label=countries[0] if geo_scope == "national" and countries else region or "Multi-country",
+        tool_category="; ".join(sorted(cats, key=lambda c: CATEGORY_ORDER.index(c) if c in CATEGORY_ORDER else 99)),
+        evidence_strength=min((r.get("evidence_strength") or "MEDIUM" for r in rows), key=lambda e: EVIDENCE_RANK.get(e, 1)),
+        project_id=(lead.get("project_id") or lead.get("id") or "").strip(),
+        project_title=next(((r.get("project_title") or "").strip() for r in rows if (r.get("project_title") or "").strip()),
+                           rec["source_title"]),
+        organizations=list(orgs.values()), countries=countries, geo_scope=geo_scope, region_label=region,
+        sources=list(sources.values()),
+    )
+    return rec
+
+
+def csv_row(rec):
+    return {**rec, "organizations": "; ".join(f"{o['name']} ({o['role']})" for o in rec["organizations"]),
+            "countries": "; ".join(rec["countries"]), "sources": "; ".join(s["link"] for s in rec["sources"])}
+
+
 def main():
     if not CATALOGUE_RAW.exists():
         print(f"ERROR: missing {CATALOGUE_RAW}", file=sys.stderr)
@@ -241,20 +345,25 @@ def main():
     raw_rows = load_jsonl(CATALOGUE_RAW)
     confirmed_rows = [r for r in raw_rows if (r.get("status") or "").strip() == "confirmed"
                       and (r.get("tool_name") or "").strip() in TRACKED_TOOLS]
-    merged = [map_record(r) for r in confirmed_rows]
+    KNOWN_COUNTRIES.update(l for l in ((r.get("country_label") or "").strip() for r in raw_rows) if label_scope(l) == "national")
+    groups = {}
+    for r in confirmed_rows:
+        key = ((r.get("project_id") or "").strip() or r["id"], r["tool_name"].strip())
+        groups.setdefault(key, []).append(r)
+    merged = [project_record(rows) for rows in groups.values()]
 
     MERGED_CSV_OUT.parent.mkdir(parents=True, exist_ok=True)
     with MERGED_CSV_OUT.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=APP_SCHEMA)
         writer.writeheader()
-        writer.writerows(merged)
+        writer.writerows(csv_row(r) for r in merged)
 
     APP_JSON_OUT.parent.mkdir(parents=True, exist_ok=True)
     APP_JSON_OUT.write_text(json.dumps(merged, ensure_ascii=False, indent=None), encoding="utf-8")
 
     countries = {r["country_label"] for r in merged if r["country_label"]}
     institutions = {r["institution_name"] for r in merged if r["institution_name"]}
-    print(f"Merged {len(merged)} records (confirmed rows for the {len(TRACKED_TOOLS)} tracked tools, "
+    print(f"Merged {len(merged)} projects (from {len(confirmed_rows)} confirmed rows for the {len(TRACKED_TOOLS)} tracked tools, "
           f"of {len(raw_rows)} total rows in catalogue.jsonl) "
           f"across {len(countries)} countries and {len(institutions)} institutions.")
     print(f"Wrote {MERGED_CSV_OUT.relative_to(ROOT)}")

@@ -89,6 +89,11 @@ explanation of *why*.
 | `historical_or_current` | yes | `current` or `historical` — is the use still active, or a past engagement? |
 | `batch_id` | no | Free-text provenance tag for which research pass/session found this row, e.g. `weekly_llm_scan_2027w03`. Shown to end users as the record's dataset origin in the Records table. |
 | `notes` | no | Free text: caveats, the evidence reasoning, cross-references to other `id`s, anything a reviewer should know. PLEXOS-catalogue-origin rows carry a lot of research narrative here — keep that convention, it's valuable audit trail. |
+| `project_id` | no | Groups multiple rows into one project/study. Rows with the same `project_id` and the same `tool_name` are ONE project. If omitted, the row's `id` is used as the project id. |
+| `project_title` | no | A human-readable title for the project/study. Falls back to `source_title` of the lead row. |
+| `study_countries` | no | Country labels the study models (a multi-country regional study). Distinct from `country_label` which is the organization's home country. |
+| `study_region` | no | Region a multi-country or global study covers, e.g. `European Union`, `Europe`, `Global`. Filtering by a country in that region includes the study. |
+| `geo_scope` | no | Geographic scope of the study: `national` (one country), `multi_country` (regional or multiple countries), `global` (worldwide). Auto-derived from `country_label` if not set. |
 
 ### Role definitions
 

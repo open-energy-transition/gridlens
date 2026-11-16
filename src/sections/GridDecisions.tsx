@@ -17,11 +17,13 @@ import type { CatalogueRecord } from '../types';
 import SectionHeader from '../components/common/SectionHeader';
 import Card from '../components/common/Card';
 import EmptyState from '../components/common/EmptyState';
-import { IMPACT_INFO, IMPACT_ORDER, impactOf, type Impact } from '../lib/impact';
+import { IMPACT_INFO, IMPACT_ORDER, projectImpact, rankProjects, type Impact } from '../lib/impact';
 import { orgGroup, orgGroupLabel } from '../lib/orgTypes';
 
 interface GridDecisionsProps {
   records: CatalogueRecord[];
+  /** Selected country filter, if any: orders each impact level national, multi-country, global. */
+  country?: string;
 }
 
 const DECISION_ICONS: Record<string, LucideIcon> = {
@@ -80,19 +82,12 @@ function ImpactBadge({ impact }: { impact: Impact }) {
   );
 }
 
-/** Highest impact first; within a level, documented use cases with a summary first. */
-function rankExamples(records: CatalogueRecord[]) {
-  const score = (r: CatalogueRecord) =>
-    IMPACT_ORDER.indexOf(impactOf(r)) * 4 + (r.decision_basis === 'documented' ? 0 : 2) + (r.summary.trim() ? 0 : 1);
-  return [...records].sort((a, b) => score(a) - score(b));
-}
-
-function DecisionCard({ decisionType, records }: { decisionType: string; records: CatalogueRecord[] }) {
+function DecisionCard({ decisionType, records, country }: { decisionType: string; records: CatalogueRecord[]; country?: string }) {
   const Icon = DECISION_ICONS[decisionType] ?? HelpCircle;
-  const ranked = useMemo(() => rankExamples(records), [records]);
+  const ranked = useMemo(() => rankProjects(records, country), [records, country]);
   const byImpact = useMemo(() => {
     const c: Record<Impact, number> = { high: 0, medium: 0, low: 0 };
-    for (const r of records) c[impactOf(r)] += 1;
+    for (const r of records) c[projectImpact(r)] += 1;
     return c;
   }, [records]);
   const [shown, setShown] = useState(PAGE);
@@ -126,22 +121,36 @@ function DecisionCard({ decisionType, records }: { decisionType: string; records
       <div className="space-y-3">
         {examples.map((r, i) => {
           const text = r.summary.trim() || r.use_case.trim();
+          const where =
+            r.geo_scope === 'national'
+              ? r.country_label
+              : `${r.geo_scope === 'global' ? 'Global' : r.countries.length > 1 && !r.region_label ? r.countries.join(', ') : r.region_label || 'Multi-country'} study`;
           return (
             <div key={i} className="rounded-lg border border-ink-800 bg-ink-950/60 p-3">
               <div className="flex items-start justify-between gap-2">
-                <span className="text-sm font-medium text-ink-200">{r.institution_name}</span>
-                <ImpactBadge impact={impactOf(r)} />
-              </div>
-              <div className="mt-1 text-xs text-ink-500">
-                {r.tool_name} · {r.country_label} · {orgGroupLabel(orgGroup(r))}
-                {r.decision_basis !== 'documented' && (
-                  <span title="The grid decision was inferred, not stated in the source"> · decision inferred</span>
-                )}
+                <div className="min-w-0">
+                  <div className="text-sm font-medium text-ink-200">
+                    {r.organizations.map((o, k) => (
+                      <span key={o.name}>
+                        {k > 0 && <span className="text-ink-600"> · </span>}
+                        {o.name}
+                        {o.role !== 'direct_user' && <span className="text-ink-500"> ({o.role.replace(/_/g, ' ')})</span>}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="mt-1 text-xs text-ink-500">
+                    {r.tool_name} · <span title={r.countries.join(', ')}>{where}</span> · {orgGroupLabel(orgGroup(r))}
+                    {r.decision_basis !== 'documented' && (
+                      <span title="The grid decision was inferred, not stated in the source"> · decision inferred</span>
+                    )}
+                  </div>
+                </div>
+                <ImpactBadge impact={projectImpact(r)} />
               </div>
               {text && <p className="mt-2 text-sm leading-relaxed text-ink-300">{text}</p>}
-              {r.source_link && (
+              {r.sources.length > 0 && r.sources[0].link && (
                 <a
-                  href={r.source_link.split(';')[0].trim()}
+                  href={r.sources[0].link.trim()}
                   target="_blank"
                   rel="noreferrer"
                   className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-brand-400 hover:text-brand-300"
@@ -171,7 +180,7 @@ function DecisionCard({ decisionType, records }: { decisionType: string; records
   );
 }
 
-export default function GridDecisions({ records }: GridDecisionsProps) {
+export default function GridDecisions({ records, country }: GridDecisionsProps) {
   const groups = useMemo(() => groupByDecisionType(records), [records]);
 
   return (
@@ -193,7 +202,7 @@ export default function GridDecisions({ records }: GridDecisionsProps) {
       ) : (
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {groups.map(([decisionType, decisionRecords]) => (
-            <DecisionCard key={decisionType} decisionType={decisionType} records={decisionRecords} />
+            <DecisionCard key={decisionType} decisionType={decisionType} records={decisionRecords} country={country} />
           ))}
         </div>
       )}

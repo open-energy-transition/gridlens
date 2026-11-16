@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import type { CatalogueRecord } from '../types';
-import { countBy } from '../lib/filters';
+import { countByOrganization } from '../lib/filters';
 import HorizontalBarChart from '../components/charts/HorizontalBarChart';
 import SectionHeader from '../components/common/SectionHeader';
 import Card from '../components/common/Card';
@@ -11,13 +11,13 @@ interface InstitutionsProps {
 }
 
 export default function Institutions({ records }: InstitutionsProps) {
-  const data = useMemo(() => countBy(records, 'institution_name').slice(0, 25), [records]);
+  const data = useMemo(() => countByOrganization(records).slice(0, 25), [records]);
 
   return (
     <div>
       <SectionHeader
         title="Institutions"
-        description="The top 25 institutions by number of catalogued records in the current selection."
+        description="The top 25 institutions by number of catalogued projects in the current selection."
       />
       <Card title="Top 25 institutions">
         {data.length === 0 ? <EmptyState /> : <HorizontalBarChart data={data} />}

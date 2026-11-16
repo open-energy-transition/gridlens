@@ -9,7 +9,7 @@ import GitHubIcon from '../components/common/GitHubIcon';
 const GITHUB_URL = 'https://github.com/open-energy-transition/esm-usage-catalog';
 
 const catalogue = catalogueData as CatalogueRecord[];
-const recordCount = catalogue.length;
+const projectCount = catalogue.length;
 const countryCount = new Set(catalogue.map(r => safe(r.country_label)).filter(Boolean)).size;
 
 export default function About() {
@@ -42,7 +42,7 @@ export default function About() {
           <div className="flex items-start gap-3">
             <ShieldCheck size={18} strokeWidth={1.75} className="mt-0.5 shrink-0 text-brand-400" />
             <p className="text-sm leading-relaxed text-ink-400">
-              Every record is tied to a role (direct user, commissioner,
+              Every project is tied to a role (direct user, commissioner,
               consultant, researcher, subject of study) and an evidence
               strength, sourced from public documents, procurement records,
               vendor case studies, and verifiable staff/organization
@@ -67,7 +67,7 @@ export default function About() {
               </a>{' '}
               dataset with an independent, more extensive worldwide catalogue
               of organizations using PLEXOS specifically — merged into a
-              single dataset of {recordCount} records across {countryCount} countries, with no
+              single dataset of {projectCount} projects across {countryCount} countries, with no
               backend: everything runs client-side against a static dataset.
             </p>
           </div>
