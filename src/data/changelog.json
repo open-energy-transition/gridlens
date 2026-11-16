@@ -1,6 +1,12 @@
 [
   {
     "date": "16 Nov 2026",
+    "tag": "added",
+    "title": "PyPSA users worldwide",
+    "description": "A country-by-country search of all 199 countries for PyPSA users, plus the PyPSA documentation's users page and OpenAlex publications whose abstracts report using PyPSA. Published PyPSA records grew from 200 to 452 (59 to 82 countries, 194 to 423 institutions); 36 earlier candidate records gained a verified source. New names were matched to the existing institutions, and one organization's PyPSA use in one country is listed once."
+  },
+  {
+    "date": "16 Nov 2026",
     "tag": "reclassified",
     "title": "Tracked tools, organization types and impact-rated grid decisions",
     "description": "GridLens now tracks 14 tools (PLEXOS, PyPSA, SDDP, Bid3, PROMOD, PSS/E, PowerFactory, PSCAD, LEAP, TIMES, INTEGRAL, Sienna, Balmorel, Antares), each marked open source or proprietary; 19 records for other tools are no longer published (1065 to 1046 records). Every institution now has one organization type, used by a new Organization type filter and by an impact rating on Grid Decisions (402 high, 275 medium, 369 lower impact). Each record has a one-sentence summary of what was done with the tool, written from its evidence; 212 say the source does not state the purpose. Sources are grouped as industry & government (781) or academic & research (265)."
