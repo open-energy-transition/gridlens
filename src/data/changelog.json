@@ -1,5 +1,11 @@
 [
   {
+    "date": "17 Nov 2026",
+    "tag": "reclassified",
+    "title": "One name per organization, structured multi-country studies",
+    "description": "127 more name variants across all tools were merged into one name per organization (e.g. Chalmers, Instrat, ONS, OCCTO, Statnett), and 34 rows that repeated the same organization and source were removed. Free-text country fields such as \"Pan-European (covers all ENTSO-E member TSOs …)\" now name the organization's home country plus the region and countries the study covers, so these studies appear when filtering by any of those countries."
+  },
+  {
     "date": "16 Nov 2026",
     "tag": "added",
     "title": "PyPSA projects from organizations' own pages and publications",
