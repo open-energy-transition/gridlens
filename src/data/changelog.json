@@ -1,6 +1,12 @@
 [
   {
     "date": "16 Nov 2026",
+    "tag": "added",
+    "title": "PyPSA projects from organizations' own pages and publications",
+    "description": "A deep dive into the PyPSA work of Open Energy Transition, TU Berlin, KIT, DTU, Aarhus University, PIK and eleven European TSOs (their websites and site searches), plus every OpenAlex publication whose abstract reports using PyPSA, each as one project with all its organizations. Published PyPSA projects grew from 452 to 660; for example TU Berlin now has 54 projects instead of 1, and studies such as ACER's EU-wide flexibility platform and Open-TYNDP list both the client and Open Energy Transition."
+  },
+  {
+    "date": "16 Nov 2026",
     "tag": "reclassified",
     "title": "One record per project",
     "description": "Each record is now a project or study, which can name several organizations and countries. Rows citing the same study were joined: 1298 records became 1146 projects, 114 of them with more than one organization. Institutions and Top Users count projects per organization. Filtering by a country also shows the multi-country and global studies that cover it; Grid Decisions lists that country's own projects first, then multi-country, then global, within each impact level."
