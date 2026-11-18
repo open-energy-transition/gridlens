@@ -1,5 +1,23 @@
 [
   {
+    "date": "17 Nov 2026",
+    "tag": "added",
+    "title": "Open Energy Transition projects; summaries for joint projects",
+    "description": "Every modelling project on Open Energy Transition's website and LinkedIn is now listed (OET's energy-system modelling is PyPSA-based; records whose source does not name the tool say so): OET goes from 7 to 22 PyPSA projects, among them the Wallonia Energy Plan, Ember's European Clean Flexibility Study, NESO's open-source market model and grid planning with Zambia's ZESCO. The summaries of all 278 projects with several organizations were rewritten from the lead organization's view, naming the client or modeller. 677 PyPSA projects are published."
+  },
+  {
+    "date": "17 Nov 2026",
+    "tag": "reclassified",
+    "title": "One name per organization, structured multi-country studies",
+    "description": "127 more name variants across all tools were merged into one name per organization (e.g. Chalmers, Instrat, ONS, OCCTO, Statnett), and 34 rows that repeated the same organization and source were removed. Free-text country fields such as \"Pan-European (covers all ENTSO-E member TSOs …)\" now name the organization's home country plus the region and countries the study covers, so these studies appear when filtering by any of those countries."
+  },
+  {
+    "date": "16 Nov 2026",
+    "tag": "added",
+    "title": "PyPSA projects from organizations' own pages and publications",
+    "description": "A deep dive into the PyPSA work of Open Energy Transition, TU Berlin, KIT, DTU, Aarhus University, PIK and eleven European TSOs (their websites and site searches), plus every OpenAlex publication whose abstract reports using PyPSA, each as one project with all its organizations. Published PyPSA projects grew from 452 to 660; for example TU Berlin now has 54 projects instead of 1, and studies such as ACER's EU-wide flexibility platform and Open-TYNDP list both the client and Open Energy Transition."
+  },
+  {
     "date": "16 Nov 2026",
     "tag": "reclassified",
     "title": "One record per project",
