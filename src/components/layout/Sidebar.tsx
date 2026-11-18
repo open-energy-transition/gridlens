@@ -27,7 +27,7 @@ const NAV_ITEMS: NavItem[] = [
   { id: 'decisions', label: 'Grid Decisions', icon: Target },
   { id: 'institutions', label: 'Institutions', icon: Building2 },
   { id: 'top-users', label: 'Top Users by Tool', icon: Users },
-  { id: 'records', label: 'Records & Export', icon: Table2 },
+  { id: 'records', label: 'Projects & Export', icon: Table2 },
   { id: 'changelog', label: 'Changelog', icon: History },
   { id: 'about', label: 'About', icon: Info },
 ];
@@ -88,7 +88,7 @@ export default function Sidebar({ active, onSelect, open, recordCount }: Sidebar
         })}
       </nav>
       <div className="border-t border-ink-800 px-5 py-3">
-        <p className="text-xs text-ink-600">Client-side only &middot; {recordCount} records</p>
+        <p className="text-xs text-ink-600">Client-side only &middot; {recordCount} projects</p>
       </div>
       <a
         href="https://openenergytransition.org/"

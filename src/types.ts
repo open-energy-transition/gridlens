@@ -20,6 +20,29 @@ export interface CatalogueRecord {
   dataset_origin: string;
   decision_type: string;
   decision_basis: string;
+  // Project fields
+  project_id: string;
+  project_title: string;
+  organizations: ProjectOrg[];
+  countries: string[];
+  geo_scope: string;
+  region_label: string;
+  sources: ProjectSource[];
+}
+
+export interface ProjectOrg {
+  name: string;
+  role: string;
+  institution_category: string;
+  country_label: string;
+}
+
+export interface ProjectSource {
+  title: string;
+  date: string;
+  link: string;
+  quote: string;
+  source_type: string;
 }
 
 export interface Filters {

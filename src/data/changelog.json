@@ -1,6 +1,12 @@
 [
   {
     "date": "16 Nov 2026",
+    "tag": "reclassified",
+    "title": "One record per project",
+    "description": "Each record is now a project or study, which can name several organizations and countries. Rows citing the same study were joined: 1298 records became 1146 projects, 114 of them with more than one organization. Institutions and Top Users count projects per organization. Filtering by a country also shows the multi-country and global studies that cover it; Grid Decisions lists that country's own projects first, then multi-country, then global, within each impact level."
+  },
+  {
+    "date": "16 Nov 2026",
     "tag": "added",
     "title": "PyPSA users worldwide",
     "description": "A country-by-country search of all 199 countries for PyPSA users, plus the PyPSA documentation's users page and OpenAlex publications whose abstracts report using PyPSA. Published PyPSA records grew from 200 to 452 (59 to 82 countries, 194 to 423 institutions); 36 earlier candidate records gained a verified source. New names were matched to the existing institutions, and one organization's PyPSA use in one country is listed once."

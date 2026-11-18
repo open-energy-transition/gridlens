@@ -16,7 +16,7 @@ type Metric = 'records' | 'tools';
 export default function Geographic({ records }: GeographicProps) {
   const [metric, setMetric] = useState<Metric>('records');
 
-  const { mapValueByAtlasName, maxValue, rows } = useMemo(() => {
+  const { mapValueByAtlasName, maxValue, rows, multiCountryCount, globalCount } = useMemo(() => {
     const recordCounts = new Map<string, number>();
     const toolSets = new Map<string, Set<string>>();
     // Separate aggregation keyed by the map atlas's own country names, so
@@ -26,6 +26,8 @@ export default function Geographic({ records }: GeographicProps) {
     // Top-15 list and tooltip, so display text never changes.
     const atlasRecordCounts = new Map<string, number>();
     const atlasToolSets = new Map<string, Set<string>>();
+    let mcCount = 0;
+    let gCount = 0;
     for (const r of records) {
       const country = safe(r.country_label);
       if (!country) continue;
@@ -52,7 +54,14 @@ export default function Geographic({ records }: GeographicProps) {
       .map(([name, count]) => ({ name, count }))
       .sort((a, b) => b.count - a.count)
       .slice(0, 15);
-    return { valueByCountry: source, mapValueByAtlasName: atlasSource, maxValue: max, rows: rowList };
+
+    // Count multi-country and global projects
+    for (const r of records) {
+      if (r.geo_scope === 'multi_country') mcCount += 1;
+      else if (r.geo_scope === 'global') gCount += 1;
+    }
+
+    return { valueByCountry: source, mapValueByAtlasName: atlasSource, maxValue: max, rows: rowList, multiCountryCount: mcCount, globalCount: gCount };
   }, [records, metric]);
 
   return (
@@ -74,7 +83,7 @@ export default function Geographic({ records }: GeographicProps) {
                   metric === m ? 'bg-brand-500/20 text-brand-300' : 'text-ink-400 hover:bg-ink-900'
                 }`}
               >
-                {m === 'records' ? 'Total Records' : 'Unique Tools'}
+                {m === 'records' ? 'Total Projects' : 'Unique Tools'}
               </button>
             ))}
           </div>
@@ -86,6 +95,12 @@ export default function Geographic({ records }: GeographicProps) {
           <MapLegend maxValue={maxValue} unitLabel={metric === 'records' ? 'Records' : 'Unique tools'} />
         </div>
       </Card>
+
+      {multiCountryCount > 0 && (
+        <p className="mt-2 text-xs text-ink-500">
+          Plus {multiCountryCount} multi-country and {globalCount} global projects.
+        </p>
+      )}
 
       <Card title="Top 15 countries" className="mt-6">
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">

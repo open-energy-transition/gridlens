@@ -96,6 +96,28 @@
       "type": "string",
       "description": "One sentence on what the organization did with the tool and which decision it informed, from the evidence only (e.g. 'Used PLEXOS to ...')."
     },
-    "notes": { "type": "string" }
+    "notes": { "type": "string" },
+    "project_id": {
+      "type": "string",
+      "description": "Groups multiple rows into one project. Rows with the same project_id and the same tool_name belong to the same project. If omitted, the row's id is used as the project_id."
+    },
+    "project_title": {
+      "type": "string",
+      "description": "A human-readable title for the project/study. Falls back to source_title of the lead row if not set."
+    },
+    "study_countries": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Country labels the study models (e.g. a multi-country regional study). Distinct from country_label which is the organization's home country."
+    },
+    "study_region": {
+      "type": "string",
+      "description": "Region a multi-country or global study covers, e.g. 'European Union', 'Europe', 'Global'. Shown instead of a country; filtering by a country in that region includes the study."
+    },
+    "geo_scope": {
+      "type": "string",
+      "enum": ["national", "multi_country", "global"],
+      "description": "Geographic scope of the study: 'national' (one country), 'multi_country' (regional or multiple countries), 'global' (worldwide). Auto-derived from country_label if not set."
+    }
   }
 }

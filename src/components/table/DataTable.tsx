@@ -3,8 +3,9 @@ import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink } from 'lucide-react';
 import type { CatalogueRecord } from '../../types';
 import { safe } from '../../lib/filters';
 import EmptyState from '../common/EmptyState';
+import { SCOPE_LABELS } from '../../lib/regions';
 
-const COLUMN_LABELS: Record<keyof CatalogueRecord, string> = {
+const COLUMN_LABELS: Record<string, string> = {
   country_label: 'Country',
   institution_name: 'Institution',
   institution_category: 'Organization type',
@@ -26,9 +27,16 @@ const COLUMN_LABELS: Record<keyof CatalogueRecord, string> = {
   dataset_origin: 'Dataset origin',
   decision_type: 'Grid decision',
   decision_basis: 'Decision basis',
+  project_id: 'Project ID',
+  project_title: 'Project title',
+  organizations: 'Organizations',
+  countries: 'Countries',
+  geo_scope: 'Scope',
+  region_label: 'Region',
+  sources: 'Sources',
 };
 
-const DEFAULT_COLUMNS: (keyof CatalogueRecord)[] = [
+const DEFAULT_COLUMNS: string[] = [
   'country_label',
   'institution_name',
   'tool_name',
@@ -36,9 +44,16 @@ const DEFAULT_COLUMNS: (keyof CatalogueRecord)[] = [
   'decision_type',
   'evidence_strength',
   'source_link',
+  'geo_scope',
 ];
 
-const ALL_COLUMN_KEYS = Object.keys(COLUMN_LABELS) as (keyof CatalogueRecord)[];
+const ALL_COLUMN_KEYS: string[] = [
+  'country_label', 'institution_name', 'institution_category', 'role',
+  'tool_name', 'tool_category', 'use_case', 'summary', 'evidence_strength',
+  'source_type', 'source_group', 'source_title', 'source_date', 'source_link',
+  'exact_snippet_or_quote', 'why_it_supports_the_claim', 'notes', 'dataset_origin',
+  'decision_type', 'decision_basis',
+];
 
 const PAGE_SIZE = 20;
 
@@ -53,17 +68,42 @@ function normalizeLink(link: string): string {
   return `https://${trimmed}`;
 }
 
+function OrgList({ orgs }: { orgs: CatalogueRecord['organizations'] }) {
+  return (
+    <span>
+      {orgs.map((o, i) => (
+        <span key={i}>
+          {i > 0 && ', '}
+          {o.name}
+        </span>
+      ))}
+    </span>
+  );
+}
+
 export default function DataTable({ records }: DataTableProps) {
-  const [columns, setColumns] = useState<(keyof CatalogueRecord)[]>(DEFAULT_COLUMNS);
-  const [sortKey, setSortKey] = useState<keyof CatalogueRecord>('tool_name');
+  const [columns, setColumns] = useState<string[]>(DEFAULT_COLUMNS);
+  const [sortKey, setSortKey] = useState<string>('tool_name');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
   const [page, setPage] = useState(0);
 
   const sorted = useMemo(() => {
     const copy = [...records];
     copy.sort((a, b) => {
-      const av = safe(a[sortKey]).toLowerCase();
-      const bv = safe(b[sortKey]).toLowerCase();
+      let av: string, bv: string;
+      if (sortKey === 'scope') {
+        av = SCOPE_LABELS[(a.geo_scope as keyof typeof SCOPE_LABELS) ?? 'national'] ?? a.geo_scope;
+        bv = SCOPE_LABELS[(b.geo_scope as keyof typeof SCOPE_LABELS) ?? 'national'] ?? b.geo_scope;
+      } else if (sortKey === 'organizations') {
+        av = a.organizations.map(o => o.name).join(', ');
+        bv = b.organizations.map(o => o.name).join(', ');
+      } else if (sortKey === 'countries') {
+        av = a.countries.join(', ');
+        bv = b.countries.join(', ');
+      } else {
+        av = safe(a[sortKey as keyof CatalogueRecord]).toLowerCase();
+        bv = safe(b[sortKey as keyof CatalogueRecord]).toLowerCase();
+      }
       if (av < bv) return sortDir === 'asc' ? -1 : 1;
       if (av > bv) return sortDir === 'asc' ? 1 : -1;
       return 0;
@@ -75,7 +115,7 @@ export default function DataTable({ records }: DataTableProps) {
   const clampedPage = Math.min(page, pageCount - 1);
   const pageRows = sorted.slice(clampedPage * PAGE_SIZE, clampedPage * PAGE_SIZE + PAGE_SIZE);
 
-  function toggleSort(key: keyof CatalogueRecord) {
+  function toggleSort(key: string) {
     if (key === sortKey) {
       setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
     } else {
@@ -85,7 +125,7 @@ export default function DataTable({ records }: DataTableProps) {
     setPage(0);
   }
 
-  function toggleColumn(key: keyof CatalogueRecord) {
+  function toggleColumn(key: string) {
     setColumns((prev) =>
       prev.includes(key) ? prev.filter((c) => c !== key) : [...prev, key]
     );
@@ -141,7 +181,7 @@ export default function DataTable({ records }: DataTableProps) {
           </thead>
           <tbody className="divide-y divide-ink-800/60">
             {pageRows.map((r, i) => (
-              <tr key={`${r.institution_name}-${r.tool_name}-${clampedPage}-${i}`} className="hover:bg-ink-900/50">
+              <tr key={`${r.project_id}-${i}`} className="hover:bg-ink-900/50">
                 {columns.map((key) => {
                   if (key === 'source_link') {
                     const link = normalizeLink(safe(r.source_link));
@@ -162,7 +202,50 @@ export default function DataTable({ records }: DataTableProps) {
                       </td>
                     );
                   }
-                  const value = safe(r[key]);
+                  if (key === 'geo_scope') {
+                    const scope = SCOPE_LABELS[(r.geo_scope as keyof typeof SCOPE_LABELS)] ?? r.geo_scope;
+                    return (
+                      <td key={key} className="whitespace-nowrap px-4 py-2.5 text-ink-300" title={scope}>
+                        {scope}
+                      </td>
+                    );
+                  }
+                  if (key === 'organizations') {
+                    return (
+                      <td key={key} className="max-w-md px-4 py-2.5 text-ink-300">
+                        <OrgList orgs={r.organizations} />
+                      </td>
+                    );
+                  }
+                  if (key === 'countries') {
+                    return (
+                      <td key={key} className="max-w-xs px-4 py-2.5 text-ink-300" title={r.countries.join(', ')}>
+                        {r.countries.join(', ') || '—'}
+                      </td>
+                    );
+                  }
+                  if (key === 'sources') {
+                    return (
+                      <td key={key} className="max-w-xs px-4 py-2.5 text-ink-300">
+                        {r.sources.length > 0 ? (
+                          r.sources.map((s, j) => (
+                            <span key={j} className={j > 0 ? 'block mt-1' : ''}>
+                              {s.link ? (
+                                <a href={normalizeLink(s.link)} target="_blank" rel="noreferrer" className="text-brand-400 hover:text-brand-300 underline">
+                                  {s.title || s.link}
+                                </a>
+                              ) : (
+                                s.title || '—'
+                              )}
+                            </span>
+                          ))
+                        ) : (
+                          '—'
+                        )}
+                      </td>
+                    );
+                  }
+                  const value = safe(r[key as keyof CatalogueRecord]);
                   return (
                     <td key={key} className="max-w-xs truncate px-4 py-2.5 text-ink-300" title={value}>
                       {value || <span className="text-ink-600">—</span>}
@@ -177,7 +260,7 @@ export default function DataTable({ records }: DataTableProps) {
 
       <div className="flex items-center justify-between text-xs text-ink-500">
         <span>
-          Page {clampedPage + 1} of {pageCount} &middot; {sorted.length} records
+          Page {clampedPage + 1} of {pageCount} &middot; {sorted.length} projects
         </span>
         <div className="flex gap-2">
           <button

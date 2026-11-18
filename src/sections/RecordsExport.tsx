@@ -13,8 +13,8 @@ export default function RecordsExport({ records }: RecordsExportProps) {
   return (
     <div>
       <SectionHeader
-        title="Records & Export"
-        description="Browse, sort and export the currently filtered records."
+        title="Projects & Export"
+        description="Browse, sort and export the currently filtered projects."
       />
       <Card>
         <div className="mb-4 flex justify-end">

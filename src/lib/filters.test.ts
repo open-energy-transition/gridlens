@@ -1,22 +1,26 @@
 import { describe, it, expect } from 'vitest';
-import { applyFilters, countBy, uniqSorted, uniqueCount, safe } from './filters';
+import { applyFilters, countBy, countByOrganization, uniqSorted, uniqueCount, safe } from './filters';
 import type { CatalogueRecord, Filters } from '../types';
 import { EMPTY_FILTERS } from '../types';
 
 function record(overrides: Partial<CatalogueRecord> = {}): CatalogueRecord {
+  const country = overrides.country_label ?? 'Brazil';
+  const instName = overrides.institution_name ?? 'ONS';
+  const orgCountry = overrides.organizations?.[0]?.country_label ?? country;
+  const orgCategory = overrides.organizations?.[0]?.institution_category ?? (overrides.institution_category ?? 'utility_iso_rto');
   return {
-    country_label: 'Brazil',
-    institution_name: 'ONS',
-    institution_category: 'utility_iso_rto',
+    country_label: country,
+    institution_name: instName,
+    institution_category: overrides.institution_category ?? 'utility_iso_rto',
     role: 'direct_user',
     official_website: '',
-    tool_name: 'NEWAVE',
+    tool_name: overrides.tool_name ?? 'NEWAVE',
     tool_category: 'production_cost',
     use_case: 'Planning',
     summary: '',
-    evidence_strength: 'HIGH',
+    evidence_strength: overrides.evidence_strength ?? 'HIGH',
     source_type: 'news_release',
-    source_group: 'industry',
+    source_group: overrides.source_group ?? 'industry',
     source_title: '',
     source_date: '',
     source_link: 'https://example.com',
@@ -26,6 +30,13 @@ function record(overrides: Partial<CatalogueRecord> = {}): CatalogueRecord {
     dataset_origin: 'esm_usage_catalog',
     decision_type: 'Unit Commitment & Dispatch',
     decision_basis: 'documented',
+    project_id: overrides.project_id ?? 'P1',
+    project_title: 'Test Project',
+    organizations: [{ name: instName, role: 'direct_user', institution_category: orgCategory, country_label: orgCountry }],
+    countries: [country],
+    geo_scope: overrides.geo_scope ?? 'national',
+    region_label: '',
+    sources: [{ title: '', date: '', link: 'https://example.com', quote: '', source_type: 'news_release' }],
     ...overrides,
   };
 }
@@ -42,9 +53,9 @@ describe('safe', () => {
 
 describe('applyFilters', () => {
   const records = [
-    record({ country_label: 'Brazil', tool_name: 'NEWAVE' }),
-    record({ country_label: 'United States of America', tool_name: 'PLEXOS', evidence_strength: 'MEDIUM' }),
-    record({ country_label: 'United States of America', tool_name: 'PyPSA', institution_category: 'academic_research', source_group: 'academic' }),
+    record({ country_label: 'Brazil', tool_name: 'NEWAVE', geo_scope: 'national' }),
+    record({ country_label: 'United States of America', institution_name: 'NREL', tool_name: 'PLEXOS', evidence_strength: 'MEDIUM', geo_scope: 'national' }),
+    record({ country_label: 'United States of America', institution_name: 'LBNL', tool_name: 'PyPSA', institution_category: 'academic_research', source_group: 'academic', geo_scope: 'national' }),
   ];
   const f = (overrides: Partial<Filters> = {}): Filters => ({ ...EMPTY_FILTERS, ...overrides });
 
@@ -54,15 +65,15 @@ describe('applyFilters', () => {
 
   it('matches a category anywhere in a multi-category record', () => {
     const multi = [
-      record({ tool_category: 'capacity_expansion; production_cost' }),
-      record({ tool_category: 'power_flow_dynamics' }),
+      record({ tool_category: 'capacity_expansion; production_cost', geo_scope: 'national' }),
+      record({ tool_category: 'power_flow_dynamics', geo_scope: 'national' }),
     ];
     expect(applyFilters(multi, f({ toolCategory: 'production_cost' }))).toHaveLength(1);
     expect(applyFilters(multi, f({ toolCategory: 'capacity_expansion' }))).toHaveLength(1);
     expect(applyFilters(multi, f({ toolCategory: 'other' }))).toHaveLength(0);
   });
 
-  it('filters by country', () => {
+  it('filters by country via coversCountry', () => {
     const result = applyFilters(records, f({ country: 'Brazil' }));
     expect(result).toHaveLength(1);
     expect(result[0].tool_name).toBe('NEWAVE');
@@ -74,7 +85,7 @@ describe('applyFilters', () => {
     expect(result[0].tool_name).toBe('PLEXOS');
   });
 
-  it('filters by organization group, licence and source group', () => {
+  it('filters by organization group across organizations', () => {
     expect(applyFilters(records, f({ orgType: 'grid_operator' }))).toHaveLength(2);
     expect(applyFilters(records, f({ orgType: 'research' }))[0].tool_name).toBe('PyPSA');
     expect(applyFilters(records, f({ license: 'open_source' })).map((r) => r.tool_name)).toEqual(['PyPSA']);
@@ -88,8 +99,9 @@ describe('applyFilters', () => {
     expect(result[0].tool_name).toBe('PLEXOS');
   });
 
-  it('free-text search matches across all fields, case-insensitively', () => {
+  it('free-text search matches across all fields and organization names', () => {
     expect(applyFilters(records, f({ search: 'pypsa' }))).toHaveLength(1);
+    expect(applyFilters(records, f({ search: 'ons' }))).toHaveLength(1);
   });
 });
 
@@ -104,6 +116,36 @@ describe('countBy', () => {
   it('skips empty values', () => {
     const records = [record({ tool_name: '' }), record({ tool_name: 'PLEXOS' })];
     expect(countBy(records, 'tool_name')).toHaveLength(1);
+  });
+});
+
+describe('countByOrganization', () => {
+  it('counts a single-org project once', () => {
+    const records = [record()];
+    expect(countByOrganization(records)).toEqual([{ name: 'ONS', count: 1 }]);
+  });
+
+  it('counts a 2-org project once per organization', () => {
+    const proj = record({
+      organizations: [
+        { name: 'ACER', role: 'commissioner', institution_category: 'international_body', country_label: 'Multi-country' },
+        { name: 'ENTSO-E', role: 'commissioner', institution_category: 'international_body', country_label: 'Multi-country' },
+      ],
+      countries: ['Germany', 'France', 'Spain'],
+      geo_scope: 'multi_country',
+      region_label: 'European Union',
+    });
+    const result = countByOrganization([proj]);
+    expect(result).toHaveLength(2);
+    expect(result.find(r => r.name === 'ACER')?.count).toBe(1);
+    expect(result.find(r => r.name === 'ENTSO-E')?.count).toBe(1);
+  });
+
+  it('counts the same org across multiple projects', () => {
+    const proj1 = record({ organizations: [{ name: 'ONS', role: 'direct_user', institution_category: 'utility_iso_rto', country_label: 'Brazil' }] });
+    const proj2 = record({ project_id: 'P2', organizations: [{ name: 'ONS', role: 'consultant_modeler', institution_category: 'utility_iso_rto', country_label: 'Brazil' }] });
+    const result = countByOrganization([proj1, proj2]);
+    expect(result.find(r => r.name === 'ONS')?.count).toBe(2);
   });
 });
 

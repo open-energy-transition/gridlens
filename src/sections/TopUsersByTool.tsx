@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Building2, Globe2, FileStack, Download } from 'lucide-react';
 import type { CatalogueRecord } from '../types';
-import { countBy, safe, uniqueCount, uniqSorted } from '../lib/filters';
+import { countBy, countByOrganization, safe, uniqueCount, uniqSorted } from '../lib/filters';
 import { downloadCsv } from '../lib/csv';
 import KpiCard from '../components/kpi/KpiCard';
 import LicenseBadge from '../components/common/LicenseBadge';
@@ -35,7 +35,7 @@ export default function TopUsersByTool({ allRecords, tool: routeTool, onToolChan
     [allRecords, tool]
   );
 
-  const institutionData = useMemo(() => countBy(toolRecords, 'institution_name').slice(0, 15), [toolRecords]);
+  const institutionData = useMemo(() => countByOrganization(toolRecords).slice(0, 15), [toolRecords]);
   const countryData = useMemo(() => countBy(toolRecords, 'country_label').slice(0, 15), [toolRecords]);
   const evidenceData = useMemo(() => countBy(toolRecords, 'evidence_strength'), [toolRecords]);
 
@@ -69,11 +69,11 @@ export default function TopUsersByTool({ allRecords, tool: routeTool, onToolChan
       </div>
 
       {toolRecords.length === 0 ? (
-        <EmptyState title={`No records for ${tool}`} />
+        <EmptyState title={`No projects for ${tool}`} />
       ) : (
         <>
           <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <KpiCard icon={FileStack} label="Records" value={toolRecords.length} />
+            <KpiCard icon={FileStack} label="Projects" value={toolRecords.length} />
             <KpiCard icon={Building2} label="Institutions" value={uniqueCount(toolRecords, 'institution_name')} />
             <KpiCard icon={Globe2} label="Countries" value={uniqueCount(toolRecords, 'country_label')} />
           </div>
@@ -91,11 +91,11 @@ export default function TopUsersByTool({ allRecords, tool: routeTool, onToolChan
             <VerticalBarChart data={evidenceData} />
           </Card>
 
-          <Card className="mt-6" title={`All ${tool} records`}>
+          <Card className="mt-6" title={`All ${tool} projects`}>
             <div className="mb-4 flex justify-end">
               <button
                 type="button"
-                onClick={() => downloadCsv(`${tool.replace(/\s+/g, '_')}_records.csv`, toolRecords)}
+                onClick={() => downloadCsv(`${tool.replace(/\s+/g, '_')}_projects.csv`, toolRecords)}
                 className="flex items-center gap-2 rounded-lg bg-brand-500 px-3 py-2 text-sm font-semibold text-ink-950 transition-colors hover:bg-brand-400"
               >
                 <Download size={16} />

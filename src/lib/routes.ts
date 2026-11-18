@@ -16,7 +16,7 @@ const TITLE_MAP: Record<Section, string> = {
   decisions: 'Grid Decisions · GridLens',
   institutions: 'Institutions · GridLens',
   'top-users': 'Top Users by Tool · GridLens',
-  records: 'Records & Export · GridLens',
+  records: 'Projects & Export · GridLens',
   about: 'About · GridLens',
   changelog: 'Changelog · GridLens',
 };

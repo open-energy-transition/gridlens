@@ -162,7 +162,7 @@ export default function FilterBar({
           </button>
         )}
         <div className="ml-auto text-xs text-ink-500">
-          Showing <span className="font-semibold text-ink-200">{resultCount}</span> of {totalCount} records
+          Showing <span className="font-semibold text-ink-200">{resultCount}</span> of {totalCount} projects
         </div>
       </div>
     </div>

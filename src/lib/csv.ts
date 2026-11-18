@@ -1,6 +1,10 @@
 import type { CatalogueRecord } from '../types';
 
 const ALL_COLUMNS: (keyof CatalogueRecord)[] = [
+  'project_title',
+  'organizations',
+  'countries',
+  'geo_scope',
   'country_label',
   'institution_name',
   'institution_category',
@@ -21,8 +25,17 @@ const ALL_COLUMNS: (keyof CatalogueRecord)[] = [
   'dataset_origin',
 ];
 
+/** Lists become "a; b"; organizations "Name (role)"; sources their link. */
+function cellText(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  if (!Array.isArray(value)) return String(value);
+  return value
+    .map((v) => (typeof v !== 'object' ? String(v) : 'name' in v ? `${v.name} (${v.role})` : String(v.link ?? '')))
+    .join('; ');
+}
+
 function escapeCsvCell(value: unknown): string {
-  const str = value === null || value === undefined ? '' : String(value);
+  const str = cellText(value);
   if (/[",\n]/.test(str)) {
     return `"${str.replace(/"/g, '""')}"`;
   }

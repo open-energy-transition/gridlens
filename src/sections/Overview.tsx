@@ -46,7 +46,7 @@ export default function Overview({ records, onNavigate }: OverviewProps) {
               <Card key={g.category.id}>
                 <div className="mb-1 flex items-baseline justify-between gap-3">
                   <h3 className="font-display text-sm font-semibold text-ink-100">{g.category.label}</h3>
-                  <span className="shrink-0 text-sm tabular-nums text-ink-400">{g.total} records</span>
+                  <span className="shrink-0 text-sm tabular-nums text-ink-400">{g.total} projects</span>
                 </div>
                 <p className="mb-4 text-xs leading-relaxed text-ink-500">{g.category.description}</p>
                 <HorizontalBarChart data={g.tools} colorIndex={g.colorIndex} badge={(name) => <LicenseBadge tool={name} />} />
