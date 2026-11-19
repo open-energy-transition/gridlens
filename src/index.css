@@ -1,66 +1,89 @@
-@import url("https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap");
 @import "tailwindcss";
 
 @theme {
-  /* OET neutral scale — true grays (not blue-tinted slate), anchored by
-     OET's own white/#efefef grey pairing. */
-  --color-ink-50: #f7f7f7;
-  --color-ink-100: #efefef;
-  --color-ink-200: #dcdcdc;
-  --color-ink-300: #bdbdbd;
-  --color-ink-400: #8f8f8f;
-  --color-ink-500: #6b6b6b;
-  --color-ink-600: #4a4a4a;
-  --color-ink-700: #333333;
-  --color-ink-800: #202020;
-  --color-ink-900: #151515;
-  --color-ink-950: #0b0b0b;
+  /* Night-sky neutrals with a faint blue cast (as on OET's EarthPV), ending in warm paper white. */
+  --color-ink-50: #f4efe6;
+  --color-ink-100: #e8e3da;
+  --color-ink-200: #cdcad3;
+  --color-ink-300: #a7a6b6;
+  --color-ink-400: #83849a;
+  --color-ink-500: #62647a;
+  --color-ink-600: #45485d;
+  --color-ink-700: #2f3245;
+  --color-ink-800: #1f2234;
+  --color-ink-900: #131626;
+  --color-ink-950: #080a13;
 
-  /* OET brand red — primary accent, anchored at the exact style-guide hex. */
-  --color-brand-50: #fdeef0;
-  --color-brand-100: #fbd6db;
-  --color-brand-200: #f6adb8;
-  --color-brand-300: #ee7d8f;
-  --color-brand-400: #e84f68;
-  --color-brand-500: #e31937;
-  --color-brand-600: #c01230;
-  --color-brand-700: #9c0f28;
-  --color-brand-800: #7a0c20;
-  --color-brand-900: #5c0919;
+  /* Ember: the warm accent (links, highlights, open-source tools). */
+  --color-brand-50: #fff4ed;
+  --color-brand-100: #ffe3d3;
+  --color-brand-200: #ffc5a8;
+  --color-brand-300: #ffa47c;
+  --color-brand-400: #ff8b5e;
+  --color-brand-500: #f2703f;
+  --color-brand-600: #d6582b;
+  --color-brand-700: #ad4320;
+  --color-brand-800: #82331b;
+  --color-brand-900: #552314;
 
-  /* OET sage — secondary accent, anchored at the exact style-guide hex. */
-  --color-sage-50: #f2f6f3;
-  --color-sage-100: #e1ebe3;
-  --color-sage-200: #c3d7c8;
+  /* Dusk rose: second accent, the far end of the ember gradient. */
+  --color-rose-300: #f1a6c5;
+  --color-rose-400: #e27aa6;
+  --color-rose-500: #cc5c8d;
+
+  /* OET sage, kept for small status marks. */
   --color-sage-300: #a1bfa8;
   --color-sage-400: #8fac97;
   --color-sage-500: #7c9885;
-  --color-sage-600: #678073;
   --color-sage-700: #536760;
-  --color-sage-800: #3f4e4a;
-  --color-sage-900: #2c3633;
 
-  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-display: "Oswald", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 }
 
 .font-display {
   font-family: var(--font-display);
+  font-optical-sizing: auto;
+  letter-spacing: -0.01em;
+}
+
+/* Ember-to-rose wash for the few words that carry the page's message. */
+.text-glow {
+  background: linear-gradient(95deg, #ff9a6a 0%, #f2703f 40%, #e27aa6 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 :root {
   color-scheme: dark;
 }
 
-html, body, #root {
-  height: 100%;
+html {
+  scroll-padding-top: 5rem;
 }
 
 body {
   margin: 0;
-  background-color: #0b0b0b;
-  color: #efefef;
+  color: var(--color-ink-100);
   font-family: var(--font-sans);
+  background-color: var(--color-ink-950);
+  /* A faint dusk glow at the top of the page, like a horizon. */
+  background-image:
+    radial-gradient(70rem 30rem at 50% -10rem, rgba(106, 84, 190, 0.16), transparent 70%),
+    radial-gradient(40rem 18rem at 85% -4rem, rgba(242, 112, 63, 0.08), transparent 70%);
+  background-repeat: no-repeat;
+  -webkit-font-smoothing: antialiased;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: rgba(242, 112, 63, 0.35);
 }
 
 ::-webkit-scrollbar {
@@ -71,6 +94,12 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background-color: #333333;
+  background-color: var(--color-ink-700);
   border-radius: 9999px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }

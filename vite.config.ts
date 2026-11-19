@@ -4,22 +4,25 @@ import { defineConfig } from 'vite'
 import fs from 'fs'
 import path from 'path'
 
-const STATIC_ROUTES = [
-  '/', '/geographic', '/tools', '/grid-decisions',
-  '/institutions', '/top-users', '/records', '/about', '/changelog',
-]
+const TOOLS: { name: string }[] = JSON.parse(fs.readFileSync('src/data/tools.json', 'utf-8'))
+const slug = (n: string) => n.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
 const PAGE_NAMES: Record<string, string> = {
-  '/': "GridLens — See who's using which energy models, where",
-  '/geographic': 'Geographic Analysis · GridLens',
-  '/tools': 'Tools & Categories · GridLens',
-  '/grid-decisions': 'Grid Decisions · GridLens',
-  '/institutions': 'Institutions · GridLens',
-  '/top-users': 'Top Users by Tool · GridLens',
-  '/records': 'Records & Export · GridLens',
-  '/about': 'About · GridLens',
+  '/': "GridLens — who uses which energy models, where, for which grid decisions",
+  '/tools': 'Tools · GridLens',
+  '/organizations': 'Organizations · GridLens',
+  '/projects': 'Projects & data · GridLens',
+  '/methodology': 'About & methodology · GridLens',
   '/changelog': 'Changelog · GridLens',
+  ...Object.fromEntries(TOOLS.map((t) => [`/tools/${slug(t.name)}`, `${t.name} · Tools · GridLens`])),
 }
+
+// Each page gets its own index.html so it is served with status 200; pages of earlier versions
+// (/grid-decisions, /records, ...) are kept too, and the app forwards them to their new home.
+const STATIC_ROUTES = [
+  ...Object.keys(PAGE_NAMES),
+  '/geographic', '/grid-decisions', '/institutions', '/top-users', '/records', '/about',
+]
 
 function spaRoutesPlugin() {
   return {

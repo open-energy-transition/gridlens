@@ -1,16 +1,16 @@
 import { isOpenSource } from '../../lib/tools';
 
-/** Small pill marking a tool as open source or proprietary. */
+/** Small mark for a tool's licence: ember for open source, slate for proprietary. */
 export default function LicenseBadge({ tool }: { tool: string }) {
   const open = isOpenSource(tool);
   return (
     <span
-      className={`shrink-0 rounded-full px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide ${
-        open ? 'bg-emerald-500/15 text-emerald-400' : 'bg-ink-800 text-ink-400'
+      className={`shrink-0 rounded-full border px-1.5 py-px font-mono text-[10px] uppercase tracking-wide ${
+        open ? 'border-brand-500/40 text-brand-300' : 'border-ink-700 text-ink-400'
       }`}
       title={open ? 'Open-source software' : 'Proprietary (commercial licence)'}
     >
-      {open ? 'Open source' : 'Proprietary'}
+      {open ? 'Open' : 'Proprietary'}
     </span>
   );
 }

@@ -37,6 +37,8 @@ export interface ProjectOrg {
   role: string;
   institution_category: string;
   country_label: string;
+  /** Organization's own website, when known. */
+  website?: string;
 }
 
 export interface ProjectSource {

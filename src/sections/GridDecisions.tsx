@@ -1,218 +1,151 @@
 import { useMemo, useState } from 'react';
-import {
-  Landmark,
-  LineChart,
-  Network,
-  Gauge,
-  Leaf,
-  TrendingUp,
-  ScrollText,
-  GraduationCap,
-  Briefcase,
-  HelpCircle,
-  ExternalLink,
-  type LucideIcon,
-} from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import type { CatalogueRecord } from '../types';
 import ChartCard from '../components/chart/ChartCard';
-import { useChart } from '../lib/chartFilters';
 import EmptyState from '../components/common/EmptyState';
+import { useChart } from '../lib/chartFilters';
 import { IMPACT_INFO, IMPACT_ORDER, projectImpact, rankProjects, type Impact } from '../lib/impact';
 import { orgGroup, orgGroupLabel } from '../lib/orgTypes';
+import { DECISION_TYPES, decisionOf } from '../lib/insights';
+import { Link, slug } from '../lib/router';
 
-const DECISION_ICONS: Record<string, LucideIcon> = {
-  'Capacity & Resource Planning': TrendingUp,
-  'Unit Commitment & Dispatch': Gauge,
-  'Market Operations & Price Formation': LineChart,
-  'Transmission & Network Planning': Network,
-  'Renewable Integration & Decarbonization': Leaf,
-  'Forecasting & Scenario Analysis': ScrollText,
-  'Policy & Regulatory Analysis': Landmark,
-  'Academic & Research Studies': GraduationCap,
-  'Independent & Commissioned Studies': Briefcase,
-  'Other / General Modeling': HelpCircle,
+const DESCRIPTIONS: Record<string, string> = {
+  'Capacity & Resource Planning': 'Long-term investment in generation and storage, and resource adequacy.',
+  'Unit Commitment & Dispatch': 'Short-term scheduling and dispatch of power plants.',
+  'Market Operations & Price Formation': 'Wholesale market clearing, prices and market design.',
+  'Transmission & Network Planning': 'Grid expansion, interconnectors and connection studies.',
+  'Renewable Integration & Decarbonization': 'Integrating renewables and net-zero pathways.',
+  'Forecasting & Scenario Analysis': 'Demand and supply forecasts, and scenarios.',
+  'Policy & Regulatory Analysis': 'Policy design, regulatory reviews and national energy plans.',
+  'Academic & Research Studies': 'Studies by universities and research institutes.',
+  'Independent & Commissioned Studies': 'Studies by consultancies, often commissioned by decision-makers.',
+  'Other / General Modeling': 'Projects whose source does not name a specific decision.',
 };
 
-const DECISION_DESCRIPTIONS: Record<string, string> = {
-  'Capacity & Resource Planning': 'Long-term generation/resource investment and adequacy decisions.',
-  'Unit Commitment & Dispatch': 'Short-term operational scheduling and dispatch of generating units.',
-  'Market Operations & Price Formation': 'Wholesale market clearing, price formation, and market design.',
-  'Transmission & Network Planning': 'Grid/network expansion, interconnection, and connection studies.',
-  'Renewable Integration & Decarbonization': 'Renewable integration, decarbonization and net-zero pathway studies.',
-  'Forecasting & Scenario Analysis': 'Demand/supply forecasting and scenario generation.',
-  'Policy & Regulatory Analysis': 'Policy design, regulatory review, and government energy planning.',
-  'Academic & Research Studies': 'Academic and research-institution studies of power systems.',
-  'Independent & Commissioned Studies': 'Third-party consulting, vendor, or commissioned engagements.',
-  'Other / General Modeling': 'General-purpose modeling not cleanly matching another category.',
+const SHORT: Record<string, string> = {
+  'Capacity & Resource Planning': 'Capacity planning',
+  'Transmission & Network Planning': 'Transmission',
+  'Market Operations & Price Formation': 'Markets',
+  'Unit Commitment & Dispatch': 'Dispatch',
+  'Renewable Integration & Decarbonization': 'Renewables',
+  'Policy & Regulatory Analysis': 'Policy',
+  'Forecasting & Scenario Analysis': 'Forecasts',
+  'Independent & Commissioned Studies': 'Commissioned',
+  'Academic & Research Studies': 'Research',
+  'Other / General Modeling': 'General',
 };
 
-function groupByDecisionType(records: CatalogueRecord[]) {
-  const groups = new Map<string, CatalogueRecord[]>();
-  for (const r of records) {
-    const key = r.decision_type || 'Other / General Modeling';
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key)!.push(r);
-  }
-  return Array.from(groups.entries()).sort((a, b) => b[1].length - a[1].length);
-}
+const IMPACT_DOT: Record<Impact, string> = { high: 'bg-brand-400', medium: 'bg-rose-400', low: 'bg-ink-500' };
+const PAGE = 6;
 
-const PAGE = 2;
-/** Decision types shown before "Show all". */
-const TYPES = 6;
-const MORE = 6;
-
-const IMPACT_STYLE: Record<Impact, string> = {
-  high: 'bg-emerald-500/15 text-emerald-400',
-  medium: 'bg-sky-500/15 text-sky-400',
-  low: 'bg-ink-800 text-ink-400',
-};
-
-function ImpactBadge({ impact }: { impact: Impact }) {
+function ImpactMark({ impact }: { impact: Impact }) {
   return (
-    <span
-      className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${IMPACT_STYLE[impact]}`}
-      title={IMPACT_INFO[impact].description}
-    >
+    <span className="inline-flex items-center gap-1.5 text-xs text-ink-400" title={IMPACT_INFO[impact].description}>
+      <span className={`h-2 w-2 rounded-full ${IMPACT_DOT[impact]}`} aria-hidden="true" />
       {IMPACT_INFO[impact].label}
     </span>
   );
 }
 
-function DecisionCard({ decisionType, records, country }: { decisionType: string; records: CatalogueRecord[]; country?: string }) {
-  const Icon = DECISION_ICONS[decisionType] ?? HelpCircle;
-  const ranked = useMemo(() => rankProjects(records, country), [records, country]);
-  const byImpact = useMemo(() => {
-    const c: Record<Impact, number> = { high: 0, medium: 0, low: 0 };
-    for (const r of records) c[projectImpact(r)] += 1;
-    return c;
-  }, [records]);
-  const [shown, setShown] = useState(PAGE);
-  const examples = ranked.slice(0, shown);
-
+export function ProjectRow({ r }: { r: CatalogueRecord }) {
+  const text = r.summary.trim() || r.use_case.trim();
+  const where = r.geo_scope === 'national'
+    ? r.country_label
+    : `${r.geo_scope === 'global' ? 'Global' : r.region_label || (r.countries.length > 1 ? r.countries.slice(0, 4).join(', ') : 'Multi-country')} study`;
   return (
-    <div className="rounded-lg border border-ink-800 bg-ink-950/40 p-4">
-      <div className="mb-3 flex items-start gap-3">
-        <div className="rounded-lg bg-brand-500/10 p-2 text-brand-400">
-          <Icon size={20} />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <h3 className="font-display text-sm font-semibold text-ink-100">{decisionType}</h3>
-            <span className="shrink-0 rounded-full bg-ink-800 px-2 py-0.5 text-xs font-semibold text-ink-300">
-              {records.length}
+    <li className="grid gap-2 py-4 sm:grid-cols-[1fr_auto] sm:gap-6">
+      <div className="min-w-0">
+        <p className="text-ink-50">
+          {r.organizations.map((o, k) => (
+            <span key={o.name}>
+              {k > 0 && <span className="text-ink-600"> · </span>}
+              {o.name}
+              {o.role !== 'direct_user' && <span className="text-ink-500"> ({o.role.replace(/_/g, ' ')})</span>}
             </span>
-          </div>
-          <p className="mt-1 text-xs text-ink-500">{DECISION_DESCRIPTIONS[decisionType] ?? ''}</p>
-          <p className="mt-1.5 text-xs text-ink-500">
-            {IMPACT_ORDER.filter((i) => byImpact[i]).map((i, k) => (
-              <span key={i}>
-                {k > 0 && ' · '}
-                <span className="tabular-nums text-ink-300">{byImpact[i]}</span> {IMPACT_INFO[i].label.toLowerCase()}
-              </span>
-            ))}
-          </p>
-        </div>
+          ))}
+        </p>
+        <p className="mt-1 text-xs text-ink-500">
+          {[r.year, <Link key="t" href={`/tools/${slug(r.tool_name)}`} className="text-ink-300 hover:text-ink-50">{r.tool_name}</Link>,
+            <span key="w" title={r.countries.join(', ')}>{where}</span>, orgGroupLabel(orgGroup(r)),
+            r.decision_basis !== 'documented' ? 'decision inferred' : null]
+            .filter(Boolean)
+            .map((x, i) => <span key={i}>{i > 0 && ' · '}{x}</span>)}
+        </p>
+        {text && <p className="mt-2 max-w-3xl text-sm leading-relaxed text-ink-300">{text}</p>}
       </div>
-
-      <div className="space-y-3">
-        {examples.map((r, i) => {
-          const text = r.summary.trim() || r.use_case.trim();
-          const where =
-            r.geo_scope === 'national'
-              ? r.country_label
-              : `${r.geo_scope === 'global' ? 'Global' : r.countries.length > 1 && !r.region_label ? r.countries.join(', ') : r.region_label || 'Multi-country'} study`;
-          return (
-            <div key={i} className="rounded-lg border border-ink-800 bg-ink-950/60 p-3">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0">
-                  <div className="text-sm font-medium text-ink-200">
-                    {r.organizations.map((o, k) => (
-                      <span key={o.name}>
-                        {k > 0 && <span className="text-ink-600"> · </span>}
-                        {o.name}
-                        {o.role !== 'direct_user' && <span className="text-ink-500"> ({o.role.replace(/_/g, ' ')})</span>}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="mt-1 text-xs text-ink-500">
-                    {r.year && <span className="font-medium text-ink-300">{r.year} · </span>}
-                    {r.tool_name} · <span title={r.countries.join(', ')}>{where}</span> · {orgGroupLabel(orgGroup(r))}
-                    {r.decision_basis !== 'documented' && (
-                      <span title="The grid decision was inferred, not stated in the source"> · decision inferred</span>
-                    )}
-                  </div>
-                </div>
-                <ImpactBadge impact={projectImpact(r)} />
-              </div>
-              {text && <p className="mt-2 text-sm leading-relaxed text-ink-300">{text}</p>}
-              {r.sources.length > 0 && r.sources[0].link && (
-                <a
-                  href={r.sources[0].link.trim()}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-brand-400 hover:text-brand-300"
-                >
-                  View source <ExternalLink size={11} />
-                </a>
-              )}
-            </div>
-          );
-        })}
+      <div className="flex items-center gap-4 sm:flex-col sm:items-end sm:gap-2">
+        <ImpactMark impact={projectImpact(r)} />
+        {r.sources[0]?.link && (
+          <a href={r.sources[0].link.trim()} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-brand-300 hover:text-brand-200">
+            Source <ArrowUpRight size={12} />
+          </a>
+        )}
       </div>
-      {ranked.length > PAGE && (
-        <div className="mt-3 flex gap-3 text-xs font-medium">
-          {shown < ranked.length && (
-            <button type="button" onClick={() => setShown((n) => n + MORE)} className="text-brand-400 hover:text-brand-300">
-              Show {Math.min(MORE, ranked.length - shown)} more of {ranked.length - shown}
-            </button>
-          )}
-          {shown > PAGE && (
-            <button type="button" onClick={() => setShown(PAGE)} className="text-ink-400 hover:text-ink-200">
-              Show less
-            </button>
-          )}
-        </div>
-      )}
-    </div>
+    </li>
   );
 }
 
-/** Grid decisions by type, highest impact first; with a country filter, its own studies before multi-country and global ones. */
+/**
+ * The grid decisions the tools support, one decision type at a time, highest impact first.
+ * With a country filter, that country's own studies come before multi-country and global ones.
+ */
 export default function GridDecisions() {
   const { filters, records } = useChart('decisions');
-  const groups = useMemo(() => groupByDecisionType(records), [records]);
-  // Keep the one-page layout scannable: the largest decision types first, the rest on request.
-  const [allTypes, setAllTypes] = useState(false);
-  const visible = allTypes ? groups : groups.slice(0, TYPES);
   const country = filters.country === 'All' ? undefined : filters.country;
+  const counts = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const r of records) m.set(decisionOf(r), (m.get(decisionOf(r)) ?? 0) + 1);
+    return m;
+  }, [records]);
+  const types = DECISION_TYPES.filter((d) => counts.get(d));
+  const [picked, setPicked] = useState('All');
+  const type = picked === 'All' || counts.get(picked) ? picked : 'All';
+  const [shown, setShown] = useState(PAGE);
+  const ranked = useMemo(
+    () => rankProjects(type === 'All' ? records : records.filter((r) => decisionOf(r) === type), country),
+    [records, type, country],
+  );
+
+  const tab = (id: string, label: string, n: number) => (
+    <button key={id} type="button" role="tab" aria-selected={type === id} onClick={() => { setPicked(id); setShown(PAGE); }}
+      className={`shrink-0 rounded-full px-3 py-1.5 text-sm transition-colors ${type === id ? 'bg-ink-50 text-ink-950' : 'text-ink-400 hover:bg-ink-800/70 hover:text-ink-100'}`}>
+      {label} <span className={`tabular ml-1 text-xs ${type === id ? 'text-ink-600' : 'text-ink-600'}`}>{n}</span>
+    </button>
+  );
 
   return (
     <ChartCard
       id="decisions"
       title="Grid decisions"
-      description="What each tool is actually used for, highest-impact examples first. Filter by tool, country or organization type to see what your peers did."
+      description="What the tools are actually used to decide, with the most consequential examples first: projects in which a grid operator, utility, regulator or ministry used or commissioned the modelling."
     >
-      <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-xs text-ink-400">
-        {IMPACT_ORDER.map((i) => (
-          <span key={i} className="flex items-center gap-2">
-            <ImpactBadge impact={i} />
-            {IMPACT_INFO[i].description}
-          </span>
-        ))}
-      </div>
-      {groups.length === 0 ? (
+      {records.length === 0 ? (
         <EmptyState />
       ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {visible.map(([decisionType, decisionRecords]) => (
-            <DecisionCard key={decisionType} decisionType={decisionType} records={decisionRecords} country={country} />
-          ))}
-        </div>
-      )}
-      {groups.length > TYPES && (
-        <button type="button" onClick={() => setAllTypes((a) => !a)} className="mt-4 h-9 rounded-lg border border-ink-800 px-3 text-xs font-medium text-ink-300 hover:text-ink-100">
-          {allTypes ? 'Show fewer decision types' : `Show all ${groups.length} decision types`}
-        </button>
+        <>
+          <div role="tablist" aria-label="Decision type" className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
+            {tab('All', 'All decisions', records.length)}
+            {types.map((d) => tab(d, SHORT[d] ?? d, counts.get(d)!))}
+          </div>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-ink-800/80 pb-3">
+            <p className="text-sm text-ink-400">{type === 'All' ? 'All projects, highest impact first.' : DESCRIPTIONS[type]}</p>
+            <div className="flex gap-4">{IMPACT_ORDER.map((i) => <ImpactMark key={i} impact={i} />)}</div>
+          </div>
+          <ul className="divide-y divide-ink-800/80">
+            {ranked.slice(0, shown).map((r) => <ProjectRow key={`${r.project_id}-${r.tool_name}`} r={r} />)}
+          </ul>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {shown < ranked.length && (
+              <button type="button" onClick={() => setShown((n) => n + PAGE * 2)} className="h-9 rounded-full border border-ink-700 px-4 text-xs text-ink-300 hover:text-ink-50">
+                Show more ({ranked.length - shown} left)
+              </button>
+            )}
+            <Link href={`/projects${type === 'All' ? '' : `?projects.q=${encodeURIComponent(type)}`}`}
+              className="flex h-9 items-center rounded-full px-4 text-xs text-ink-400 hover:text-ink-50">
+              Open in the project table
+            </Link>
+          </div>
+        </>
       )}
     </ChartCard>
   );

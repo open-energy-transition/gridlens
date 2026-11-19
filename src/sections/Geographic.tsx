@@ -3,7 +3,7 @@ import { safe } from '../lib/filters';
 import { toAtlasName } from '../lib/countryAliases';
 import WorldMap from '../components/charts/WorldMap';
 import MapLegend from '../components/charts/MapLegend';
-import { Segmented } from '../components/common/AdoptionRanking';
+import Segmented from '../components/chart/Segmented';
 import ChartCard from '../components/chart/ChartCard';
 import { useChart } from '../lib/chartFilters';
 
@@ -23,7 +23,7 @@ export default function Geographic() {
     let gCount = 0;
     for (const r of records) {
       const country = safe(r.country_label);
-      if (!country) continue;
+      if (!country || r.geo_scope !== 'national') continue;
       recordCounts.set(country, (recordCounts.get(country) ?? 0) + 1);
       const tool = safe(r.tool_name);
       if (tool) {
@@ -60,44 +60,34 @@ export default function Geographic() {
     <ChartCard
       id="map"
       title="Where the tools are used"
+      description="Projects per country. Regional and global studies are counted separately below the map."
       actions={
         <Segmented
           label="Metric"
           value={metric}
           onChange={(v) => setMetric(v as Metric)}
-          options={[{ id: 'records', label: 'Total projects' }, { id: 'tools', label: 'Unique tools' }]}
+          options={[{ id: 'records', label: 'Projects' }, { id: 'tools', label: 'Distinct tools' }]}
         />
       }
     >
-      <div className="flex flex-col lg:flex-row">
+      <div className="flex flex-col lg:flex-row lg:gap-4">
         <div className="min-w-0 flex-1">
-          <WorldMap valueByCountry={mapValueByAtlasName} maxValue={maxValue} />
+          <WorldMap valueByCountry={mapValueByAtlasName} maxValue={maxValue} unit={metric === 'records' ? 'projects' : 'tools'} />
         </div>
-        <MapLegend maxValue={maxValue} unitLabel={metric === 'records' ? 'Records' : 'Unique tools'} />
+        <MapLegend maxValue={maxValue} unitLabel={metric === 'records' ? 'Projects' : 'Tools'} />
       </div>
-
-      {multiCountryCount > 0 && (
-        <p className="mt-2 text-xs text-ink-500">
-          Plus {multiCountryCount} multi-country and {globalCount} global projects.
-        </p>
+      {multiCountryCount + globalCount > 0 && (
+        <p className="mt-3 text-xs text-ink-500">Plus {multiCountryCount} multi-country and {globalCount} global projects.</p>
       )}
-
-      <div className="mt-4 rounded-lg border border-ink-800 bg-ink-950/40 p-4">
-        <h3 className="mb-3 font-display text-sm font-semibold text-ink-100">Top 15 countries</h3>
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {rows.map((row) => (
-            <div
-              key={row.name}
-              className="flex items-center justify-between rounded-lg border border-ink-800 bg-ink-950/60 px-3 py-2 text-sm"
-            >
-              <span className="truncate text-ink-300" title={row.name}>
-                {row.name}
-              </span>
-              <span className="font-semibold text-brand-400">{row.count}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <h3 className="mb-3 mt-6 text-xs uppercase tracking-[0.14em] text-ink-500">Top countries</h3>
+      <ol className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
+        {rows.map((row, i) => (
+          <li key={row.name} className="flex items-baseline justify-between gap-3 border-b border-ink-800/70 py-2 text-sm">
+            <span className="flex min-w-0 gap-3"><span className="tabular w-5 shrink-0 text-xs text-ink-600">{i + 1}</span><span className="truncate text-ink-200" title={row.name}>{row.name}</span></span>
+            <span className="tabular text-ink-300">{row.count}</span>
+          </li>
+        ))}
+      </ol>
     </ChartCard>
   );
 }

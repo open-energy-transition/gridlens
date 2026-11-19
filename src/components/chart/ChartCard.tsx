@@ -81,7 +81,7 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
   }, [open]);
 
   async function copyLink() {
-    const url = `${window.location.origin}/${chartFiltersToSearch({ [id]: filters })}#${id}`;
+    const url = `${window.location.origin}${window.location.pathname}${chartFiltersToSearch({ [id]: filters })}#${id}`;
     try {
       await navigator.clipboard.writeText(url);
     } catch {
@@ -92,23 +92,23 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
   }
 
   const set = (k: FilterKey, v: string) => setFilters({ ...filters, [k]: v });
-  const iconBtn = 'flex h-9 items-center gap-1.5 rounded-lg border border-ink-800 px-2.5 text-xs font-medium text-ink-300 hover:border-ink-700 hover:text-ink-100';
+  const iconBtn = 'flex h-9 items-center gap-1.5 rounded-full border border-ink-700/80 px-3 text-xs font-medium text-ink-300 transition-colors hover:border-ink-500 hover:text-ink-50';
 
   return (
-    <div className="rounded-xl border border-ink-800 bg-ink-900/60 p-4 shadow-sm shadow-black/20 sm:p-5">
-      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1 basis-60">
-          <h3 className="font-display text-base font-semibold text-ink-50">{title}</h3>
-          {description && <p className="mt-1 text-xs leading-relaxed text-ink-500">{description}</p>}
+    <div className="rounded-2xl border border-ink-800/80 bg-ink-900/40 p-4 sm:p-6">
+      <div className="mb-4 flex flex-wrap items-start gap-3">
+        <div className="order-1 min-w-0 flex-1 basis-48">
+          <h3 className="font-display text-xl font-medium text-ink-50">{title}</h3>
+          {description && <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-400">{description}</p>}
         </div>
-        <div className="relative flex flex-wrap items-center gap-2">
-          {actions}
+        {actions && <div className="order-3 flex basis-full flex-wrap items-center gap-2 lg:order-2 lg:basis-auto">{actions}</div>}
+        <div className="relative order-2 flex items-center gap-2 lg:order-3">
           <button type="button" onClick={copyLink} className={iconBtn} aria-label={`Copy link to ${title}`} title="Copy link to this chart">
             {copied ? <Check size={15} /> : <Link2 size={15} />}
           </button>
-          <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className={`${iconBtn} ${active.length ? 'border-brand-500/60 text-brand-300' : ''}`}>
+          <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="Filters" className={`${iconBtn} ${active.length ? 'border-brand-500/70 text-brand-200' : ''}`}>
             <SlidersHorizontal size={15} />
-            Filters{active.length > 0 && <span className="rounded-full bg-brand-500/20 px-1.5 tabular-nums">{active.length}</span>}
+            <span className="hidden sm:inline">Filters</span>{active.length > 0 && <span className="rounded-full bg-brand-500/20 px-1.5 tabular-nums">{active.length}</span>}
           </button>
           {open && (
             <>
@@ -123,9 +123,9 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
                   <p className="text-sm font-semibold text-ink-100">Filter this chart</p>
                   <span className="text-xs text-ink-500"><span className="font-semibold text-ink-200">{records.length}</span> of {catalogue.length} projects</span>
                 </div>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="grid grid-cols-2 gap-3">
                   {fields.map((k) => k === 'search' ? (
-                    <label key={k} className="flex flex-col gap-1 text-xs font-medium text-ink-400 sm:col-span-2">
+                    <label key={k} className="col-span-2 flex flex-col gap-1 text-xs font-medium text-ink-400">
                       Search
                       <span className="relative">
                         <Search size={14} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-500" />
@@ -142,11 +142,11 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
                     <Select key={k} label={FIELDS[k].label} value={filters[k]} options={FIELDS[k].options(options)} display={FIELDS[k].display} onChange={(v) => set(k, v)} />
                   ))}
                 </div>
-                <div className="mt-4 flex justify-end gap-2">
+                <div className="sticky -bottom-6 -mx-4 mt-4 flex justify-end gap-2 border-t border-ink-800 bg-ink-950 px-4 pb-1 pt-3 md:static md:mx-0 md:border-0 md:p-0">
                   {activeCount(filters) > 0 && (
-                    <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className="rounded-lg border border-ink-800 px-3 py-2 text-sm text-ink-300 hover:text-ink-100">Clear all</button>
+                    <button type="button" onClick={() => setFilters(EMPTY_FILTERS)} className="rounded-full border border-ink-700 px-4 py-2 text-sm text-ink-300 hover:text-ink-100">Clear all</button>
                   )}
-                  <button type="button" onClick={() => setOpen(false)} className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-ink-950 hover:bg-brand-400">Done</button>
+                  <button type="button" onClick={() => setOpen(false)} className="rounded-full bg-ink-50 px-4 py-2 text-sm font-medium text-ink-950 hover:bg-white">Done</button>
                 </div>
               </div>
             </>

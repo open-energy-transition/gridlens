@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { colorFor } from '../../lib/colors';
+import { Link } from '../../lib/router';
 
 interface HorizontalBarChartProps {
   data: { name: string; count: number }[];
@@ -8,31 +9,42 @@ interface HorizontalBarChartProps {
   badge?: (name: string) => ReactNode;
   /** Optional bar colour per row (overrides colorIndex), e.g. open source vs proprietary. */
   colorOf?: (name: string) => string;
+  /** Optional in-app link per row, e.g. the tool's profile. */
+  hrefOf?: (name: string) => string | undefined;
+  /** Unit after the count, for the row tooltip ("organizations"). */
+  unit?: string;
+  /** Show rank numbers. */
+  ranked?: boolean;
 }
 
 /**
- * Ranked bar list: each row shows the full name with its count, and the bar
- * underneath. Long names wrap instead of being cut off or overlapping.
+ * Ranked bars. On wide screens the name sits left of the bar, as in a leaderboard;
+ * on phones the name is above its bar so long names are never cut off.
  */
-export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorOf }: HorizontalBarChartProps) {
+export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorOf, hrefOf, unit = '', ranked = false }: HorizontalBarChartProps) {
   const fill = colorFor(colorIndex);
   const max = Math.max(1, ...data.map((d) => d.count));
   return (
-    <ol className="space-y-2.5">
-      {data.map((d) => (
-        <li key={d.name}>
-          <div className="mb-1 flex items-baseline justify-between gap-3 text-sm">
-            <span className="flex flex-wrap items-center gap-2 text-ink-200">
-              {d.name}
+    <ol className="space-y-3 sm:space-y-1.5">
+      {data.map((d, i) => {
+        const href = hrefOf?.(d.name);
+        return (
+          <li key={d.name} title={`${d.name}: ${d.count} ${unit}`.trim()}
+            className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1.5 sm:grid-cols-[minmax(10rem,17rem)_1fr_3rem]">
+            <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-200">
+              {ranked && <span className="tabular w-5 shrink-0 text-xs text-ink-600">{i + 1}</span>}
+              {href ? (
+                <Link href={href} className="underline decoration-ink-700 underline-offset-4 transition-colors hover:text-ink-50 hover:decoration-brand-500">{d.name}</Link>
+              ) : d.name}
               {badge?.(d.name)}
             </span>
-            <span className="shrink-0 tabular-nums text-ink-400">{d.count}</span>
-          </div>
-          <div className="h-2 rounded-full bg-ink-800" aria-hidden="true">
-            <div className="h-2 rounded-full" style={{ width: `${(100 * d.count) / max}%`, background: colorOf?.(d.name) ?? fill }} />
-          </div>
-        </li>
-      ))}
+            <span className="tabular text-right text-sm text-ink-300 sm:order-last">{d.count}</span>
+            <div className="col-span-2 h-1.5 rounded-sm bg-ink-800/60 sm:col-span-1 sm:h-[18px]" aria-hidden="true">
+              <div className="h-full rounded-sm" style={{ width: `${Math.max(1.5, (100 * d.count) / max)}%`, background: colorOf?.(d.name) ?? fill }} />
+            </div>
+          </li>
+        );
+      })}
     </ol>
   );
 }

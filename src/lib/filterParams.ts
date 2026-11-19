@@ -78,3 +78,18 @@ export function searchToChartFilters(search: string, chartIds: string[], legacyC
   }
   return state;
 }
+
+/**
+ * The address bar's query string with the charts' filters written in: other parameters stay
+ * (e.g. a page's own ?type=), old unprefixed filters are removed once a chart has taken them over.
+ */
+export function mergeChartSearch(current: string, state: ChartFilters, dropUnprefixed: boolean): string {
+  const params = new URLSearchParams(current);
+  for (const key of [...params.keys()]) {
+    const prefix = key.split('.')[0];
+    if ((key.includes('.') && prefix in state) || (dropUnprefixed && (Object.values(PARAM) as string[]).includes(key))) params.delete(key);
+  }
+  for (const id of Object.keys(state).sort()) write(params, state[id], `${id}.`);
+  const s = params.toString();
+  return s ? `?${s}` : '';
+}

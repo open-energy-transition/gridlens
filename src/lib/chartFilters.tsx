@@ -4,7 +4,7 @@ import { EMPTY_FILTERS } from '../types';
 import { applyFilters, uniqSorted } from './filters';
 import { splitCategories, TOOL_CATEGORIES } from './toolCategories';
 import { orgGroup, ORG_GROUPS } from './orgTypes';
-import { chartFiltersToSearch, searchToChartFilters, type ChartFilters } from './filterParams';
+import { mergeChartSearch, searchToChartFilters, type ChartFilters } from './filterParams';
 
 /** Choices offered in every chart's filter panel. */
 export interface FilterOptions {
@@ -50,11 +50,11 @@ export function ChartFiltersProvider({ catalogue, chartIds, legacyChart, childre
   const [filters, setAll] = useState<ChartFilters>(() => searchToChartFilters(window.location.search, chartIds, legacyChart));
 
   useEffect(() => {
-    const search = chartFiltersToSearch(filters);
+    const search = mergeChartSearch(window.location.search, filters, !!legacyChart);
     if (search !== window.location.search) {
       window.history.replaceState(window.history.state, '', window.location.pathname + search + window.location.hash);
     }
-  }, [filters]);
+  }, [filters, legacyChart]);
 
   useEffect(() => {
     const onPop = () => setAll(searchToChartFilters(window.location.search, chartIds));

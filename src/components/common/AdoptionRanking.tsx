@@ -3,38 +3,23 @@ import { adoptionByTool } from '../../lib/filters';
 import { useChart } from '../../lib/chartFilters';
 import { SECTORS } from '../../lib/orgTypes';
 import { isOpenSource } from '../../lib/tools';
+import { OPEN_SOURCE, PROPRIETARY } from '../../lib/colors';
+import { slug } from '../../lib/router';
 import HorizontalBarChart from '../charts/HorizontalBarChart';
 import ChartCard from '../chart/ChartCard';
-import LicenseBadge from './LicenseBadge';
+import Segmented from '../chart/Segmented';
 import EmptyState from './EmptyState';
 
-const OPEN = '#34d399'; // emerald-400
-const PROPRIETARY = '#7c8aa5';
-
-export function Segmented({ value, options, onChange, label }: {
-  value: string; options: { id: string; label: string }[]; onChange: (v: string) => void; label: string;
-}) {
+export function LicenceLegend() {
   return (
-    <div role="group" aria-label={label} className="inline-flex h-9 items-center rounded-lg border border-ink-800 bg-ink-900 p-0.5 text-xs">
-      {options.map((o) => (
-        <button
-          key={o.id}
-          type="button"
-          aria-pressed={value === o.id}
-          onClick={() => onChange(o.id)}
-          className={`h-full rounded-md px-2.5 font-medium ${value === o.id ? 'bg-ink-700 text-ink-100' : 'text-ink-400 hover:text-ink-200'}`}
-        >
-          {o.label}
-        </button>
-      ))}
+    <div className="flex gap-4 text-xs text-ink-400">
+      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm" style={{ background: OPEN_SOURCE }} />Open source</span>
+      <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm" style={{ background: PROPRIETARY }} />Proprietary</span>
     </div>
   );
 }
 
-/**
- * Tools ranked by how many organizations use them, with open-source tools in their own colour.
- * Sector and licence are quick switches for this chart's own filters.
- */
+/** Tools ranked by how many organizations use them; sector and licence are quick switches for this chart's filters. */
 export default function AdoptionRanking() {
   const { filters, setFilters, records } = useChart('adoption');
   const data = useMemo(() => adoptionByTool(records, filters.sector), [records, filters.sector]);
@@ -42,7 +27,7 @@ export default function AdoptionRanking() {
     <ChartCard
       id="adoption"
       title="Most adopted tools"
-      description="Organizations using each tool; an organization counts once per tool."
+      description="Organizations with documented use of each tool. An organization counts once per tool, however many projects it ran."
       actions={
         <>
           <Segmented label="Sector" value={filters.sector} onChange={(v) => setFilters({ ...filters, sector: v })}
@@ -52,14 +37,12 @@ export default function AdoptionRanking() {
         </>
       }
     >
-      <div className="mb-3 flex gap-4 text-xs text-ink-400" aria-hidden="true">
-        <span className="flex items-center gap-1.5"><span className="h-2 w-3 rounded-full" style={{ background: OPEN }} />Open source</span>
-        <span className="flex items-center gap-1.5"><span className="h-2 w-3 rounded-full" style={{ background: PROPRIETARY }} />Proprietary</span>
-      </div>
+      <div className="mb-4"><LicenceLegend /></div>
       {data.length === 0 ? (
         <EmptyState />
       ) : (
-        <HorizontalBarChart data={data} colorOf={(n) => (isOpenSource(n) ? OPEN : PROPRIETARY)} badge={(n) => <LicenseBadge tool={n} />} />
+        <HorizontalBarChart ranked data={data} unit="organizations" hrefOf={(n) => `/tools/${slug(n)}`}
+          colorOf={(n) => (isOpenSource(n) ? OPEN_SOURCE : PROPRIETARY)} />
       )}
     </ChartCard>
   );
