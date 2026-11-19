@@ -28,6 +28,8 @@ export interface CatalogueRecord {
   geo_scope: string;
   region_label: string;
   sources: ProjectSource[];
+  /** Year of the study, when the sources date it. */
+  year?: number | null;
 }
 
 export interface ProjectOrg {

@@ -110,6 +110,12 @@
       "items": { "type": "string" },
       "description": "Country labels the study models (e.g. a multi-country regional study). Distinct from country_label which is the organization's home country."
     },
+    "study_year": {
+      "type": "integer",
+      "minimum": 1980,
+      "maximum": 2049,
+      "description": "Year of the study or decision when the source dates it; otherwise the app takes the year from source_date, the source URL or the title."
+    },
     "study_region": {
       "type": "string",
       "description": "Region a multi-country or global study covers, e.g. 'European Union', 'Europe', 'Global'. Shown instead of a country; filtering by a country in that region includes the study."

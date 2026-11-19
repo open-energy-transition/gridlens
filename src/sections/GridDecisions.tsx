@@ -139,6 +139,7 @@ function DecisionCard({ decisionType, records, country }: { decisionType: string
                     ))}
                   </div>
                   <div className="mt-1 text-xs text-ink-500">
+                    {r.year && <span className="font-medium text-ink-300">{r.year} · </span>}
                     {r.tool_name} · <span title={r.countries.join(', ')}>{where}</span> · {orgGroupLabel(orgGroup(r))}
                     {r.decision_basis !== 'documented' && (
                       <span title="The grid decision was inferred, not stated in the source"> · decision inferred</span>

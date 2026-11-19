@@ -92,6 +92,7 @@ explanation of *why*.
 | `project_id` | no | Groups multiple rows into one project/study. Rows with the same `project_id` and the same `tool_name` are ONE project. If omitted, the row's `id` is used as the project id. |
 | `project_title` | no | A human-readable title for the project/study. Falls back to `source_title` of the lead row. |
 | `study_countries` | no | Country labels the study models (a multi-country regional study). Distinct from `country_label` which is the organization's home country. |
+| `study_year` | no | Year of the study or decision, when known. Without it the app uses the latest year in `source_date`, the source URL path or the project title. |
 | `study_region` | no | Region a multi-country or global study covers, e.g. `European Union`, `Europe`, `Global`. Filtering by a country in that region includes the study. |
 | `geo_scope` | no | Geographic scope of the study: `national` (one country), `multi_country` (regional or multiple countries), `global` (worldwide). Auto-derived from `country_label` if not set. |
 

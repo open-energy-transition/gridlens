@@ -41,7 +41,8 @@ export function projectImpact(r: Pick<CatalogueRecord, 'organizations' | 'instit
 
 /**
  * Highest impact first. With a country selected, each impact level lists that country's own
- * projects, then multi-country, then global ones. Ties: documented use cases with a summary first.
+ * projects, then multi-country, then global ones. Ties: documented use cases with a summary first,
+ * then the most recent study.
  */
 export function rankProjects(records: CatalogueRecord[], country?: string): CatalogueRecord[] {
   const score = (r: CatalogueRecord) => {
@@ -54,5 +55,5 @@ export function rankProjects(records: CatalogueRecord[], country?: string): Cata
       (r.summary.trim() ? 0 : 1)
     );
   };
-  return [...records].sort((a, b) => score(a) - score(b));
+  return [...records].sort((a, b) => score(a) - score(b) || (b.year ?? 0) - (a.year ?? 0));
 }
