@@ -1,25 +1,12 @@
 import { useMemo, useState } from 'react';
 import { useChart } from '../lib/chartFilters';
-import { purposeMatrix } from '../lib/insights';
+import { DECISION_INFO, purposeMatrix } from '../lib/insights';
 import { Link, slug } from '../lib/router';
 import { isOpenSource } from '../lib/tools';
 import ChartCard from '../components/chart/ChartCard';
 import Segmented from '../components/chart/Segmented';
 import EmptyState from '../components/common/EmptyState';
-
-/** Column headers short enough for a matrix. */
-const SHORT: Record<string, string> = {
-  'Capacity & Resource Planning': 'Capacity planning',
-  'Transmission & Network Planning': 'Transmission',
-  'Market Operations & Price Formation': 'Markets & prices',
-  'Unit Commitment & Dispatch': 'Dispatch',
-  'Renewable Integration & Decarbonization': 'Renewables & decarbonization',
-  'Policy & Regulatory Analysis': 'Policy & regulation',
-  'Forecasting & Scenario Analysis': 'Forecasts & scenarios',
-  'Independent & Commissioned Studies': 'Commissioned studies',
-  'Academic & Research Studies': 'Research',
-  'Other / General Modeling': 'General',
-};
+import ToolLogo from '../components/common/ToolLogo';
 
 /** Which tools are used for which grid decision: a heat matrix of projects per tool and purpose. */
 export default function PurposeMatrix() {
@@ -31,7 +18,7 @@ export default function PurposeMatrix() {
     <ChartCard
       id="purpose"
       title="Which tool for which decision"
-      description="Projects per tool and grid decision. Read across a row for what a tool is used for, down a column for the tools behind one kind of decision."
+      description="Each row is a tool, each column a kind of decision the modelling informed; a cell counts the projects. Read a row for what a tool is used for, a column for the tools behind that decision."
       fields={['country', 'period', 'sector', 'license', 'orgType', 'evidenceStrength', 'search']}
       actions={<Segmented label="Show" value={mode} onChange={setMode} options={[{ id: 'count', label: 'Projects' }, { id: 'share', label: '% of tool' }]} />}
     >
@@ -44,7 +31,7 @@ export default function PurposeMatrix() {
               <tr>
                 <th className="sticky left-0 z-10 bg-[#0c0f1b] pb-2 text-left align-bottom text-xs font-normal text-ink-500">Tool</th>
                 {m.decisions.map((d) => (
-                  <th key={d} scope="col" className="w-[9%] pb-2 align-bottom text-xs font-normal leading-tight text-ink-400" title={d}>{SHORT[d] ?? d}</th>
+                  <th key={d} scope="col" className="w-[10%] px-1 pb-2 align-bottom text-xs font-medium leading-tight text-ink-300" title={DECISION_INFO[d]?.description}>{DECISION_INFO[d]?.short ?? d}</th>
                 ))}
               </tr>
             </thead>
@@ -52,8 +39,8 @@ export default function PurposeMatrix() {
               {m.rows.map((row) => (
                 <tr key={row.tool}>
                   <th scope="row" className="sticky left-0 z-10 whitespace-nowrap bg-[#0c0f1b] pr-3 text-left font-normal">
-                    <Link href={`/tools/${slug(row.tool)}`} className="text-ink-200 hover:text-ink-50">
-                      <span className={`mr-2 inline-block h-2 w-2 rounded-sm ${isOpenSource(row.tool) ? 'bg-brand-500' : 'bg-[#7d86a8]'}`} aria-hidden="true" />
+                    <Link href={`/tools/${slug(row.tool)}`} className={`flex items-center gap-2 hover:text-ink-50 ${isOpenSource(row.tool) ? 'text-brand-200' : 'text-ink-200'}`}>
+                      <ToolLogo name={row.tool} size={20} />
                       {row.tool}
                     </Link>
                   </th>
@@ -80,8 +67,21 @@ export default function PurposeMatrix() {
       )}
       <p className="mt-3 text-xs text-ink-500">
         <span className="sm:hidden">Swipe the table sideways for more decisions. </span>
-        Projects without a stated decision are left out. Tools marked in ember are open source.
+        {mode === 'share' ? 'Percentages add up to 100% per tool. ' : ''}Projects without a stated decision are left out. Open-source tools are named in ember.
       </p>
+      <details className="group mt-4 border-t border-ink-800/80 pt-3">
+        <summary className="cursor-pointer list-none text-sm text-ink-300 hover:text-ink-50">
+          <span className="mr-1.5 inline-block transition-transform group-open:rotate-90">›</span>What the columns mean
+        </summary>
+        <dl className="mt-3 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 xl:grid-cols-3">
+          {m.decisions.map((d) => (
+            <div key={d}>
+              <dt className="text-sm text-ink-100">{DECISION_INFO[d]?.short ?? d}</dt>
+              <dd className="text-xs leading-relaxed text-ink-400">{DECISION_INFO[d]?.description}</dd>
+            </div>
+          ))}
+        </dl>
+      </details>
     </ChartCard>
   );
 }

@@ -9,20 +9,16 @@ const slug = (n: string) => n.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]
 
 const PAGE_NAMES: Record<string, string> = {
   '/': "GridLens — who uses which energy models, where, for which grid decisions",
-  '/tools': 'Tools · GridLens',
   '/organizations': 'Organizations · GridLens',
   '/projects': 'Projects & data · GridLens',
-  '/methodology': 'About & methodology · GridLens',
-  '/changelog': 'Changelog · GridLens',
-  ...Object.fromEntries(TOOLS.map((t) => [`/tools/${slug(t.name)}`, `${t.name} · Tools · GridLens`])),
+  '/about': 'About & methodology · GridLens',
+  '/about/changelog': 'Changelog · GridLens',
+  '/about/contact': 'Contact · GridLens',
+  ...Object.fromEntries(TOOLS.map((t) => [`/tools/${slug(t.name)}`, `${t.name} · GridLens`])),
 }
 
-// Each page gets its own index.html so it is served with status 200; pages of earlier versions
-// (/grid-decisions, /records, ...) are kept too, and the app forwards them to their new home.
-const STATIC_ROUTES = [
-  ...Object.keys(PAGE_NAMES),
-  '/geographic', '/grid-decisions', '/institutions', '/top-users', '/records', '/about',
-]
+// Each page gets its own index.html, so it is served with status 200.
+const STATIC_ROUTES = Object.keys(PAGE_NAMES)
 
 function spaRoutesPlugin() {
   return {
@@ -50,8 +46,7 @@ function spaRoutesPlugin() {
         fs.writeFileSync(path.join(routeDir, 'index.html'), html)
       }
 
-      // GitHub Pages serves 404.html for any other path (e.g. /top-users/<tool>);
-      // the app then renders the right page from the URL.
+      // GitHub Pages serves 404.html for any other path; the app then shows the overview.
       fs.writeFileSync(path.join(dist, '404.html'), baseHtml)
     },
   }

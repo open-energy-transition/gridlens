@@ -6,34 +6,8 @@ import EmptyState from '../components/common/EmptyState';
 import { useChart } from '../lib/chartFilters';
 import { IMPACT_INFO, IMPACT_ORDER, projectImpact, rankProjects, type Impact } from '../lib/impact';
 import { orgGroup, orgGroupLabel } from '../lib/orgTypes';
-import { DECISION_TYPES, decisionOf } from '../lib/insights';
+import { DECISION_INFO, DECISION_TYPES, decisionOf } from '../lib/insights';
 import { Link, slug } from '../lib/router';
-
-const DESCRIPTIONS: Record<string, string> = {
-  'Capacity & Resource Planning': 'Long-term investment in generation and storage, and resource adequacy.',
-  'Unit Commitment & Dispatch': 'Short-term scheduling and dispatch of power plants.',
-  'Market Operations & Price Formation': 'Wholesale market clearing, prices and market design.',
-  'Transmission & Network Planning': 'Grid expansion, interconnectors and connection studies.',
-  'Renewable Integration & Decarbonization': 'Integrating renewables and net-zero pathways.',
-  'Forecasting & Scenario Analysis': 'Demand and supply forecasts, and scenarios.',
-  'Policy & Regulatory Analysis': 'Policy design, regulatory reviews and national energy plans.',
-  'Academic & Research Studies': 'Studies by universities and research institutes.',
-  'Independent & Commissioned Studies': 'Studies by consultancies, often commissioned by decision-makers.',
-  'Other / General Modeling': 'Projects whose source does not name a specific decision.',
-};
-
-const SHORT: Record<string, string> = {
-  'Capacity & Resource Planning': 'Capacity planning',
-  'Transmission & Network Planning': 'Transmission',
-  'Market Operations & Price Formation': 'Markets',
-  'Unit Commitment & Dispatch': 'Dispatch',
-  'Renewable Integration & Decarbonization': 'Renewables',
-  'Policy & Regulatory Analysis': 'Policy',
-  'Forecasting & Scenario Analysis': 'Forecasts',
-  'Independent & Commissioned Studies': 'Commissioned',
-  'Academic & Research Studies': 'Research',
-  'Other / General Modeling': 'General',
-};
 
 const IMPACT_DOT: Record<Impact, string> = { high: 'bg-brand-400', medium: 'bg-rose-400', low: 'bg-ink-500' };
 const PAGE = 6;
@@ -125,10 +99,10 @@ export default function GridDecisions() {
         <>
           <div role="tablist" aria-label="Decision type" className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
             {tab('All', 'All decisions', records.length)}
-            {types.map((d) => tab(d, SHORT[d] ?? d, counts.get(d)!))}
+            {types.map((d) => tab(d, DECISION_INFO[d]?.short ?? d, counts.get(d)!))}
           </div>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-ink-800/80 pb-3">
-            <p className="text-sm text-ink-400">{type === 'All' ? 'All projects, highest impact first.' : DESCRIPTIONS[type]}</p>
+            <p className="text-sm text-ink-400">{type === 'All' ? 'All projects, highest impact first.' : DECISION_INFO[type]?.description}</p>
             <div className="flex gap-4">{IMPACT_ORDER.map((i) => <ImpactMark key={i} impact={i} />)}</div>
           </div>
           <ul className="divide-y divide-ink-800/80">

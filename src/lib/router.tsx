@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useState, type AnchorHTMLAttributes, type MouseEvent } from 'react';
+import { useEffect, useState, type AnchorHTMLAttributes, type MouseEvent } from 'react';
 
 /** Pages of the site. The overview is the one-pager; the rest hold detail and reference material. */
 export const PAGES = [
-  { path: '/', label: 'Overview', title: "GridLens — who uses which energy models, where, for which grid decisions" },
-  { path: '/tools', label: 'Tools', title: 'Tools · GridLens' },
+  { path: '/', label: 'Overview', title: 'GridLens — who uses which energy models, where, for which grid decisions' },
   { path: '/organizations', label: 'Organizations', title: 'Organizations · GridLens' },
   { path: '/projects', label: 'Projects & data', title: 'Projects & data · GridLens' },
-  { path: '/methodology', label: 'Methodology', title: 'About & methodology · GridLens' },
-  { path: '/changelog', label: 'Changelog', title: 'Changelog · GridLens' },
+  { path: '/about', label: 'Methodology', title: 'About & methodology · GridLens' },
+  { path: '/about/changelog', label: 'Changelog', title: 'Changelog · GridLens' },
+  { path: '/about/contact', label: 'Contact', title: 'Contact · GridLens' },
 ] as const;
 
-export type PagePath = (typeof PAGES)[number]['path'];
+export type PagePath = (typeof PAGES)[number]['path'] | '/tools';
 
 /** Sections of the overview, in page order: the left-hand index and the chart ids. */
 export const SECTIONS = [
@@ -19,11 +19,11 @@ export const SECTIONS = [
   { id: 'momentum', label: 'Momentum' },
   { id: 'map', label: 'Where' },
   { id: 'decisions', label: 'Grid decisions' },
-  { id: 'providers', label: 'Who can help' },
+  { id: 'builders', label: 'Who builds open source' },
 ] as const;
 
 /** Every filterable chart on any page. */
-export const CHART_IDS = ['adoption', 'purpose', 'momentum', 'map', 'decisions', 'providers', 'projects'];
+export const CHART_IDS = ['adoption', 'purpose', 'momentum', 'map', 'decisions', 'builders', 'projects', 'tool'];
 
 /** URL-safe tool name: "PSS/E" → "pss-e", "DIgSILENT PowerFactory" → "digsilent-powerfactory". */
 export function slug(name: string): string {
@@ -36,28 +36,12 @@ export interface Route {
   tool?: string;
 }
 
-/**
- * Route for a path. Pages from earlier versions of the site keep working:
- * they lead to the section or page that now holds their content.
- */
-export function parsePath(pathname: string): { route: Route; hash?: string } {
+/** Route for a path; unknown paths show the overview. */
+export function parsePath(pathname: string): Route {
   const p = pathname.replace(/\/+$/, '') || '/';
-  const tool = p.match(/^\/(?:tools|top-users)\/(.+)$/);
-  if (tool) return { route: { page: '/tools', tool: slug(decodeURIComponent(tool[1])) } };
-  if (PAGES.some((pg) => pg.path === p)) return { route: { page: p as PagePath } };
-  const legacy: Record<string, { route: Route; hash?: string }> = {
-    '/grid-decisions': { route: { page: '/' }, hash: 'decisions' },
-    '/geographic': { route: { page: '/' }, hash: 'map' },
-    '/top-users': { route: { page: '/tools' } },
-    '/institutions': { route: { page: '/organizations' } },
-    '/records': { route: { page: '/projects' } },
-    '/about': { route: { page: '/methodology' } },
-  };
-  return legacy[p] ?? { route: { page: '/' } };
-}
-
-export function routePath(route: Route): string {
-  return route.tool ? `/tools/${route.tool}` : route.page;
+  const tool = p.match(/^\/tools\/([^/]+)$/);
+  if (tool) return { page: '/tools', tool: decodeURIComponent(tool[1]) };
+  return PAGES.some((pg) => pg.path === p) ? { page: p as PagePath } : { page: '/' };
 }
 
 const listeners = new Set<() => void>();
@@ -71,26 +55,17 @@ export function navigate(href: string) {
   else window.scrollTo(0, 0);
 }
 
-/** The current route; old paths are rewritten in the address bar to their new home. */
 export function useRoute(): Route {
-  const read = useCallback(() => {
-    const { route, hash } = parsePath(window.location.pathname);
-    const canonical = routePath(route);
-    if (canonical !== window.location.pathname || (hash && !window.location.hash)) {
-      window.history.replaceState(null, '', canonical + window.location.search + (hash ? `#${hash}` : window.location.hash));
-    }
-    return route;
-  }, []);
-  const [route, setRoute] = useState<Route>(read);
+  const [route, setRoute] = useState<Route>(() => parsePath(window.location.pathname));
   useEffect(() => {
-    const update = () => setRoute(read());
+    const update = () => setRoute(parsePath(window.location.pathname));
     listeners.add(update);
     window.addEventListener('popstate', update);
     return () => {
       listeners.delete(update);
       window.removeEventListener('popstate', update);
     };
-  }, [read]);
+  }, []);
   return route;
 }
 

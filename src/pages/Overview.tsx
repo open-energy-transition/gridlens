@@ -10,7 +10,7 @@ import PurposeMatrix from '../sections/PurposeMatrix';
 import Momentum from '../sections/Momentum';
 import Geographic from '../sections/Geographic';
 import GridDecisions from '../sections/GridDecisions';
-import Providers from '../sections/Providers';
+import Builders from '../sections/Builders';
 
 const THIS_YEAR = new Date().getFullYear();
 
@@ -30,21 +30,23 @@ function Section({ id, n, title, children }: { id: string; n: string; title: str
 const PATHS = [
   { who: 'Funders', what: 'Where open tools already shape real grid decisions', href: '/?decisions.license=open_source#decisions' },
   { who: 'Grid operators & utilities', what: 'What your peers use, and for which decisions', href: '/?adoption.sector=industry#adoption' },
-  { who: 'Teams seeking support', what: 'Companies that deliver studies with open tools', href: '/#providers' },
+  { who: 'Industry', what: 'Organizations that build the open-source tools', href: '/#builders' },
   { who: 'Researchers', what: 'Every project with its sources, as CSV', href: '/projects' },
 ];
 
 export default function Overview({ catalogue }: { catalogue: CatalogueRecord[] }) {
   const facts = useMemo(() => {
     const orgs = new Set(catalogue.flatMap((r) => r.organizations.map((o) => o.name)));
-    const recent = openShare(catalogue, THIS_YEAR - 4, THIS_YEAR);
+    const now = openShare(catalogue, THIS_YEAR - 1, THIS_YEAR - 1);
+    const then = openShare(catalogue, THIS_YEAR - 6, THIS_YEAR - 6);
     return {
       projects: catalogue.length,
       countries: new Set(catalogue.flatMap((r) => r.countries)).size,
       organizations: orgs.size,
       tools: new Set(catalogue.map((r) => r.tool_name)).size,
       openTools: new Set(catalogue.filter((r) => isOpenSource(r.tool_name)).map((r) => r.tool_name)).size,
-      recentOpen: recent === null ? null : Math.round(recent * 100),
+      openNow: now === null ? null : Math.round(now * 100),
+      openThen: then === null ? null : Math.round(then * 100),
     };
   }, [catalogue]);
 
@@ -73,9 +75,10 @@ export default function Overview({ catalogue }: { catalogue: CatalogueRecord[] }
             </div>
           ))}
         </dl>
-        {facts.recentOpen !== null && (
+        {facts.openNow !== null && (
           <p className="mt-8 text-sm text-ink-400">
-            <span className="text-brand-300">{facts.recentOpen}%</span> of the projects dated {THIS_YEAR - 4}–{THIS_YEAR} used an open-source tool.{' '}
+            <span className="text-brand-300">{facts.openNow}%</span> of {THIS_YEAR - 1}’s projects used an open-source tool
+            {facts.openThen !== null && <>, {facts.openNow >= facts.openThen ? 'up' : 'down'} from {facts.openThen}% in {THIS_YEAR - 6}</>}.{' '}
             <a href="#momentum" className="text-ink-200 underline decoration-ink-600 underline-offset-4 hover:decoration-brand-500">See the trend</a>
           </p>
         )}
@@ -83,7 +86,7 @@ export default function Overview({ catalogue }: { catalogue: CatalogueRecord[] }
       <aside aria-label="Latest changes" className="self-start rounded-2xl border border-ink-800/80 bg-ink-900/40 p-5">
         <div className="flex items-baseline justify-between">
           <h2 className="text-xs uppercase tracking-[0.14em] text-ink-400">Latest in the data</h2>
-          <Link href="/changelog" className="text-xs text-ink-400 hover:text-ink-100">All changes</Link>
+          <Link href="/about/changelog" className="text-xs text-ink-400 hover:text-ink-100">All changes</Link>
         </div>
         <ol className="mt-4 space-y-4 border-l border-ink-800 pl-4">
           {(changelog as { date: string; title: string }[]).slice(0, 4).map((e) => (
@@ -112,13 +115,13 @@ export default function Overview({ catalogue }: { catalogue: CatalogueRecord[] }
       <Section id="momentum" n="03" title="Momentum"><Momentum /></Section>
       <Section id="map" n="04" title="Where"><Geographic /></Section>
       <Section id="decisions" n="05" title="Grid decisions"><GridDecisions /></Section>
-      <Section id="providers" n="06" title="Who can help"><Providers /></Section>
+      <Section id="builders" n="06" title="Who builds open source"><Builders /></Section>
 
       <section className="grid grid-cols-1 gap-px overflow-hidden rounded-2xl border border-ink-800/80 bg-ink-800/80 md:grid-cols-3">
         {[
-          { href: '/tools', title: 'Tool profiles', text: 'Each tool’s users, decisions, countries and service providers in one place.' },
+          { href: '/tools/pypsa', title: 'Tool profiles', text: 'Each tool’s users, decisions, countries, builders and service providers in one place.' },
           { href: '/organizations', title: 'Organizations', text: 'All organizations with the tools they use, filterable by type.' },
-          { href: '/methodology', title: 'Methodology', text: 'Where the evidence comes from, how it is checked, and its limits.' },
+          { href: '/about', title: 'Methodology', text: 'Where the evidence comes from, how it is checked, and its limits.' },
         ].map((c) => (
           <Link key={c.href} href={c.href} className="group bg-ink-950/85 p-6 transition-colors hover:bg-ink-900">
             <p className="font-display text-2xl text-ink-50">{c.title}</p>

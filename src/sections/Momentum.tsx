@@ -8,14 +8,18 @@ import { LicenceLegend } from '../components/common/AdoptionRanking';
 
 const THIS_YEAR = new Date().getFullYear();
 const FROM = THIS_YEAR - 14;
+const LAST = THIS_YEAR - 1;
 
 /** Dated projects per year, open source stacked on proprietary, with the open-source share then and now. */
 export default function Momentum() {
   const { records } = useChart('momentum');
   const years = useMemo(() => projectsPerYear(records, FROM, THIS_YEAR), [records]);
   const max = Math.max(1, ...years.map((y) => y.open + y.proprietary));
-  const recent = openShare(records, THIS_YEAR - 4, THIS_YEAR);
-  const before = openShare(records, FROM, THIS_YEAR - 5);
+  // Compare the last complete year with five years before it; the current year is still being filled in.
+  const last = years.find((y) => y.year === LAST)!;
+  const base = years.find((y) => y.year === LAST - 5)!;
+  const shareNow = openShare(records, LAST, LAST);
+  const shareThen = openShare(records, LAST - 5, LAST - 5);
   const dated = years.reduce((a, y) => a + y.open + y.proprietary, 0);
 
   return (
@@ -29,19 +33,23 @@ export default function Momentum() {
         <EmptyState title="No dated projects for these filters" />
       ) : (
         <>
-          <div className="mb-5 flex flex-wrap items-end gap-x-10 gap-y-3">
-            {recent !== null && (
-              <p>
-                <span className="font-display text-4xl text-brand-300">{Math.round(recent * 100)}%</span>
-                <span className="ml-2 text-sm text-ink-400">open source, {THIS_YEAR - 4}–{THIS_YEAR}</span>
-              </p>
+          <div className="mb-6 flex flex-wrap items-end gap-x-12 gap-y-4">
+            {shareNow !== null && (
+              <div>
+                <p className="font-display text-5xl text-brand-300">{Math.round(shareNow * 100)}%</p>
+                <p className="mt-1 text-sm text-ink-400">
+                  of {LAST}’s projects used open source
+                  {shareThen !== null && <>, {shareNow >= shareThen ? 'up' : 'down'} from {Math.round(shareThen * 100)}% in {LAST - 5}</>}
+                </p>
+              </div>
             )}
-            {before !== null && (
-              <p>
-                <span className="font-display text-4xl text-ink-300">{Math.round(before * 100)}%</span>
-                <span className="ml-2 text-sm text-ink-400">{FROM}–{THIS_YEAR - 5}</span>
+            <div>
+              <p className="font-display text-5xl text-ink-50">{last.open}</p>
+              <p className="mt-1 text-sm text-ink-400">
+                open-source projects in {LAST}
+                {base.open > 0 && last.open !== base.open && <>, {last.open > base.open ? `${(last.open / base.open).toFixed(1)}× as many as` : 'fewer than'} in {LAST - 5}</>}
               </p>
-            )}
+            </div>
             <div className="sm:ml-auto"><LicenceLegend /></div>
           </div>
           <div className="flex h-56 items-end gap-[3px] sm:gap-1.5" role="img"

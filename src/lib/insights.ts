@@ -19,6 +19,20 @@ export const DECISION_TYPES = [
 
 export const OTHER_DECISION = 'Other / General Modeling';
 
+/** Plain-language name and meaning of each grid decision type. */
+export const DECISION_INFO: Record<string, { short: string; description: string }> = {
+  'Capacity & Resource Planning': { short: 'Capacity planning', description: 'Which power plants and storage to build, and whether there will be enough supply in the long run.' },
+  'Transmission & Network Planning': { short: 'Grid planning', description: 'Where to expand the grid, build interconnectors, and connect new plants.' },
+  'Market Operations & Price Formation': { short: 'Markets & prices', description: 'How wholesale markets clear, what prices result, and how markets should be designed.' },
+  'Unit Commitment & Dispatch': { short: 'Operations', description: 'Which plants run hour by hour, and how the system is operated day to day.' },
+  'Renewable Integration & Decarbonization': { short: 'Renewables & net zero', description: 'How to integrate wind and solar, and pathways to a decarbonized system.' },
+  'Policy & Regulatory Analysis': { short: 'Policy & regulation', description: 'Energy policy, regulatory reviews and national energy plans.' },
+  'Forecasting & Scenario Analysis': { short: 'Forecasts & scenarios', description: 'Demand and supply forecasts, and long-term scenarios.' },
+  'Independent & Commissioned Studies': { short: 'Commissioned studies', description: 'Studies by consultancies, usually for a grid operator, regulator or ministry, without a narrower stated purpose.' },
+  'Academic & Research Studies': { short: 'Research', description: 'Studies by universities and research institutes.' },
+  'Other / General Modeling': { short: 'General', description: 'The source does not name a specific decision.' },
+};
+
 export function decisionOf(r: CatalogueRecord): string {
   return r.decision_type || OTHER_DECISION;
 }

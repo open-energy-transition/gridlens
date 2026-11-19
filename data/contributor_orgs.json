@@ -1,0 +1,60 @@
+{
+ "Open Energy Transition": [
+  "open-energy-transition",
+  "openenergytransition",
+  "OET"
+ ],
+ "Technical University of Berlin": [
+  "Technische Universität Berlin",
+  "TU Berlin",
+  "TUB",
+  "tu-berlin"
+ ],
+ "National Renewable Energy Laboratory (NREL)": [
+  "National Renewable Energy Laboratory",
+  "NREL",
+  "National Renewable Energy Lab",
+  "National Laboratory of the Rockies",
+  "National Lab of the Rockies",
+  "NatLabRockies"
+ ],
+ "Technical University of Denmark (DTU)": [
+  "DTU",
+  "Technical University of Denmark",
+  "DTU Wind",
+  "DTU Management"
+ ],
+ "RTE": [
+  "rte-france",
+  "RTE France",
+  "Meritis/RTE",
+  "Réseau de Transport d'Électricité"
+ ],
+ "RTE International": [
+  "RTE International SEE",
+  "RTEi South-East Europe",
+  "RTEi"
+ ],
+ "University of Melbourne": [
+  "The University of Melbourne",
+  "University of Melbourne | @ARPST-UniMelb"
+ ],
+ "Microsoft": [
+  "Microsoft Research"
+ ],
+ "CSIRO": [
+  "CSIRO Energy"
+ ],
+ "Eurodecision": [
+  "EURODECISION"
+ ],
+ "University College London": [
+  "UCL"
+ ],
+ "": [
+  "AntaresSimulatorTeam",
+  "PyPSA",
+  "actions",
+  "anthropics"
+ ]
+}

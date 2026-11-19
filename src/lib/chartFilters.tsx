@@ -41,20 +41,19 @@ function optionsFor(catalogue: CatalogueRecord[]): FilterOptions {
 /**
  * Holds the filters of every chart on the page and mirrors them in the URL
  * (`?decisions.country=Spain`), so a copied link restores each chart's selection.
- * `legacyChart` receives unprefixed filters from older links (e.g. /grid-decisions?country=Spain).
  */
-export function ChartFiltersProvider({ catalogue, chartIds, legacyChart, children }: {
-  catalogue: CatalogueRecord[]; chartIds: string[]; legacyChart?: string; children: ReactNode;
+export function ChartFiltersProvider({ catalogue, chartIds, children }: {
+  catalogue: CatalogueRecord[]; chartIds: string[]; children: ReactNode;
 }) {
   const options = useMemo(() => optionsFor(catalogue), [catalogue]);
-  const [filters, setAll] = useState<ChartFilters>(() => searchToChartFilters(window.location.search, chartIds, legacyChart));
+  const [filters, setAll] = useState<ChartFilters>(() => searchToChartFilters(window.location.search, chartIds));
 
   useEffect(() => {
-    const search = mergeChartSearch(window.location.search, filters, !!legacyChart);
+    const search = mergeChartSearch(window.location.search, filters);
     if (search !== window.location.search) {
       window.history.replaceState(window.history.state, '', window.location.pathname + search + window.location.hash);
     }
-  }, [filters, legacyChart]);
+  }, [filters]);
 
   useEffect(() => {
     const onPop = () => setAll(searchToChartFilters(window.location.search, chartIds));

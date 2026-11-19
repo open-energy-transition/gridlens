@@ -81,12 +81,16 @@ describe('routes', () => {
     expect(slug('DIgSILENT PowerFactory')).toBe('digsilent-powerfactory');
   });
 
-  it('sends old pages to their new home', () => {
-    expect(parsePath('/grid-decisions')).toEqual({ route: { page: '/' }, hash: 'decisions' });
-    expect(parsePath('/top-users/PSS%2FE')).toEqual({ route: { page: '/tools', tool: 'pss-e' } });
-    expect(parsePath('/records/')).toEqual({ route: { page: '/projects' } });
-    expect(parsePath('/about')).toEqual({ route: { page: '/methodology' } });
-    expect(parsePath('/nope')).toEqual({ route: { page: '/' } });
-    expect(parsePath('/tools')).toEqual({ route: { page: '/tools' } });
+  it('parses pages and tool profiles', () => {
+    expect(parsePath('/tools/pss-e')).toEqual({ page: '/tools', tool: 'pss-e' });
+    expect(parsePath('/about/changelog/')).toEqual({ page: '/about/changelog' });
+    expect(parsePath('/grid-decisions')).toEqual({ page: '/' });
+  });
+});
+
+describe('ProviderList data', () => {
+  it('records the countries an organization worked in, most frequent first', () => {
+    const r = organizationDirectory(data).find((o) => o.name === 'REE')!;
+    expect(r.countries).toEqual(['Spain']);
   });
 });

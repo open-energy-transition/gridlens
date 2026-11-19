@@ -53,6 +53,7 @@ scripts/
   validate_dataset.py            Run before every data change: schema/enum/duplicate/alias checks against data/schema.json
   sync_dataset.py                Regenerates data/catalogue_merged.csv + src/data/catalogue.json from catalogue.jsonl
   merge_batches.py                Merges parallel research batches from data/raw/incoming/ into catalogue.jsonl (id-collision + duplicate checking)
+  fetch_contributors.py           Refreshes src/data/contributors.json: organizations behind each open-source tool's GitHub commits (aliases in data/contributor_orgs.json)
   export_known_institutions.py    Exports research/known_institutions.csv -- give this to research agents as context to avoid re-finding/duplicating known orgs
 
 src/                              The React + TypeScript app (Vite + Tailwind v4)
@@ -64,10 +65,10 @@ src/                              The React + TypeScript app (Vite + Tailwind v4
                                   insights.ts (purpose matrix, per-year counts, organization directory, service providers, tool stats),
                                   chartFilters.tsx + filterParams.ts (each chart's own filters, kept in the URL as ?<chart>.<key>=),
                                   impact.ts, colors.ts (palette + choropleth buckets), csv.ts, countryAliases.ts
-  pages/                          One file per page: Overview (the one-pager), Tools (directory + /tools/<slug> profiles), Organizations, Projects, Methodology, Changelog
-  sections/                       The Overview's charts: PurposeMatrix, Momentum, Geographic, GridDecisions, Providers
+  pages/                          One file per page: Overview (the one-pager), Tool (/tools/<slug>), Organizations, Projects, and the About pages (Methodology, Changelog, Contact)
+  sections/                       The Overview's charts: PurposeMatrix, Momentum, Geographic, GridDecisions, Builders; Providers (list used on tool pages)
   components/
-    layout/Shell.tsx              Top page nav (menu on phones), the overview's left section index, footer
+    layout/Shell.tsx              Top nav with Tools and About dropdowns (menu on phones), the overview's left section index, footer
     chart/                        ChartCard (title + per-chart Filters button, popover on desktop / bottom sheet on phones + copy link), Segmented
     common/, charts/, table/      AdoptionRanking, LicenseBadge, EmptyState, GitHubIcon; HorizontalBarChart, WorldMap, MapLegend; DataTable
 CHANGELOG_MAINTENANCE.md          Convention for src/data/changelog.json — read before any dataset change
@@ -121,13 +122,12 @@ Standard React/TypeScript work. Conventions already established in this
 codebase, follow them rather than introducing a new pattern:
 - Tailwind v4 utility classes throughout, no CSS modules/styled-components.
   Colours and fonts live in the `@theme` block of `src/index.css`: night-blue neutrals (`ink`), ember accent
-  (`brand`, also the colour of open-source tools), dusk rose; Newsreader (display) and IBM Plex Sans (body).
+  (`brand`, also the colour of open-source tools), dusk rose; Newsreader (display) and Plus Jakarta Sans (body).
 - Shared chart/UI colors live in `src/lib/colors.ts` — don't hardcode a new
   hex value in a component; add it there if a genuinely new one is needed.
 - A new page: add it to `PAGES` in `lib/router.tsx`, a file under `src/pages/`, a line in `App.tsx`, and its path
   to `PAGE_NAMES` in `vite.config.ts` (each page is emitted as its own `index.html`). A new overview chart: wrap it in
   `ChartCard` with its own id, add the id to `CHART_IDS` (and to `SECTIONS` if it gets an entry in the left index).
-- Keep old URLs working: `parsePath` in `lib/router.tsx` maps them to their new home; extend it rather than drop a path.
 - `npm run build` must show 0 TypeScript errors before any commit.
 - After a UI change, actually look at it (a headless browser + a real
   screenshot/DOM query, not just "the code looks right") before calling it

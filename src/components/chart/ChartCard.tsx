@@ -56,9 +56,11 @@ function Select({ label, value, options, display, onChange }: {
  * Card for one chart: title, its own filters (button → popover on desktop, bottom sheet on phones),
  * the active filters as removable chips, and a button that copies a link to this chart as filtered.
  */
-export default function ChartCard({ id, title, description, fields = ALL_FIELDS, actions, children }: {
+export default function ChartCard({ id, title, description, fields = ALL_FIELDS, actions, plain = false, children }: {
   id: string;
-  title: string;
+  title?: string;
+  /** No card frame: for a page-wide filter bar around several panels. */
+  plain?: boolean;
   description?: ReactNode;
   /** Filters offered for this chart. */
   fields?: FilterKey[];
@@ -95,28 +97,28 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
   const iconBtn = 'flex h-9 items-center gap-1.5 rounded-full border border-ink-700/80 px-3 text-xs font-medium text-ink-300 transition-colors hover:border-ink-500 hover:text-ink-50';
 
   return (
-    <div className="rounded-2xl border border-ink-800/80 bg-ink-900/40 p-4 sm:p-6">
+    <div className={plain ? '' : 'rounded-2xl border border-ink-800/80 bg-ink-900/40 p-4 sm:p-6'}>
       <div className="mb-4 flex flex-wrap items-start gap-3">
         <div className="order-1 min-w-0 flex-1 basis-48">
-          <h3 className="font-display text-xl font-medium text-ink-50">{title}</h3>
+          {title && <h3 className="font-display text-xl font-medium text-ink-50">{title}</h3>}
           {description && <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-400">{description}</p>}
         </div>
         {actions && <div className="order-3 flex basis-full flex-wrap items-center gap-2 lg:order-2 lg:basis-auto">{actions}</div>}
         <div className="relative order-2 flex items-center gap-2 lg:order-3">
-          <button type="button" onClick={copyLink} className={iconBtn} aria-label={`Copy link to ${title}`} title="Copy link to this chart">
+          <button type="button" onClick={copyLink} className={iconBtn} aria-label={`Copy link to ${title ?? 'this view'}`} title="Copy link to this chart">
             {copied ? <Check size={15} /> : <Link2 size={15} />}
           </button>
-          <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="Filters" className={`${iconBtn} ${active.length ? 'border-brand-500/70 text-brand-200' : ''}`}>
+          {fields.length > 0 && <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="Filters" className={`${iconBtn} ${active.length ? 'border-brand-500/70 text-brand-200' : ''}`}>
             <SlidersHorizontal size={15} />
             <span className="hidden sm:inline">Filters</span>{active.length > 0 && <span className="rounded-full bg-brand-500/20 px-1.5 tabular-nums">{active.length}</span>}
-          </button>
+          </button>}
           {open && (
             <>
               <button type="button" aria-label="Close filters" onClick={() => setOpen(false)} className="fixed inset-0 z-30 cursor-default bg-black/50 md:bg-transparent" />
               <div
                 ref={panel}
                 role="dialog"
-                aria-label={`Filters for ${title}`}
+                aria-label={`Filters for ${title ?? 'this page'}`}
                 className="fixed inset-x-0 bottom-0 z-40 max-h-[85vh] overflow-y-auto rounded-t-2xl border border-ink-800 bg-ink-950 p-4 pb-6 shadow-2xl md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:top-full md:mt-2 md:w-[34rem] md:rounded-xl"
               >
                 <div className="mb-3 flex items-center justify-between">

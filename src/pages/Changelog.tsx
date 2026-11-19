@@ -1,4 +1,5 @@
 import changelogData from '../data/changelog.json';
+import AboutTabs from './AboutTabs';
 
 type Tag = 'added' | 'removed' | 'reclassified' | 'coverage';
 
@@ -21,8 +22,9 @@ const TAGS: Record<Tag, { label: string; dot: string }> = {
 /** What changed in the data, newest first. App-only changes are not listed. */
 export default function Changelog() {
   return (
-    <div className="pt-10 md:pt-14">
-      <h1 className="font-display text-5xl text-ink-50">Changelog</h1>
+    <div>
+      <AboutTabs current="/about/changelog" />
+      <h1 className="font-display mt-10 text-5xl text-ink-50">Changelog</h1>
       <p className="mt-4 max-w-2xl text-lg text-ink-300">
         Every change to the data: organizations and projects added or removed, reclassified, or newly covered regions.
       </p>

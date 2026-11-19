@@ -23,19 +23,12 @@ describe('filter query string', () => {
 describe('per-chart filters in the URL', () => {
   it('keeps each chart apart and restores it', () => {
     const state = { decisions: { ...EMPTY_FILTERS, country: 'Spain' }, map: { ...EMPTY_FILTERS, toolName: 'PyPSA' } };
-    const s = mergeChartSearch('', state, false);
+    const s = mergeChartSearch('', state);
     expect(s).toBe('?decisions.country=Spain&map.tool=PyPSA');
     expect(searchToChartFilters(s, ['decisions', 'map'])).toEqual(state);
   });
 
-  it('gives old unprefixed filters to the chart the old link pointed at, then drops them', () => {
-    const state = searchToChartFilters('?country=Spain', ['decisions', 'map'], 'decisions');
-    expect(state.decisions.country).toBe('Spain');
-    expect(state.map.country).toBe('All');
-    expect(mergeChartSearch('?country=Spain', state, true)).toBe('?decisions.country=Spain');
-  });
-
   it('leaves other parameters of the page alone', () => {
-    expect(mergeChartSearch('?type=consultancy&tool=PyPSA', { decisions: EMPTY_FILTERS }, false)).toBe('?type=consultancy&tool=PyPSA');
+    expect(mergeChartSearch('?type=consultancy&tool=PyPSA', { decisions: EMPTY_FILTERS })).toBe('?type=consultancy&tool=PyPSA');
   });
 });

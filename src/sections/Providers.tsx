@@ -1,10 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
-import { useChart } from '../lib/chartFilters';
-import { serviceProviders, type OrgEntry } from '../lib/insights';
+import type { OrgEntry } from '../lib/insights';
 import { Link, slug } from '../lib/router';
-import ChartCard from '../components/chart/ChartCard';
-import Segmented from '../components/chart/Segmented';
 import EmptyState from '../components/common/EmptyState';
 
 const SHOWN = 12;
@@ -58,27 +55,5 @@ export function ProviderList({ list }: { list: OrgEntry[] }) {
         </button>
       )}
     </>
-  );
-}
-
-/**
- * Consultancies that deliver modelling, for industry users looking for help; open-source tools by
- * default, since anyone can offer services on them.
- */
-export default function Providers() {
-  const { records, filters } = useChart('providers');
-  const [scope, setScope] = useState('open');
-  const tool = filters.toolName === 'All' ? undefined : filters.toolName;
-  const list = useMemo(() => serviceProviders(records, { tool, openOnly: scope === 'open' }), [records, tool, scope]);
-  return (
-    <ChartCard
-      id="providers"
-      title="Who can help you model"
-      description="Consultancies with documented projects, for teams that want to commission a study or get support with a tool."
-      fields={['country', 'toolName', 'period', 'search']}
-      actions={<Segmented label="Tools" value={scope} onChange={setScope} options={[{ id: 'open', label: 'Open-source tools' }, { id: 'all', label: 'All tools' }]} />}
-    >
-      <ProviderList list={list} />
-    </ChartCard>
   );
 }

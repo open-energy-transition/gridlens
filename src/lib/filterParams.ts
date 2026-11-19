@@ -64,31 +64,16 @@ export function chartFiltersToSearch(state: ChartFilters): string {
   return s ? `?${s}` : '';
 }
 
-/**
- * Reads the filters of the given charts. Unprefixed keys (links from before charts had their own
- * filters, e.g. /grid-decisions?country=Spain) apply to `legacyChart`.
- */
-export function searchToChartFilters(search: string, chartIds: string[], legacyChart?: string): ChartFilters {
+/** Reads the filters of the given charts. */
+export function searchToChartFilters(search: string, chartIds: string[]): ChartFilters {
   const params = new URLSearchParams(search);
-  const legacy = read(params);
-  const state: ChartFilters = {};
-  for (const id of chartIds) {
-    const own = read(params, `${id}.`);
-    state[id] = id === legacyChart && activeCount(own) === 0 ? legacy : own;
-  }
-  return state;
+  return Object.fromEntries(chartIds.map((id) => [id, read(params, `${id}.`)]));
 }
 
-/**
- * The address bar's query string with the charts' filters written in: other parameters stay
- * (e.g. a page's own ?type=), old unprefixed filters are removed once a chart has taken them over.
- */
-export function mergeChartSearch(current: string, state: ChartFilters, dropUnprefixed: boolean): string {
+/** The address bar's query string with the charts' filters written in; other parameters (a page's own ?type=) stay. */
+export function mergeChartSearch(current: string, state: ChartFilters): string {
   const params = new URLSearchParams(current);
-  for (const key of [...params.keys()]) {
-    const prefix = key.split('.')[0];
-    if ((key.includes('.') && prefix in state) || (dropUnprefixed && (Object.values(PARAM) as string[]).includes(key))) params.delete(key);
-  }
+  for (const key of [...params.keys()]) if (key.includes('.') && key.split('.')[0] in state) params.delete(key);
   for (const id of Object.keys(state).sort()) write(params, state[id], `${id}.`);
   const s = params.toString();
   return s ? `?${s}` : '';

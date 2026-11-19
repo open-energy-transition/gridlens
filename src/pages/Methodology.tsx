@@ -1,11 +1,8 @@
-import { ArrowUpRight } from 'lucide-react';
 import type { CatalogueRecord } from '../types';
 import { TOOLS } from '../lib/tools';
 import { IMPACT_INFO, IMPACT_ORDER } from '../lib/impact';
 import { Link } from '../lib/router';
-import { SUGGEST_URL } from '../components/layout/Shell';
-
-const REPO = 'https://github.com/open-energy-transition/gridlens';
+import AboutTabs from './AboutTabs';
 
 const CONTENTS = [
   ['purpose', 'Why GridLens exists'],
@@ -15,7 +12,6 @@ const CONTENTS = [
   ['model', 'How entries become projects'],
   ['measures', 'What the measures mean'],
   ['limits', 'Limits'],
-  ['contact', 'Contact and corrections'],
 ] as const;
 
 function Block({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
@@ -32,9 +28,9 @@ export default function Methodology({ catalogue }: { catalogue: CatalogueRecord[
   const countries = new Set(catalogue.flatMap((r) => r.countries)).size;
   const dated = catalogue.filter((r) => r.year).length;
   return (
-    <div className="pt-10 md:pt-14">
-      <p className="text-xs uppercase tracking-[0.18em] text-ink-400">About &amp; methodology</p>
-      <h1 className="font-display mt-4 max-w-3xl text-5xl leading-tight text-ink-50">How GridLens knows who uses which tool</h1>
+    <div>
+      <AboutTabs current="/about" />
+      <h1 className="font-display mt-10 max-w-3xl text-5xl leading-tight text-ink-50">How GridLens knows who uses which tool</h1>
       <p className="mt-5 max-w-2xl text-lg text-ink-300">
         Every entry rests on a public source with a verbatim quote. This page explains where the evidence comes from,
         how it is checked, and what the numbers do and do not say.
@@ -81,6 +77,7 @@ export default function Methodology({ catalogue }: { catalogue: CatalogueRecord[
               <li><strong>Vendor and community case studies</strong>, credited to the client that used the tool, never to the vendor itself.</li>
               <li><strong>Scholarly publications</strong> from <a className="text-brand-300 hover:text-brand-200" href="https://openalex.org" target="_blank" rel="noreferrer">OpenAlex</a> whose abstract reports using a tool, credited to the authors’ institutions.</li>
               <li><strong>Public user lists</strong> maintained by tool communities, each entry checked against its own source.</li>
+              <li><strong>Code contributions</strong> to open-source tools: commits to each tool’s GitHub organization, attributed to the organization named in each contributor’s public GitHub profile (the approach of OET’s <a className="text-brand-300 hover:text-brand-200" href="https://openmod-tracker.org" target="_blank" rel="noreferrer">openmod-tracker</a>). Contributors who name no organization are not attributed.</li>
             </ul>
             <p>Only public sources are used. Nothing is inferred from job titles or from an organization merely being a customer.</p>
           </Block>
@@ -132,25 +129,10 @@ export default function Methodology({ catalogue }: { catalogue: CatalogueRecord[
               <li><strong>Absence is not evidence.</strong> Many organizations never publish which tools they use, so counts show documented use, not market share.</li>
               <li>Sources in English and from large organizations are easier to find, so some regions are under-represented.</li>
               <li>Vendors publish case studies, communities publish user lists; tools with neither are harder to document.</li>
-              <li>Model-assisted reading can still be wrong. Every entry links to its source so you can check it, and corrections are welcome.</li>
+              <li>Model-assisted reading can still be wrong. Every entry links to its source so you can check it, and <Link href="/about/contact" className="text-brand-300 hover:text-brand-200">corrections are welcome</Link>.</li>
             </ul>
           </Block>
 
-          <Block id="contact" title="Contact and corrections">
-            <p>
-              Spotted a mistake, or know of a project that is missing? Open an issue with a link to a public source, and it will be
-              checked and added. Changes to the data are listed in the <Link href="/changelog" className="text-brand-300 hover:text-brand-200">changelog</Link>.
-            </p>
-            <div className="flex flex-wrap gap-2 pt-2">
-              <a href={SUGGEST_URL} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center gap-1.5 rounded-full bg-ink-50 px-4 text-sm font-medium text-ink-950 hover:bg-white">
-                Suggest a project or correction <ArrowUpRight size={15} />
-              </a>
-              <a href={REPO} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center gap-1.5 rounded-full border border-ink-700 px-4 text-sm text-ink-200 hover:border-ink-500">
-                Code and data on GitHub <ArrowUpRight size={15} />
-              </a>
-              <Link href="/projects" className="inline-flex h-10 items-center rounded-full border border-ink-700 px-4 text-sm text-ink-200 hover:border-ink-500">Download the data</Link>
-            </div>
-          </Block>
         </div>
       </div>
     </div>

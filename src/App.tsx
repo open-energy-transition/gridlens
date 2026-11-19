@@ -1,36 +1,26 @@
 import { useEffect } from 'react';
 import catalogueData from './data/catalogue.json';
 import type { CatalogueRecord } from './types';
-import { CHART_IDS, PAGES, parsePath, routePath, slug, useRoute } from './lib/router';
-import { TOOLS } from './lib/tools';
+import { CHART_IDS, PAGES, slug, useRoute } from './lib/router';
 import { ChartFiltersProvider } from './lib/chartFilters';
-import { activeCount, searchToFilters } from './lib/filterParams';
+import { TOOLS } from './lib/tools';
 import Shell from './components/layout/Shell';
 import Overview from './pages/Overview';
-import Tools from './pages/Tools';
+import Tool from './pages/Tool';
 import Organizations from './pages/Organizations';
 import Projects from './pages/Projects';
 import Methodology from './pages/Methodology';
 import Changelog from './pages/Changelog';
+import Contact from './pages/Contact';
 
 const catalogue = catalogueData as CatalogueRecord[];
-
-/**
- * Unprefixed filters come from links made before each chart had its own filters
- * (/grid-decisions?country=Spain): they apply to the chart that link pointed at.
- */
-const first = parsePath(window.location.pathname);
-const legacyChart = activeCount(searchToFilters(window.location.search)) > 0
-  ? first.hash ?? (first.route.page === '/projects' ? 'projects' : undefined)
-  : undefined;
 
 export default function App() {
   const route = useRoute();
 
   useEffect(() => {
-    const page = PAGES.find((p) => p.path === route.page)!;
     const tool = TOOLS.find((t) => slug(t.name) === route.tool)?.name;
-    document.title = tool ? `${tool} · Tools · GridLens` : page.title;
+    document.title = tool ? `${tool} · GridLens` : PAGES.find((p) => p.path === route.page)?.title ?? PAGES[0].title;
   }, [route]);
 
   useEffect(() => {
@@ -39,15 +29,16 @@ export default function App() {
   }, []);
 
   return (
-    <ChartFiltersProvider catalogue={catalogue} chartIds={CHART_IDS} legacyChart={legacyChart}>
+    <ChartFiltersProvider catalogue={catalogue} chartIds={CHART_IDS}>
       <Shell route={route}>
-        <div key={routePath(route)}>
+        <div key={route.page + (route.tool ?? '')}>
           {route.page === '/' && <Overview catalogue={catalogue} />}
-          {route.page === '/tools' && <Tools catalogue={catalogue} tool={route.tool} />}
+          {route.page === '/tools' && <Tool tool={route.tool} />}
           {route.page === '/organizations' && <Organizations catalogue={catalogue} />}
           {route.page === '/projects' && <Projects />}
-          {route.page === '/methodology' && <Methodology catalogue={catalogue} />}
-          {route.page === '/changelog' && <Changelog />}
+          {route.page === '/about' && <Methodology catalogue={catalogue} />}
+          {route.page === '/about/changelog' && <Changelog />}
+          {route.page === '/about/contact' && <Contact />}
         </div>
       </Shell>
     </ChartFiltersProvider>
