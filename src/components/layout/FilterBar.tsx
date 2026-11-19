@@ -1,6 +1,6 @@
 import { Search, SlidersHorizontal, X, Menu } from 'lucide-react';
 import { categoryLabel } from '../../lib/toolCategories';
-import { orgGroupLabel, SOURCE_GROUP_LABELS } from '../../lib/orgTypes';
+import { orgGroupLabel, sectorLabel, SECTORS, SOURCE_GROUP_LABELS } from '../../lib/orgTypes';
 import { LICENSE_LABELS } from '../../lib/tools';
 import { EMPTY_FILTERS } from '../../types';
 import type { Filters } from '../../types';
@@ -72,6 +72,7 @@ export default function FilterBar({
     filters.evidenceStrength !== 'All' ||
     filters.orgType !== 'All' ||
     filters.license !== 'All' ||
+    filters.sector !== 'All' ||
     filters.sourceGroup !== 'All' ||
     filters.search.trim() !== '';
 
@@ -117,6 +118,13 @@ export default function FilterBar({
           onChange={(v) => onChange({ ...filters, license: v })}
         />
         <Select
+          label="Sector"
+          value={filters.sector}
+          options={SECTORS.map((x) => x.id)}
+          optionLabel={sectorLabel}
+          onChange={(v) => onChange({ ...filters, sector: v })}
+        />
+        <Select
           label="Organization type"
           value={filters.orgType}
           options={orgTypes}
@@ -129,7 +137,7 @@ export default function FilterBar({
           options={evidenceStrengths}
           onChange={(v) => onChange({ ...filters, evidenceStrength: v })}
         />
-<Select
+        <Select
           label="Source"
           value={filters.sourceGroup}
           options={sourceGroups}

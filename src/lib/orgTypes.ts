@@ -22,6 +22,24 @@ export function orgGroup(r: Pick<CatalogueRecord, 'institution_category'>): stri
   return GROUP_OF.get(r.institution_category ?? '') ?? 'other';
 }
 
+/**
+ * Two broad sectors for "who adopts this tool": industry & government (grid operators, utilities,
+ * regulators, ministries, consultancies, international bodies) and academia & research.
+ */
+export const SECTORS: { id: string; label: string; groups: string[] }[] = [
+  { id: 'industry', label: 'Industry & government', groups: ['grid_operator', 'utility', 'regulator', 'government', 'consultancy', 'international'] },
+  { id: 'academia', label: 'Academia & research', groups: ['research'] },
+];
+const SECTOR_OF = new Map(SECTORS.flatMap((s) => s.groups.map((g) => [g, s.id] as const)));
+
+export function sectorOf(r: Pick<CatalogueRecord, 'institution_category'>): string {
+  return SECTOR_OF.get(orgGroup(r)) ?? 'other';
+}
+
+export function sectorLabel(id: string): string {
+  return SECTORS.find((s) => s.id === id)?.label ?? id;
+}
+
 export function orgGroupLabel(id: string): string {
   return LABEL_OF.get(id) ?? id;
 }

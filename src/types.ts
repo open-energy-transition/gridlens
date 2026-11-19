@@ -50,6 +50,7 @@ export interface Filters {
   toolName: string;
   toolCategory: string;
   orgType: string;
+  sector: string;
   license: string;
   evidenceStrength: string;
   sourceGroup: string;
@@ -61,6 +62,7 @@ export const EMPTY_FILTERS: Filters = {
   toolName: 'All',
   toolCategory: 'All',
   orgType: 'All',
+  sector: 'All',
   license: 'All',
   evidenceStrength: 'All',
   sourceGroup: 'All',

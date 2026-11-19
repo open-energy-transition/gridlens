@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { applyFilters, countBy, countByOrganization, uniqSorted, uniqueCount, safe } from './filters';
+import { adoptionByTool, applyFilters, countBy, countByOrganization, uniqSorted, uniqueCount, safe } from './filters';
 import type { CatalogueRecord, Filters } from '../types';
 import { EMPTY_FILTERS } from '../types';
 
@@ -158,5 +158,33 @@ describe('uniqSorted / uniqueCount', () => {
 
   it('uniqueCount matches uniqSorted length', () => {
     expect(uniqueCount(records, 'country_label')).toBe(2);
+  });
+});
+
+describe('sector', () => {
+  const mixed = record({
+    tool_name: 'PyPSA',
+    organizations: [
+      { name: 'TSO', role: 'commissioner', institution_category: 'utility_tso', country_label: 'Brazil' },
+      { name: 'Uni', role: 'research_user', institution_category: 'academic_research', country_label: 'Brazil' },
+    ],
+  });
+  const academic = record({
+    tool_name: 'PyPSA',
+    organizations: [{ name: 'Uni', role: 'research_user', institution_category: 'academic_research', country_label: 'Brazil' }],
+  });
+  const industry = record({
+    tool_name: 'PLEXOS',
+    organizations: [{ name: 'TSO', role: 'direct_user', institution_category: 'utility_tso', country_label: 'Brazil' }],
+  });
+
+  it('filters projects with any organization in the sector', () => {
+    expect(applyFilters([mixed, academic, industry], { ...EMPTY_FILTERS, sector: 'industry' })).toEqual([mixed, industry]);
+    expect(applyFilters([mixed, academic, industry], { ...EMPTY_FILTERS, sector: 'academia' })).toEqual([mixed, academic]);
+  });
+
+  it('ranks tools by distinct organizations, optionally of one sector', () => {
+    expect(adoptionByTool([mixed, academic, industry])).toEqual([{ name: 'PyPSA', count: 2 }, { name: 'PLEXOS', count: 1 }]);
+    expect(adoptionByTool([mixed, academic, industry], 'industry')).toEqual([{ name: 'PLEXOS', count: 1 }, { name: 'PyPSA', count: 1 }]);
   });
 });
