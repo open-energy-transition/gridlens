@@ -58,7 +58,7 @@ export function useRoute() {
     const { section: s, tool: t } = pathToRoute(pathname);
     // Unknown path → replace with overview (per spec)
     if (s === 'overview' && !t && norm(pathname) !== '/' && norm(pathname) !== '') {
-      window.history.replaceState({}, '', '/');
+      window.history.replaceState({}, '', '/' + window.location.search);
       setSection('overview');
       setTool(undefined);
     } else {
@@ -74,7 +74,8 @@ export function useRoute() {
   }, [handleRoute]);
 
   const navigateTo = useCallback((s: Section, t?: string) => {
-    const p = routeToPath(s, t);
+    // Keep the filter query string, so the shared link shows the same selection on the new page.
+    const p = routeToPath(s, t) + window.location.search;
     window.history.pushState({}, '', p);
     setSection(s);
     setTool(t);

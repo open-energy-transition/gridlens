@@ -2,11 +2,11 @@ import { useMemo, useState, useEffect } from 'react';
 import { LayoutDashboard, Building2, Globe2, Wrench } from 'lucide-react';
 import catalogueData from './data/catalogue.json';
 import type { CatalogueRecord, Filters, Section } from './types';
-import { EMPTY_FILTERS } from './types';
 import { applyFilters, uniqSorted, uniqueCount } from './lib/filters';
 import { splitCategories, TOOL_CATEGORIES } from './lib/toolCategories';
 import { orgGroup, ORG_GROUPS } from './lib/orgTypes';
 import { useRoute, getPageTitle } from './lib/routes';
+import { filtersToSearch, searchToFilters } from './lib/filterParams';
 import Sidebar from './components/layout/Sidebar';
 import FilterBar from './components/layout/FilterBar';
 import KpiCard from './components/kpi/KpiCard';
@@ -27,7 +27,22 @@ const catalogue = catalogueData as CatalogueRecord[];
 export default function App() {
   const { section, tool, navigateTo } = useRoute();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
+  const [filters, setFilters] = useState<Filters>(() => searchToFilters(window.location.search));
+
+  // The address bar always carries the active filters, so a copied link reopens the same view.
+  useEffect(() => {
+    const search = filtersToSearch(filters);
+    if (search !== window.location.search) {
+      window.history.replaceState(window.history.state, '', window.location.pathname + search + window.location.hash);
+    }
+  }, [filters]);
+
+  // Back/forward restores the filters of that history entry.
+  useEffect(() => {
+    const onPop = () => setFilters(searchToFilters(window.location.search));
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
+  }, []);
 
   const countries = useMemo(() => [...new Set(catalogue.flatMap((r) => r.countries))].sort((a, b) => a.localeCompare(b)), []);
   const toolNames = useMemo(() => uniqSorted(catalogue, 'tool_name'), []);
