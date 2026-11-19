@@ -8,6 +8,7 @@ const PARAM: Record<keyof Filters, string> = {
   toolCategory: 'category',
   orgType: 'org',
   sector: 'sector',
+  period: 'years',
   license: 'license',
   evidenceStrength: 'evidence',
   sourceGroup: 'source',

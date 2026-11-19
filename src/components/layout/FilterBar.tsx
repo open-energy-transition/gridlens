@@ -1,5 +1,6 @@
 import { Search, SlidersHorizontal, X, Menu } from 'lucide-react';
 import { categoryLabel } from '../../lib/toolCategories';
+import { PERIODS, periodStart } from '../../lib/filters';
 import { orgGroupLabel, sectorLabel, SECTORS, SOURCE_GROUP_LABELS } from '../../lib/orgTypes';
 import { LICENSE_LABELS } from '../../lib/tools';
 import { EMPTY_FILTERS } from '../../types';
@@ -73,6 +74,7 @@ export default function FilterBar({
     filters.orgType !== 'All' ||
     filters.license !== 'All' ||
     filters.sector !== 'All' ||
+    filters.period !== 'All' ||
     filters.sourceGroup !== 'All' ||
     filters.search.trim() !== '';
 
@@ -116,6 +118,13 @@ export default function FilterBar({
           options={['open_source', 'proprietary']}
           optionLabel={(o) => LICENSE_LABELS[o] ?? o}
           onChange={(v) => onChange({ ...filters, license: v })}
+        />
+        <Select
+          label="Study year"
+          value={filters.period}
+          options={PERIODS}
+          optionLabel={(p) => `Last ${p} years (${periodStart(p)}+)`}
+          onChange={(v) => onChange({ ...filters, period: v })}
         />
         <Select
           label="Sector"

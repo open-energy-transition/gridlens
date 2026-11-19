@@ -9,9 +9,9 @@ describe('filter query string', () => {
   });
 
   it('round-trips active filters, including spaces and special characters', () => {
-    const f = { ...EMPTY_FILTERS, country: 'Bosnia and Herzegovina', toolName: 'PSS/E', orgType: 'grid_operator', sector: 'industry', search: 'TYNDP & flex' };
+    const f = { ...EMPTY_FILTERS, country: 'Bosnia and Herzegovina', toolName: 'PSS/E', orgType: 'grid_operator', sector: 'industry', period: '5', search: 'TYNDP & flex' };
     const s = filtersToSearch(f);
-    expect(s).toBe('?country=Bosnia+and+Herzegovina&tool=PSS%2FE&org=grid_operator&sector=industry&q=TYNDP+%26+flex');
+    expect(s).toBe('?country=Bosnia+and+Herzegovina&tool=PSS%2FE&org=grid_operator&sector=industry&years=5&q=TYNDP+%26+flex');
     expect(searchToFilters(s)).toEqual(f);
   });
 
