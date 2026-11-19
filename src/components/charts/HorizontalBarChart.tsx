@@ -15,13 +15,15 @@ interface HorizontalBarChartProps {
   unit?: string;
   /** Show rank numbers. */
   ranked?: boolean;
+  /** Optional element before each name, e.g. a logo. */
+  icon?: (name: string) => ReactNode;
 }
 
 /**
  * Ranked bars. On wide screens the name sits left of the bar, as in a leaderboard;
  * on phones the name is above its bar so long names are never cut off.
  */
-export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorOf, hrefOf, unit = '', ranked = false }: HorizontalBarChartProps) {
+export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorOf, hrefOf, unit = '', ranked = false, icon }: HorizontalBarChartProps) {
   const fill = colorFor(colorIndex);
   const max = Math.max(1, ...data.map((d) => d.count));
   return (
@@ -33,6 +35,7 @@ export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorO
             className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1.5 sm:grid-cols-[minmax(10rem,17rem)_1fr_3rem]">
             <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-200">
               {ranked && <span className="tabular w-5 shrink-0 text-xs text-ink-600">{i + 1}</span>}
+              {icon?.(d.name)}
               {href ? (
                 <Link href={href} className="underline decoration-ink-700 underline-offset-4 transition-colors hover:text-ink-50 hover:decoration-brand-500">{d.name}</Link>
               ) : d.name}

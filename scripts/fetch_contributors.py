@@ -1,8 +1,9 @@
 """Which organizations contribute most to each open-source tool's code (src/data/contributors.json).
 
 For every open-source tool with a `github_org` in src/data/tools.json, reads all public, non-fork repositories of
-that GitHub organization, the commits of each contributor (all time, and in the last 24 months) from GitHub's
-contributor statistics, and each contributor's public `company` profile field. Companies are normalized with
+that GitHub organization, every merged pull request (all time, and in the last 24 months) with its author, and each
+author's public `company` profile field. Merged pull requests, unlike commits, count reviewed contributions the same
+way whatever the author's commit habits. Companies are normalized with
 data/contributor_orgs.json (one name → its aliases; aliases of "" mean "no organization", e.g. the tool's own GitHub
 organization). Contributors without a company are counted as "unaffiliated".
 
@@ -25,7 +26,7 @@ ROOT = Path(__file__).resolve().parent.parent
 TOOLS = json.loads((ROOT / "src/data/tools.json").read_text(encoding="utf-8"))
 ALIASES = json.loads((ROOT / "data/contributor_orgs.json").read_text(encoding="utf-8"))
 OUT = ROOT / "src/data/contributors.json"
-RECENT_WEEKS = 104
+RECENT_DAYS = 730
 # Bots and AI coding agents are not people from an organization.
 BOTS = re.compile(r"\[bot\]$|^dependabot|^pre-commit-ci|^github-actions|^claude$|^copilot|^codex", re.I)
 
@@ -92,25 +93,25 @@ def main():
         org = tool["github_org"]
         repos = [r for r in paged(f"/orgs/{org}/repos?type=public") if not r["fork"]]
         print(f"{tool['name']}: {len(repos)} repositories in {org}", flush=True)
-        people = defaultdict(lambda: {"commits": 0, "recent": 0})
+        since = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=RECENT_DAYS)).isoformat()
+        people = defaultdict(lambda: {"prs": 0, "recent": 0})
         for repo in repos:
-            stats = get(f"/repos/{org}/{repo['name']}/stats/contributors") or []
-            for s in stats:
-                login = (s.get("author") or {}).get("login")
-                if not login or BOTS.search(login):
+            for pr in paged(f"/repos/{org}/{repo['name']}/pulls?state=closed"):
+                login = (pr.get("user") or {}).get("login")
+                if not pr.get("merged_at") or not login or BOTS.search(login):
                     continue
-                people[login]["commits"] += s["total"]
-                people[login]["recent"] += sum(w["c"] for w in s["weeks"][-RECENT_WEEKS:])
+                people[login]["prs"] += 1
+                people[login]["recent"] += pr["merged_at"] >= since
         for login in people:
             if login not in profiles:
                 profiles[login] = normalize((get(f"/users/{login}") or {}).get("company"))
-        orgs = defaultdict(lambda: {"contributors": 0, "commits": 0, "recentCommits": 0})
+        orgs = defaultdict(lambda: {"contributors": 0, "mergedPRs": 0, "recentPRs": 0})
         for login, p in people.items():
             o = orgs[profiles[login] or "unaffiliated"]
             o["contributors"] += 1
-            o["commits"] += p["commits"]
-            o["recentCommits"] += p["recent"]
-        ranked = sorted(({"name": k, **v} for k, v in orgs.items()), key=lambda o: (-o["recentCommits"], -o["commits"], o["name"]))
+            o["mergedPRs"] += p["prs"]
+            o["recentPRs"] += p["recent"]
+        ranked = sorted(({"name": k, **v} for k, v in orgs.items()), key=lambda o: (-o["recentPRs"], -o["mergedPRs"], o["name"]))
         out["tools"][tool["name"]] = {
             "githubOrg": org, "repositories": len(repos), "contributors": len(people),
             "affiliated": sum(1 for login in people if profiles[login]), "organizations": ranked,

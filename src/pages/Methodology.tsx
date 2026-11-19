@@ -77,7 +77,7 @@ export default function Methodology({ catalogue }: { catalogue: CatalogueRecord[
               <li><strong>Vendor and community case studies</strong>, credited to the client that used the tool, never to the vendor itself.</li>
               <li><strong>Scholarly publications</strong> from <a className="text-brand-300 hover:text-brand-200" href="https://openalex.org" target="_blank" rel="noreferrer">OpenAlex</a> whose abstract reports using a tool, credited to the authors’ institutions.</li>
               <li><strong>Public user lists</strong> maintained by tool communities, each entry checked against its own source.</li>
-              <li><strong>Code contributions</strong> to open-source tools: commits to each tool’s GitHub organization, attributed to the organization named in each contributor’s public GitHub profile (the approach of OET’s <a className="text-brand-300 hover:text-brand-200" href="https://openmod-tracker.org" target="_blank" rel="noreferrer">openmod-tracker</a>). Contributors who name no organization are not attributed.</li>
+              <li><strong>Code contributions</strong> to open-source tools: pull requests merged into the repositories of each tool’s GitHub organization, attributed to the organization named in each contributor’s public GitHub profile (the approach of OET’s <a className="text-brand-300 hover:text-brand-200" href="https://openmod-tracker.org" target="_blank" rel="noreferrer">openmod-tracker</a>). Contributors who name no organization are not attributed. These counts are hints: they miss reviews, issues, documentation and the many upstream and downstream projects the tools depend on.</li>
             </ul>
             <p>Only public sources are used. Nothing is inferred from job titles or from an organization merely being a customer.</p>
           </Block>
@@ -129,6 +129,11 @@ export default function Methodology({ catalogue }: { catalogue: CatalogueRecord[
               <li><strong>Absence is not evidence.</strong> Many organizations never publish which tools they use, so counts show documented use, not market share.</li>
               <li>Sources in English and from large organizations are easier to find, so some regions are under-represented.</li>
               <li>Vendors publish case studies, communities publish user lists; tools with neither are harder to document.</li>
+              <li>
+                GridLens reports documented, public facts about tool use; it does not rate or recommend tools. Product names and
+                logos belong to their owners and are used only to identify the tools; no vendor endorses or sponsors GridLens.
+                Vendors and organizations can ask for a correction or for their logo to be removed via the <Link href="/about/contact" className="text-brand-300 hover:text-brand-200">contact page</Link>.
+              </li>
               <li>Model-assisted reading can still be wrong. Every entry links to its source so you can check it, and <Link href="/about/contact" className="text-brand-300 hover:text-brand-200">corrections are welcome</Link>.</li>
             </ul>
           </Block>

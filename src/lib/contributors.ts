@@ -3,10 +3,11 @@ import { TOOLS } from './tools';
 
 export interface ContributorOrg {
   name: string;
+  /** People with at least one merged pull request. */
   contributors: number;
-  commits: number;
-  /** Commits in the last 24 months. */
-  recentCommits: number;
+  mergedPRs: number;
+  /** Pull requests merged in the last 24 months. */
+  recentPRs: number;
 }
 
 export interface ToolContributors {
@@ -23,7 +24,7 @@ export const CONTRIBUTORS = data as { generated: string; tools: Record<string, T
 
 export const UNAFFILIATED = 'unaffiliated';
 
-/** Organizations behind one tool's code, most recent commits first; people without an organization are left out. */
+/** Organizations behind one tool's code, most recently merged pull requests first; people without an organization are left out. */
 export function contributingOrgs(tool: string): ContributorOrg[] {
   return (CONTRIBUTORS.tools[tool]?.organizations ?? []).filter((o) => o.name !== UNAFFILIATED);
 }
@@ -32,18 +33,18 @@ export interface Builder extends ContributorOrg {
   tools: string[];
 }
 
-/** Organizations across all open-source tools, by commits in the last 24 months (all-time commits break ties). */
+/** Organizations across all open-source tools, by pull requests merged in the last 24 months (all-time count breaks ties). */
 export function builders(tools: string[] = TOOLS.map((t) => t.name)): Builder[] {
   const byName = new Map<string, Builder>();
   for (const tool of tools) {
     for (const o of contributingOrgs(tool)) {
-      const b = byName.get(o.name) ?? { name: o.name, contributors: 0, commits: 0, recentCommits: 0, tools: [] };
+      const b = byName.get(o.name) ?? { name: o.name, contributors: 0, mergedPRs: 0, recentPRs: 0, tools: [] };
       b.contributors += o.contributors;
-      b.commits += o.commits;
-      b.recentCommits += o.recentCommits;
+      b.mergedPRs += o.mergedPRs;
+      b.recentPRs += o.recentPRs;
       b.tools.push(tool);
       byName.set(o.name, b);
     }
   }
-  return [...byName.values()].sort((a, b) => b.recentCommits - a.recentCommits || b.commits - a.commits || a.name.localeCompare(b.name));
+  return [...byName.values()].sort((a, b) => b.recentPRs - a.recentPRs || b.mergedPRs - a.mergedPRs || a.name.localeCompare(b.name));
 }

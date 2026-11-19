@@ -211,7 +211,8 @@ export default function Shell({ route, children }: { route: Route; children: Rea
           </nav>
         </div>
         <p className="mx-auto max-w-[1440px] px-4 pb-8 text-xs text-ink-600 md:px-6">
-          Runs entirely in your browser: no account, no tracking, no backend.
+          Runs entirely in your browser: no account, no tracking, no backend. Product names and logos are trademarks of their
+          owners, used only to identify the tools; GridLens is independent and not endorsed by any vendor.
         </p>
       </footer>
     </div>

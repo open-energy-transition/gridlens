@@ -4,700 +4,700 @@
   "PyPSA": {
    "githubOrg": "PyPSA",
    "repositories": 36,
-   "contributors": 261,
-   "affiliated": 112,
+   "contributors": 268,
+   "affiliated": 118,
    "organizations": [
     {
      "name": "Technical University of Berlin",
      "contributors": 11,
-     "commits": 9902,
-     "recentCommits": 2169
-    },
-    {
-     "name": "unaffiliated",
-     "contributors": 149,
-     "commits": 2553,
-     "recentCommits": 1254
+     "mergedPRs": 1674,
+     "recentPRs": 714
     },
     {
      "name": "Open Energy Transition",
      "contributors": 28,
-     "commits": 6584,
-     "recentCommits": 1082
+     "mergedPRs": 1475,
+     "recentPRs": 639
+    },
+    {
+     "name": "unaffiliated",
+     "contributors": 150,
+     "mergedPRs": 648,
+     "recentPRs": 397
     },
     {
      "name": "Stanford University",
      "contributors": 2,
-     "commits": 997,
-     "recentCommits": 162
+     "mergedPRs": 160,
+     "recentPRs": 69
     },
     {
      "name": "University College London",
      "contributors": 1,
-     "commits": 769,
-     "recentCommits": 95
-    },
-    {
-     "name": "Treehouse Energy",
-     "contributors": 1,
-     "commits": 22,
-     "recentCommits": 22
-    },
-    {
-     "name": "Technical University of Denmark (DTU)",
-     "contributors": 4,
-     "commits": 165,
-     "recentCommits": 12
-    },
-    {
-     "name": "AGGM",
-     "contributors": 1,
-     "commits": 12,
-     "recentCommits": 12
-    },
-    {
-     "name": "University of Applied Sciences Aachen",
-     "contributors": 1,
-     "commits": 18,
-     "recentCommits": 11
-    },
-    {
-     "name": "Chalmers Next Labs",
-     "contributors": 1,
-     "commits": 123,
-     "recentCommits": 10
-    },
-    {
-     "name": "University of Pisa",
-     "contributors": 1,
-     "commits": 57,
-     "recentCommits": 9
+     "mergedPRs": 141,
+     "recentPRs": 67
     },
     {
      "name": "University of Michigan",
      "contributors": 1,
-     "commits": 9,
-     "recentCommits": 9
+     "mergedPRs": 41,
+     "recentPRs": 41
+    },
+    {
+     "name": "Treehouse Energy",
+     "contributors": 1,
+     "mergedPRs": 22,
+     "recentPRs": 22
+    },
+    {
+     "name": "Technical University of Denmark (DTU)",
+     "contributors": 5,
+     "mergedPRs": 15,
+     "recentPRs": 11
+    },
+    {
+     "name": "University of Applied Sciences Aachen",
+     "contributors": 1,
+     "mergedPRs": 12,
+     "recentPRs": 10
+    },
+    {
+     "name": "University of Pisa",
+     "contributors": 1,
+     "mergedPRs": 22,
+     "recentPRs": 8
     },
     {
      "name": "Axpo",
      "contributors": 1,
-     "commits": 8,
-     "recentCommits": 8
+     "mergedPRs": 8,
+     "recentPRs": 8
+    },
+    {
+     "name": "AGGM",
+     "contributors": 1,
+     "mergedPRs": 7,
+     "recentPRs": 7
+    },
+    {
+     "name": "Chalmers Next Labs",
+     "contributors": 1,
+     "mergedPRs": 17,
+     "recentPRs": 6
     },
     {
      "name": "RWTH Aachen",
      "contributors": 1,
-     "commits": 6,
-     "recentCommits": 6
+     "mergedPRs": 3,
+     "recentPRs": 3
     },
     {
      "name": "Universidad Politécnica de Madrid",
      "contributors": 1,
-     "commits": 6,
-     "recentCommits": 6
-    },
-    {
-     "name": "ajilach - a Swisscom company",
-     "contributors": 1,
-     "commits": 6,
-     "recentCommits": 6
-    },
-    {
-     "name": "Reiner Lemoine Institut",
-     "contributors": 1,
-     "commits": 5,
-     "recentCommits": 5
+     "mergedPRs": 3,
+     "recentPRs": 3
     },
     {
      "name": "Potsdam Institute for Climate Impact Research",
      "contributors": 1,
-     "commits": 12,
-     "recentCommits": 4
+     "mergedPRs": 5,
+     "recentPRs": 2
     },
     {
      "name": "Öko-Institut e.V",
      "contributors": 1,
-     "commits": 3,
-     "recentCommits": 2
-    },
-    {
-     "name": "E3Modelling",
-     "contributors": 1,
-     "commits": 2,
-     "recentCommits": 2
-    },
-    {
-     "name": "Modo Energy",
-     "contributors": 1,
-     "commits": 2,
-     "recentCommits": 2
-    },
-    {
-     "name": "Terawatt Infrastructure",
-     "contributors": 1,
-     "commits": 2,
-     "recentCommits": 2
-    },
-    {
-     "name": "University of Minnesota",
-     "contributors": 1,
-     "commits": 2,
-     "recentCommits": 2
-    },
-    {
-     "name": "VITO",
-     "contributors": 1,
-     "commits": 2,
-     "recentCommits": 2
-    },
-    {
-     "name": "MOSEK",
-     "contributors": 1,
-     "commits": 20,
-     "recentCommits": 1
-    },
-    {
-     "name": "Politecnico di Torino",
-     "contributors": 1,
-     "commits": 14,
-     "recentCommits": 1
-    },
-    {
-     "name": "Loop Payments Inc",
-     "contributors": 1,
-     "commits": 5,
-     "recentCommits": 1
-    },
-    {
-     "name": "AIT Austrian Institute of Technology GmbH",
-     "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
-    },
-    {
-     "name": "Beneat-AI",
-     "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
-    },
-    {
-     "name": "Black Bird Agency",
-     "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
-    },
-    {
-     "name": "Carnegie Institution for Science",
-     "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
-    },
-    {
-     "name": "DEA",
-     "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
-    },
-    {
-     "name": "EDF Lab",
-     "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
+     "mergedPRs": 3,
+     "recentPRs": 2
     },
     {
      "name": "Imperial College London",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
+     "mergedPRs": 2,
+     "recentPRs": 2
+    },
+    {
+     "name": "Modo Energy",
+     "contributors": 1,
+     "mergedPRs": 2,
+     "recentPRs": 2
+    },
+    {
+     "name": "Reiner Lemoine Institut",
+     "contributors": 1,
+     "mergedPRs": 2,
+     "recentPRs": 2
+    },
+    {
+     "name": "Terawatt Infrastructure",
+     "contributors": 1,
+     "mergedPRs": 2,
+     "recentPRs": 2
+    },
+    {
+     "name": "University of Minnesota",
+     "contributors": 1,
+     "mergedPRs": 2,
+     "recentPRs": 2
+    },
+    {
+     "name": "Politecnico di Torino",
+     "contributors": 1,
+     "mergedPRs": 3,
+     "recentPRs": 1
+    },
+    {
+     "name": "AIT Austrian Institute of Technology GmbH",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 1
+    },
+    {
+     "name": "Beneat-AI",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 1
+    },
+    {
+     "name": "Black Bird Agency",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 1
+    },
+    {
+     "name": "Carnegie Institution for Science",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 1
+    },
+    {
+     "name": "DEA",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 1
+    },
+    {
+     "name": "E3Modelling",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 1
     },
     {
      "name": "Indian Institute of Technology Patna",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
+     "mergedPRs": 1,
+     "recentPRs": 1
     },
     {
      "name": "Miflow-Technologies",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
+     "mergedPRs": 1,
+     "recentPRs": 1
     },
     {
      "name": "Ostbayerische Technische Hochschule Regensburg",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
+     "mergedPRs": 1,
+     "recentPRs": 1
+    },
+    {
+     "name": "PAS Automation | Innovate for Impact",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 1
     },
     {
      "name": "University Bayreuth",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
+     "mergedPRs": 1,
+     "recentPRs": 1
     },
     {
      "name": "University of Oxford",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
+     "mergedPRs": 1,
+     "recentPRs": 1
     },
     {
      "name": "University of Padua",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
+     "mergedPRs": 1,
+     "recentPRs": 1
+    },
+    {
+     "name": "VITO",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 1
+    },
+    {
+     "name": "agoenergy",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 1
     },
     {
      "name": "legix-ai · GoldVault",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
+     "mergedPRs": 1,
+     "recentPRs": 1
     },
     {
      "name": "loo-ai",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
+     "mergedPRs": 1,
+     "recentPRs": 1
     },
     {
-     "name": "zephyrproject-rtos",
+     "name": "splightplatform",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
-    },
-    {
-     "name": "中日志愿者协会",
-     "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
-    },
-    {
-     "name": "WZBSocialScienceCenter",
-     "contributors": 1,
-     "commits": 36,
-     "recentCommits": 0
-    },
-    {
-     "name": "Aarhus University",
-     "contributors": 1,
-     "commits": 33,
-     "recentCommits": 0
-    },
-    {
-     "name": "TransitionZero",
-     "contributors": 1,
-     "commits": 28,
-     "recentCommits": 0
-    },
-    {
-     "name": "Asia Pacific Energy Research Centre",
-     "contributors": 1,
-     "commits": 12,
-     "recentCommits": 0
-    },
-    {
-     "name": "Freelancer and researcher",
-     "contributors": 1,
-     "commits": 11,
-     "recentCommits": 0
-    },
-    {
-     "name": "ETH Zurich",
-     "contributors": 2,
-     "commits": 10,
-     "recentCommits": 0
-    },
-    {
-     "name": "inwe-boku",
-     "contributors": 1,
-     "commits": 10,
-     "recentCommits": 0
-    },
-    {
-     "name": "Graphs for Good",
-     "contributors": 1,
-     "commits": 8,
-     "recentCommits": 0
-    },
-    {
-     "name": "SeitaBV",
-     "contributors": 1,
-     "commits": 8,
-     "recentCommits": 0
-    },
-    {
-     "name": "1.21 Gigawatts | Equilibrium Energy",
-     "contributors": 1,
-     "commits": 7,
-     "recentCommits": 0
-    },
-    {
-     "name": "Deutsche Post DHL Group",
-     "contributors": 1,
-     "commits": 7,
-     "recentCommits": 0
-    },
-    {
-     "name": "Libra",
-     "contributors": 1,
-     "commits": 6,
-     "recentCommits": 0
-    },
-    {
-     "name": "VTT Technical Research Centre of Finland",
-     "contributors": 1,
-     "commits": 5,
-     "recentCommits": 0
-    },
-    {
-     "name": "Climact",
-     "contributors": 1,
-     "commits": 4,
-     "recentCommits": 0
-    },
-    {
-     "name": "Doing The Math",
-     "contributors": 1,
-     "commits": 4,
-     "recentCommits": 0
-    },
-    {
-     "name": "IDEA @ NCBJ",
-     "contributors": 1,
-     "commits": 4,
-     "recentCommits": 0
-    },
-    {
-     "name": "International Institute for Applied Systems Analysis (IIASA)",
-     "contributors": 1,
-     "commits": 4,
-     "recentCommits": 0
-    },
-    {
-     "name": "TU eindhoven",
-     "contributors": 1,
-     "commits": 3,
-     "recentCommits": 0
-    },
-    {
-     "name": "acta",
-     "contributors": 1,
-     "commits": 3,
-     "recentCommits": 0
-    },
-    {
-     "name": "Fraunhofer IEE",
-     "contributors": 1,
-     "commits": 2,
-     "recentCommits": 0
-    },
-    {
-     "name": "StarSoul Science&Technology",
-     "contributors": 1,
-     "commits": 2,
-     "recentCommits": 0
-    },
-    {
-     "name": "CNRS",
-     "contributors": 1,
-     "commits": 1,
-     "recentCommits": 0
-    },
-    {
-     "name": "Delft university of technology",
-     "contributors": 1,
-     "commits": 1,
-     "recentCommits": 0
-    },
-    {
-     "name": "KIT",
-     "contributors": 1,
-     "commits": 1,
-     "recentCommits": 0
-    },
-    {
-     "name": "Politecnico di Milano",
-     "contributors": 1,
-     "commits": 1,
-     "recentCommits": 0
-    },
-    {
-     "name": "Tetra Tech",
-     "contributors": 1,
-     "commits": 1,
-     "recentCommits": 0
+     "mergedPRs": 1,
+     "recentPRs": 1
     },
     {
      "name": "volueinsight",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 0
+     "mergedPRs": 1,
+     "recentPRs": 1
+    },
+    {
+     "name": "zephyrproject-rtos",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 1
+    },
+    {
+     "name": "中日志愿者协会",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 1
+    },
+    {
+     "name": "Climact",
+     "contributors": 1,
+     "mergedPRs": 20,
+     "recentPRs": 0
+    },
+    {
+     "name": "WZBSocialScienceCenter",
+     "contributors": 1,
+     "mergedPRs": 18,
+     "recentPRs": 0
+    },
+    {
+     "name": "TransitionZero",
+     "contributors": 1,
+     "mergedPRs": 7,
+     "recentPRs": 0
+    },
+    {
+     "name": "Freelancer and researcher",
+     "contributors": 1,
+     "mergedPRs": 6,
+     "recentPRs": 0
+    },
+    {
+     "name": "ETH Zurich",
+     "contributors": 2,
+     "mergedPRs": 5,
+     "recentPRs": 0
+    },
+    {
+     "name": "1.21 Gigawatts | Equilibrium Energy",
+     "contributors": 1,
+     "mergedPRs": 4,
+     "recentPRs": 0
+    },
+    {
+     "name": "Libra",
+     "contributors": 1,
+     "mergedPRs": 4,
+     "recentPRs": 0
+    },
+    {
+     "name": "Fraunhofer IEE",
+     "contributors": 1,
+     "mergedPRs": 3,
+     "recentPRs": 0
+    },
+    {
+     "name": "Doing The Math",
+     "contributors": 1,
+     "mergedPRs": 2,
+     "recentPRs": 0
+    },
+    {
+     "name": "IDEA @ NCBJ",
+     "contributors": 1,
+     "mergedPRs": 2,
+     "recentPRs": 0
+    },
+    {
+     "name": "StarSoul Science&Technology",
+     "contributors": 1,
+     "mergedPRs": 2,
+     "recentPRs": 0
+    },
+    {
+     "name": "VTT Technical Research Centre of Finland",
+     "contributors": 1,
+     "mergedPRs": 2,
+     "recentPRs": 0
+    },
+    {
+     "name": "Asia Pacific Energy Research Centre",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "CNRS",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "Delft university of technology",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "Deutsche Post DHL Group",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "Graphs for Good",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "Gridmatic",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "Hefei University of Technology",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "ITP Analytics",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "International Institute for Applied Systems Analysis (IIASA)",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "Loop Payments Inc",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "MOSEK",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "NLeSC",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "Politecnico di Milano",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "SeitaBV",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "TU eindhoven",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "Tetra Tech",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "Trailstone",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "acta",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "bayesian-energy",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "inwe-boku",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
     }
    ]
   },
   "TIMES": {
    "githubOrg": "etsap-TIMES",
    "repositories": 5,
-   "contributors": 11,
-   "affiliated": 5,
+   "contributors": 5,
+   "affiliated": 3,
    "organizations": [
     {
      "name": "unaffiliated",
-     "contributors": 6,
-     "commits": 312,
-     "recentCommits": 99
+     "contributors": 2,
+     "mergedPRs": 147,
+     "recentPRs": 59
     },
     {
      "name": "Open Energy Transition",
      "contributors": 1,
-     "commits": 122,
-     "recentCommits": 27
+     "mergedPRs": 78,
+     "recentPRs": 17
     },
     {
      "name": "Microsoft",
-     "contributors": 3,
-     "commits": 123,
-     "recentCommits": 0
+     "contributors": 1,
+     "mergedPRs": 10,
+     "recentPRs": 0
     },
     {
      "name": "CSIRO",
      "contributors": 1,
-     "commits": 7,
-     "recentCommits": 0
+     "mergedPRs": 7,
+     "recentPRs": 0
     }
    ]
   },
   "Sienna": {
    "githubOrg": "Sienna-Platform",
    "repositories": 33,
-   "contributors": 86,
-   "affiliated": 37,
+   "contributors": 84,
+   "affiliated": 35,
    "organizations": [
     {
      "name": "National Renewable Energy Laboratory (NREL)",
      "contributors": 16,
-     "commits": 22812,
-     "recentCommits": 5747
+     "mergedPRs": 2452,
+     "recentPRs": 1152
     },
     {
      "name": "unaffiliated",
      "contributors": 49,
-     "commits": 5406,
-     "recentCommits": 2320
+     "mergedPRs": 2026,
+     "recentPRs": 1019
     },
     {
      "name": "LASR Labs @ Arcadia Impact",
      "contributors": 1,
-     "commits": 778,
-     "recentCommits": 269
+     "mergedPRs": 113,
+     "recentPRs": 57
     },
     {
      "name": "University of Melbourne",
      "contributors": 2,
-     "commits": 20,
-     "recentCommits": 20
-    },
-    {
-     "name": "TotalEnergies",
-     "contributors": 1,
-     "commits": 8,
-     "recentCommits": 7
-    },
-    {
-     "name": "CSIRO",
-     "contributors": 1,
-     "commits": 6,
-     "recentCommits": 5
+     "mergedPRs": 14,
+     "recentPRs": 14
     },
     {
      "name": "CU Boulder",
      "contributors": 1,
-     "commits": 3,
-     "recentCommits": 3
+     "mergedPRs": 2,
+     "recentPRs": 2
+    },
+    {
+     "name": "CSIRO",
+     "contributors": 1,
+     "mergedPRs": 2,
+     "recentPRs": 1
+    },
+    {
+     "name": "TotalEnergies",
+     "contributors": 1,
+     "mergedPRs": 2,
+     "recentPRs": 1
     },
     {
      "name": "Nodal-Tools",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
-    },
-    {
-     "name": "Warp",
-     "contributors": 1,
-     "commits": 1,
-     "recentCommits": 1
+     "mergedPRs": 1,
+     "recentPRs": 1
     },
     {
      "name": "Harmonic",
      "contributors": 1,
-     "commits": 23,
-     "recentCommits": 0
-    },
-    {
-     "name": "Cornell University",
-     "contributors": 1,
-     "commits": 22,
-     "recentCommits": 0
+     "mergedPRs": 10,
+     "recentPRs": 0
     },
     {
      "name": "Equilibrium Energy",
      "contributors": 1,
-     "commits": 13,
-     "recentCommits": 0
+     "mergedPRs": 7,
+     "recentPRs": 0
     },
     {
      "name": "Lawrence Berkeley Lab",
      "contributors": 1,
-     "commits": 8,
-     "recentCommits": 0
-    },
-    {
-     "name": "Hitachi Energy Research-North America",
-     "contributors": 1,
-     "commits": 4,
-     "recentCommits": 0
-    },
-    {
-     "name": "Our Next Energy, Inc",
-     "contributors": 1,
-     "commits": 2,
-     "recentCommits": 0
+     "mergedPRs": 4,
+     "recentPRs": 0
     },
     {
      "name": "input-output-hk",
      "contributors": 1,
-     "commits": 2,
-     "recentCommits": 0
+     "mergedPRs": 3,
+     "recentPRs": 0
+    },
+    {
+     "name": "Hitachi Energy Research-North America",
+     "contributors": 1,
+     "mergedPRs": 2,
+     "recentPRs": 0
     },
     {
      "name": "CellBauhaus",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 0
+     "mergedPRs": 1,
+     "recentPRs": 0
     },
     {
      "name": "Gitter",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 0
+     "mergedPRs": 1,
+     "recentPRs": 0
+    },
+    {
+     "name": "Our Next Energy, Inc",
+     "contributors": 1,
+     "mergedPRs": 1,
+     "recentPRs": 0
     },
     {
      "name": "RelationalAI",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 0
+     "mergedPRs": 1,
+     "recentPRs": 0
     },
     {
      "name": "SESCO LLC",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 0
+     "mergedPRs": 1,
+     "recentPRs": 0
     },
     {
      "name": "Washington University in St. Louis",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 0
+     "mergedPRs": 1,
+     "recentPRs": 0
     },
     {
      "name": "cosmoconsult",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 0
+     "mergedPRs": 1,
+     "recentPRs": 0
     }
    ]
   },
   "Balmorel": {
    "githubOrg": "balmorelcommunity",
    "repositories": 13,
-   "contributors": 25,
-   "affiliated": 6,
+   "contributors": 16,
+   "affiliated": 5,
    "organizations": [
     {
      "name": "Technical University of Denmark (DTU)",
      "contributors": 5,
-     "commits": 219,
-     "recentCommits": 165
+     "mergedPRs": 56,
+     "recentPRs": 31
     },
     {
      "name": "unaffiliated",
-     "contributors": 19,
-     "commits": 926,
-     "recentCommits": 60
-    },
-    {
-     "name": "TU Wien - EEG",
-     "contributors": 1,
-     "commits": 1,
-     "recentCommits": 0
+     "contributors": 11,
+     "mergedPRs": 30,
+     "recentPRs": 15
     }
    ]
   },
   "Antares": {
    "githubOrg": "AntaresSimulatorTeam",
    "repositories": 32,
-   "contributors": 94,
-   "affiliated": 18,
+   "contributors": 82,
+   "affiliated": 15,
    "organizations": [
     {
      "name": "unaffiliated",
-     "contributors": 76,
-     "commits": 8368,
-     "recentCommits": 4197
+     "contributors": 67,
+     "mergedPRs": 4902,
+     "recentPRs": 3174
     },
     {
      "name": "RTE",
      "contributors": 7,
-     "commits": 2847,
-     "recentCommits": 1215
+     "mergedPRs": 1769,
+     "recentPRs": 923
     },
     {
      "name": "PhareNumerique",
      "contributors": 1,
-     "commits": 1105,
-     "recentCommits": 639
+     "mergedPRs": 657,
+     "recentPRs": 451
     },
     {
      "name": "RTE International",
      "contributors": 3,
-     "commits": 151,
-     "recentCommits": 137
+     "mergedPRs": 234,
+     "recentPRs": 200
     },
     {
      "name": "BAZC",
      "contributors": 1,
-     "commits": 799,
-     "recentCommits": 112
+     "mergedPRs": 342,
+     "recentPRs": 88
     },
     {
      "name": "philips-internal",
      "contributors": 1,
-     "commits": 632,
-     "recentCommits": 0
+     "mergedPRs": 327,
+     "recentPRs": 0
     },
     {
      "name": "Megazor Labs",
      "contributors": 1,
-     "commits": 67,
-     "recentCommits": 0
-    },
-    {
-     "name": "Eurodecision",
-     "contributors": 2,
-     "commits": 2,
-     "recentCommits": 0
-    },
-    {
-     "name": "Hexaly",
-     "contributors": 1,
-     "commits": 1,
-     "recentCommits": 0
+     "mergedPRs": 67,
+     "recentPRs": 0
     },
     {
      "name": "University of Applied Sciences Aachen",
      "contributors": 1,
-     "commits": 1,
-     "recentCommits": 0
+     "mergedPRs": 1,
+     "recentPRs": 0
     }
    ]
   }

@@ -10,12 +10,23 @@ import ToolLogo from '../components/common/ToolLogo';
 const OPEN_TOOLS = TOOLS.filter((t) => t.license === 'open_source' && CONTRIBUTORS.tools[t.name]).map((t) => t.name);
 const SHOWN = 12;
 
-/** Organizations ranked by commits to a tool's code, as bars of recent (24 months) and earlier commits. */
+/** Organizations ranked by pull requests merged into a tool's repositories in the last 24 months. */
+/** The caveat shown with every contribution ranking. */
+export function ContributionCaveat() {
+  return (
+    <p className="mt-5 border-l-2 border-ink-700 pl-3 text-xs leading-relaxed text-ink-500">
+      A hint, not a verdict. Merged pull requests count only one kind of work, in one GitHub organization, and only for people
+      who name an employer on their profile. Reviews, issues, documentation, teaching, funding and the many upstream and
+      downstream projects these tools depend on are not counted. Every contribution to open source is valuable.
+    </p>
+  );
+}
+
 export function ContributorBars({ orgs, tools, limit = SHOWN }: { orgs: (ContributorOrg & { tools?: string[] })[]; tools?: boolean; limit?: number }) {
   const [all, setAll] = useState(false);
   if (orgs.length === 0) return <EmptyState title="No organizations found in the contributors’ profiles yet" />;
   const shown = all ? orgs : orgs.slice(0, limit);
-  const max = Math.max(1, ...orgs.map((o) => o.recentCommits));
+  const max = Math.max(1, ...orgs.map((o) => o.recentPRs));
   return (
     <>
       <ol className="space-y-3 sm:space-y-2">
@@ -33,10 +44,10 @@ export function ContributorBars({ orgs, tools, limit = SHOWN }: { orgs: (Contrib
               </span>
             </span>
             <span className="tabular whitespace-nowrap text-right text-xs text-ink-400 sm:order-last sm:w-44">
-              <span className="text-sm text-ink-100">{o.recentCommits.toLocaleString('en')}</span> commits · {o.contributors} {o.contributors === 1 ? 'person' : 'people'}
+              <span className="text-sm text-ink-100">{o.recentPRs.toLocaleString('en')}</span> merged PRs · {o.contributors} {o.contributors === 1 ? 'person' : 'people'}
             </span>
             <div className="col-span-2 h-1.5 rounded-sm bg-ink-800/60 sm:col-span-1 sm:h-[18px]" aria-hidden="true">
-              <div className="h-full rounded-sm bg-gradient-to-r from-brand-600 to-brand-400" style={{ width: `${Math.max(1.5, (100 * o.recentCommits) / max)}%` }} />
+              <div className="h-full rounded-sm bg-gradient-to-r from-brand-600 to-brand-400" style={{ width: `${Math.max(1.5, (100 * o.recentPRs) / max)}%` }} />
             </div>
           </li>
         ))}
@@ -51,19 +62,19 @@ export function ContributorBars({ orgs, tools, limit = SHOWN }: { orgs: (Contrib
 }
 
 /**
- * Who builds the open-source tools: organizations ranked by their people's commits to each tool's
- * GitHub ecosystem in the last 24 months, so users can favour partners who give back.
+ * Who builds the open-source tools: organizations ranked by their people's pull requests merged into
+ * each tool's GitHub organization in the last 24 months, so users can favour partners who give back.
  */
 export default function Builders() {
   const [tool, setTool] = useState('All');
-  const orgs = useMemo(() => (tool === 'All' ? builders(OPEN_TOOLS) : contributingOrgs(tool).filter((o) => o.recentCommits > 0)), [tool]);
+  const orgs = useMemo(() => (tool === 'All' ? builders(OPEN_TOOLS) : contributingOrgs(tool)).filter((o) => o.recentPRs > 0), [tool]);
   const info = tool === 'All' ? null : CONTRIBUTORS.tools[tool];
 
   return (
     <ChartCard
       id="builders"
       title="Who builds the open-source tools"
-      description="Organizations whose people wrote the most code for each tool in the last 24 months. Working with them also funds the tools everyone uses."
+      description="Organizations whose people had the most pull requests merged into each tool’s code in the last 24 months. Working with them also supports the tools everyone uses."
       fields={[]}
     >
       <div role="tablist" aria-label="Tool" className="-mx-1 mb-5 flex gap-1 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
@@ -76,10 +87,11 @@ export default function Builders() {
         ))}
       </div>
       <ContributorBars orgs={orgs} tools={tool === 'All'} />
+      <ContributionCaveat />
       <p className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-500">
         <span>
-          From the public GitHub profiles of the contributors to {info ? <>the {info.repositories} repositories of <a className="text-ink-300 hover:text-ink-100" href={`https://github.com/${info.githubOrg}`} target="_blank" rel="noreferrer">github.com/{info.githubOrg}</a></> : 'each tool’s GitHub organization'}
-          {info && <> ({info.affiliated} of {info.contributors} contributors name an organization)</>}. Updated {CONTRIBUTORS.generated}.
+          Pull requests merged into {info ? <>the {info.repositories} repositories of <a className="text-ink-300 hover:text-ink-100" href={`https://github.com/${info.githubOrg}`} target="_blank" rel="noreferrer">github.com/{info.githubOrg}</a></> : 'each tool’s GitHub organization'}
+          {info && <>; {info.affiliated} of {info.contributors} contributors name an organization on their GitHub profile</>}. Updated {CONTRIBUTORS.generated}.
         </span>
         {tool !== 'All' && <Link href={`/tools/${slug(tool)}#builders`} className="inline-flex items-center gap-1 text-brand-300 hover:text-brand-200">{tool} profile <ArrowUpRight size={12} /></Link>}
       </p>

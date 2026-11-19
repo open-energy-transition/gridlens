@@ -18,7 +18,7 @@ export default function PurposeMatrix() {
     <ChartCard
       id="purpose"
       title="Which tool for which decision"
-      description="Each row is a tool, each column a kind of decision the modelling informed; a cell counts the projects. Read a row for what a tool is used for, a column for the tools behind that decision."
+      description="Projects per tool and kind of grid decision. Hover a column for what it covers."
       fields={['country', 'period', 'sector', 'license', 'orgType', 'evidenceStrength', 'search']}
       actions={<Segmented label="Show" value={mode} onChange={setMode} options={[{ id: 'count', label: 'Projects' }, { id: 'share', label: '% of tool' }]} />}
     >
@@ -31,7 +31,14 @@ export default function PurposeMatrix() {
               <tr>
                 <th className="sticky left-0 z-10 bg-[#0c0f1b] pb-2 text-left align-bottom text-xs font-normal text-ink-500">Tool</th>
                 {m.decisions.map((d) => (
-                  <th key={d} scope="col" className="w-[10%] px-1 pb-2 align-bottom text-xs font-medium leading-tight text-ink-300" title={DECISION_INFO[d]?.description}>{DECISION_INFO[d]?.short ?? d}</th>
+                  <th key={d} scope="col" className="group relative w-[10%] px-1 pb-2 align-bottom text-xs font-medium leading-tight text-ink-300">
+                    <span tabIndex={0} className="cursor-help underline decoration-ink-600 decoration-dotted underline-offset-4 outline-none group-hover:text-ink-50 focus:text-ink-50">
+                      {DECISION_INFO[d]?.short ?? d}
+                    </span>
+                    <span role="tooltip" className="pointer-events-none absolute left-1/2 top-full z-20 mt-1 w-56 -translate-x-1/2 rounded-lg border border-ink-700 bg-ink-950 px-3 py-2 text-left text-xs font-normal leading-relaxed text-ink-200 opacity-0 shadow-xl transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                      {DECISION_INFO[d]?.description}
+                    </span>
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -69,19 +76,6 @@ export default function PurposeMatrix() {
         <span className="sm:hidden">Swipe the table sideways for more decisions. </span>
         {mode === 'share' ? 'Percentages add up to 100% per tool. ' : ''}Projects without a stated decision are left out. Open-source tools are named in ember.
       </p>
-      <details className="group mt-4 border-t border-ink-800/80 pt-3">
-        <summary className="cursor-pointer list-none text-sm text-ink-300 hover:text-ink-50">
-          <span className="mr-1.5 inline-block transition-transform group-open:rotate-90">›</span>What the columns mean
-        </summary>
-        <dl className="mt-3 grid grid-cols-1 gap-x-8 gap-y-3 sm:grid-cols-2 xl:grid-cols-3">
-          {m.decisions.map((d) => (
-            <div key={d}>
-              <dt className="text-sm text-ink-100">{DECISION_INFO[d]?.short ?? d}</dt>
-              <dd className="text-xs leading-relaxed text-ink-400">{DECISION_INFO[d]?.description}</dd>
-            </div>
-          ))}
-        </dl>
-      </details>
     </ChartCard>
   );
 }

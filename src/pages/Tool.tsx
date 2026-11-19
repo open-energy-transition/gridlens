@@ -18,7 +18,7 @@ import LicenseBadge from '../components/common/LicenseBadge';
 import ToolLogo from '../components/common/ToolLogo';
 import EmptyState from '../components/common/EmptyState';
 import { ProjectRow } from '../sections/GridDecisions';
-import { ContributorBars } from '../sections/Builders';
+import { ContributionCaveat, ContributorBars } from '../sections/Builders';
 import { ProviderList } from '../sections/Providers';
 
 const THIS_YEAR = new Date().getFullYear();
@@ -92,7 +92,7 @@ function ToolProfile({ name }: { name: string }) {
     [records],
   );
   const providers = useMemo(() => serviceProviders(records), [records]);
-  const builders = contributingOrgs(name).filter((o) => o.recentCommits > 0);
+  const builders = contributingOrgs(name).filter((o) => o.recentPRs > 0);
   const gh = CONTRIBUTORS.tools[name];
   const categories = [...new Set(records.flatMap((r) => splitCategories(r.tool_category)))].filter((c) => c !== 'unspecified' && c !== 'other');
 
@@ -178,8 +178,9 @@ function ToolProfile({ name }: { name: string }) {
       {gh && (
         <div className="mt-6">
           <Panel id="builders" title={`Who builds ${name}`}
-            note={<>Organizations whose people wrote the most code across the {gh.repositories} repositories of <a className="text-ink-200 hover:text-ink-50" href={`https://github.com/${gh.githubOrg}`} target="_blank" rel="noreferrer">github.com/{gh.githubOrg}</a> in the last 24 months, from contributors’ public GitHub profiles ({gh.affiliated} of {gh.contributors} name an organization). Updated {CONTRIBUTORS.generated}.</>}>
+            note={<>Organizations whose people had the most pull requests merged across the {gh.repositories} repositories of <a className="text-ink-200 hover:text-ink-50" href={`https://github.com/${gh.githubOrg}`} target="_blank" rel="noreferrer">github.com/{gh.githubOrg}</a> in the last 24 months, by the organization on each contributor’s public GitHub profile ({gh.affiliated} of {gh.contributors} name one). Updated {CONTRIBUTORS.generated}.</>}>
             <ContributorBars orgs={builders} />
+            <ContributionCaveat />
           </Panel>
         </div>
       )}
