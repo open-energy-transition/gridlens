@@ -7,10 +7,13 @@ import SectionHeader from '../components/common/SectionHeader';
 import Card from '../components/common/Card';
 import EmptyState from '../components/common/EmptyState';
 import Changelog from '../components/common/Changelog';
+import AdoptionRanking from '../components/common/AdoptionRanking';
 
 interface OverviewProps {
   records: CatalogueRecord[];
   onNavigate?: (section: Section) => void;
+  /** Sector selected in the filters; the adoption chart starts there. */
+  sector?: string;
 }
 
 /** Records per tool within each modelling category (a record counts in every category it covers). */
@@ -28,7 +31,7 @@ function toolsByCategory(records: CatalogueRecord[]) {
   }).filter((g) => g.total > 0);
 }
 
-export default function Overview({ records, onNavigate }: OverviewProps) {
+export default function Overview({ records, onNavigate, sector = 'All' }: OverviewProps) {
   const groups = useMemo(() => toolsByCategory(records), [records]);
 
   return (
@@ -39,6 +42,9 @@ export default function Overview({ records, onNavigate }: OverviewProps) {
       />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:col-span-2">
+          <div className="md:col-span-2">
+            <AdoptionRanking key={sector} records={records} sector={sector} />
+          </div>
           {groups.length === 0 ? (
             <EmptyState />
           ) : (

@@ -7,6 +7,7 @@ const PARAM: Record<keyof Filters, string> = {
   toolName: 'tool',
   toolCategory: 'category',
   orgType: 'org',
+  sector: 'sector',
   license: 'license',
   evidenceStrength: 'evidence',
   sourceGroup: 'source',

@@ -116,7 +116,7 @@ export default function App() {
             </div>
           )}
 
-          {section === 'overview' && <Overview records={filtered} onNavigate={handleSelectSection} />}
+          {section === 'overview' && <Overview records={filtered} onNavigate={handleSelectSection} sector={filters.sector} />}
           {section === 'geographic' && <Geographic records={filtered} />}
           {section === 'tools' && <ToolsAndCategories records={filtered} />}
           {section === 'decisions' && <GridDecisions records={filtered} country={filters.country === 'All' ? undefined : filters.country} />}

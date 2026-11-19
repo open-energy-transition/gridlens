@@ -1,6 +1,6 @@
 import type { CatalogueRecord, Filters } from '../types';
 import { splitCategories } from './toolCategories';
-import { orgGroup } from './orgTypes';
+import { orgGroup, sectorOf } from './orgTypes';
 import { toolInfo } from './tools';
 import { coversCountry } from './regions';
 
@@ -23,6 +23,7 @@ export function applyFilters(records: CatalogueRecord[], filters: Filters): Cata
   return records.filter((r) => {
     if (filters.country !== 'All' && coversCountry(r, filters.country) === null) return false;
     if (filters.orgType !== 'All' && !r.organizations.some((o) => orgGroup(o) === filters.orgType)) return false;
+    if (filters.sector !== 'All' && !r.organizations.some((o) => sectorOf(o) === filters.sector)) return false;
     if (filters.sourceGroup !== 'All' && r.source_group !== filters.sourceGroup) return false;
     if (search) {
       const haystack = [...Object.values(r).map(safe), ...r.organizations.map((o) => o.name)].join(' | ').toLowerCase();
@@ -72,4 +73,20 @@ export function uniqueCount(records: CatalogueRecord[], field: keyof CatalogueRe
     if (v) set.add(v);
   }
   return set.size;
+}
+
+/**
+ * Adoption ranking: per tool, the number of distinct organizations using it (optionally only organizations
+ * of one sector), largest first.
+ */
+export function adoptionByTool(records: CatalogueRecord[], sector = 'All') {
+  const orgs = new Map<string, Set<string>>();
+  for (const r of records) {
+    for (const o of r.organizations) {
+      if (sector !== 'All' && sectorOf(o) !== sector) continue;
+      if (!orgs.has(r.tool_name)) orgs.set(r.tool_name, new Set());
+      orgs.get(r.tool_name)!.add(o.name);
+    }
+  }
+  return [...orgs].map(([name, s]) => ({ name, count: s.size })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }

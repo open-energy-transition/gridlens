@@ -185,6 +185,10 @@ def main() -> int:
             if not isinstance(gs, str) or gs.strip() not in GEO_SCOPE_VALUES:
                 errors.append(f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): invalid geo_scope='{gs}' (valid: {sorted(GEO_SCOPE_VALUES)})")
 
+        sy = row.get("study_year")
+        if sy is not None and not (isinstance(sy, int) and 1980 <= sy <= 2049):
+            errors.append(f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): study_year must be a year (1980-2049)")
+
         sr = row.get("study_region")
         if sr is not None and not isinstance(sr, str):
             errors.append(f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): study_region must be a string")

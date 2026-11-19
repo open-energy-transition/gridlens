@@ -48,3 +48,12 @@ describe('rankProjects', () => {
     ]);
   });
 });
+
+describe('rankProjects ties', () => {
+  it('lists the most recent study first within the same impact and scope', () => {
+    const old = { ...project('old', 'utility_tso', 'national', 'Spain'), year: 2019 };
+    const recent = { ...project('recent', 'utility_tso', 'national', 'Spain'), year: 2025 };
+    const undated = project('undated', 'utility_tso', 'national', 'Spain');
+    expect(rankProjects([old, undated, recent], 'Spain').map((r) => r.project_id)).toEqual(['recent', 'old', 'undated']);
+  });
+});

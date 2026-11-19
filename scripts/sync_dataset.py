@@ -30,6 +30,7 @@ Always run scripts/validate_dataset.py BEFORE this, so malformed rows don't
 make it into the merged/app dataset.
 """
 import csv
+import datetime
 import json
 import re
 import sys
@@ -50,7 +51,7 @@ APP_SCHEMA = [
     "source_title", "source_date", "source_link", "exact_snippet_or_quote",
     "why_it_supports_the_claim", "notes", "dataset_origin",
     "decision_type", "decision_basis",
-    "project_id", "project_title", "organizations", "countries", "geo_scope", "region_label", "sources",
+    "project_id", "project_title", "organizations", "countries", "geo_scope", "region_label", "sources", "year",
 ]
 
 # The dashboard tracks only the tools listed in src/data/tools.json; rows for
@@ -328,8 +329,29 @@ def project_record(rows):
                            rec["source_title"]),
         organizations=list(orgs.values()), countries=countries, geo_scope=geo_scope, region_label=region,
         sources=list(sources.values()),
+        year=project_year(rows),
     )
     return rec
+
+
+YEAR = re.compile(r"(?<!\d)(19[89]\d|20[0-4]\d)(?!\d)")
+THIS_YEAR = datetime.date.today().year
+
+
+def project_year(rows):
+    """Year of the study: study_year if set, else the latest year in a source date or a source URL path
+    (".../2024/05/..."), else the first year in the title ("IGCEP 2024-34" -> 2024). Years after this
+    year are plan horizons, not study dates, and are ignored. None when the sources do not say."""
+    explicit = [int(r["study_year"]) for r in rows if r.get("study_year")]
+    if explicit:
+        return max(explicit)
+    dated = [int(y) for r in rows for y in YEAR.findall(r.get("source_date") or "")]
+    dated += [int(y) for r in rows for y in re.findall(r"/(19[89]\d|20[0-4]\d)/", r.get("source_url") or "")]
+    dated = [y for y in dated if y <= THIS_YEAR]
+    if dated:
+        return max(dated)
+    titled = [int(y) for r in rows for y in YEAR.findall(r.get("project_title") or "") if int(y) <= THIS_YEAR]
+    return min(titled) if titled else None
 
 
 def csv_row(rec):
