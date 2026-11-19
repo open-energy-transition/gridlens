@@ -14,6 +14,7 @@ const PAGE_NAMES: Record<string, string> = {
   '/about': 'About & methodology · GridLens',
   '/about/changelog': 'Changelog · GridLens',
   '/about/contact': 'Contact · GridLens',
+  '/about/legal': 'Legal & privacy · GridLens',
   ...Object.fromEntries(TOOLS.map((t) => [`/tools/${slug(t.name)}`, `${t.name} · GridLens`])),
 }
 

@@ -129,11 +129,7 @@ export default function Methodology({ catalogue }: { catalogue: CatalogueRecord[
               <li><strong>Absence is not evidence.</strong> Many organizations never publish which tools they use, so counts show documented use, not market share.</li>
               <li>Sources in English and from large organizations are easier to find, so some regions are under-represented.</li>
               <li>Vendors publish case studies, communities publish user lists; tools with neither are harder to document.</li>
-              <li>
-                GridLens reports documented, public facts about tool use; it does not rate or recommend tools. Product names and
-                logos belong to their owners and are used only to identify the tools; no vendor endorses or sponsors GridLens.
-                Vendors and organizations can ask for a correction or for their logo to be removed via the <Link href="/about/contact" className="text-brand-300 hover:text-brand-200">contact page</Link>.
-              </li>
+              <li>GridLens reports documented use; it does not rate or recommend tools. See <Link href="/about/legal" className="text-brand-300 hover:text-brand-200">legal &amp; privacy</Link>.</li>
               <li>Model-assisted reading can still be wrong. Every entry links to its source so you can check it, and <Link href="/about/contact" className="text-brand-300 hover:text-brand-200">corrections are welcome</Link>.</li>
             </ul>
           </Block>

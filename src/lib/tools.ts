@@ -6,8 +6,8 @@ export interface ToolInfo {
   license: 'open_source' | 'proprietary';
   licenseName?: string;
   url: string;
-  /** GitHub organization holding the tool's ecosystem of repositories (open-source tools). */
-  github_org?: string;
+  /** GitHub organizations holding the tool's ecosystem of repositories (open-source tools). */
+  github_orgs?: string[];
 }
 
 /** Logo file in public/logos/, when we have a usable one (tool ecosystem for open source, vendor otherwise). */

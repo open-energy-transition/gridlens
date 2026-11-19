@@ -81,7 +81,7 @@ export default function Organizations({ catalogue }: { catalogue: CatalogueRecor
             {list.slice(0, limit).map((o) => {
               const href = o.website || o.latestSource;
               return (
-                <tr key={o.name} className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 px-4 py-3 md:table-row md:p-0">
+                <tr key={o.name} className="grid grid-cols-[1fr_auto] gap-x-3 gap-y-1 px-4 py-3 transition-colors hover:bg-ink-800/40 md:table-row md:p-0">
                   <td className="md:px-4 md:py-3">
                     <p className="text-ink-50">{o.name}</p>
                     {o.countries.length > 0 && <p className="text-xs text-ink-500">Projects in {o.countries.slice(0, 3).join(', ')}{o.countries.length > 3 ? ` +${o.countries.length - 3}` : ''}</p>}
@@ -89,7 +89,7 @@ export default function Organizations({ catalogue }: { catalogue: CatalogueRecor
                   <td className="order-3 col-span-2 text-xs text-ink-400 md:px-4 md:py-3 md:text-sm">{orgGroupLabel(o.group)}</td>
                   <td className="order-4 col-span-2 md:px-4 md:py-3">
                     <span className="flex flex-wrap gap-1.5">
-                      {o.tools.map((t) => <Link key={t} href={`/tools/${slug(t)}`} className="rounded-full border border-ink-700 px-2 py-0.5 text-xs text-ink-300 hover:border-ink-500 hover:text-ink-50">{t}</Link>)}
+                      {o.tools.map((t) => <Link key={t} href={`/tools/${slug(t)}`} className="rounded-full border border-ink-700 px-2.5 py-1 text-xs text-ink-300 hover:border-ink-500 hover:text-ink-50">{t}</Link>)}
                     </span>
                   </td>
                   <td className="tabular text-right text-ink-300 md:px-4 md:py-3">{o.projects}</td>

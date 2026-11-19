@@ -27,7 +27,7 @@ export function ProjectRow({ r }: { r: CatalogueRecord }) {
     ? r.country_label
     : `${r.geo_scope === 'global' ? 'Global' : r.region_label || (r.countries.length > 1 ? r.countries.slice(0, 4).join(', ') : 'Multi-country')} study`;
   return (
-    <li className="grid gap-2 py-4 sm:grid-cols-[1fr_auto] sm:gap-6">
+    <li className="-mx-3 grid gap-2 rounded-xl px-3 py-4 transition-colors hover:bg-ink-800/40 sm:grid-cols-[1fr_auto] sm:gap-6">
       <div className="min-w-0">
         <p className="text-ink-50">
           {r.organizations.map((o, k) => (

@@ -1,13 +1,16 @@
-"""Which organizations contribute most to each open-source tool's code (src/data/contributors.json).
+"""Which organizations contribute to each open-source tool's code, month by month (src/data/contributors.json).
 
-For every open-source tool with a `github_org` in src/data/tools.json, reads all public, non-fork repositories of
-that GitHub organization, every merged pull request (all time, and in the last 24 months) with its author, and each
-author's public `company` profile field. Merged pull requests, unlike commits, count reviewed contributions the same
-way whatever the author's commit habits. Companies are normalized with
-data/contributor_orgs.json (one name → its aliases; aliases of "" mean "no organization", e.g. the tool's own GitHub
-organization). Contributors without a company are counted as "unaffiliated".
+For every open-source tool with `github_orgs` in src/data/tools.json, reads all public, non-fork repositories of
+those GitHub organizations, every merged pull request with its author and month, and each author's public `company`
+profile field. Merged pull requests count reviewed contributions the same way whatever a person's commit habits.
+The app sums them over a time window the reader picks.
 
-Run occasionally (it makes a few hundred API calls):  GITHUB_TOKEN=... python3 scripts/fetch_contributors.py
+Companies are normalized with data/contributor_orgs.json: {"Name": {"aliases": [...], "url": "https://..."}}. The
+entry "" lists names that mean "no organization" (e.g. the tool's own GitHub organization). A company written as a
+GitHub handle ("@open-energy-transition") links to that GitHub organization when no url is listed. Authors without a
+company are kept as "unaffiliated". No GitHub user names are written to the output.
+
+Run occasionally (a few hundred API calls):  GITHUB_TOKEN=... python3 scripts/fetch_contributors.py
 Without GITHUB_TOKEN it tries `gh auth token`. The token is only sent to api.github.com, never printed.
 """
 import datetime
@@ -18,17 +21,17 @@ import sys
 import time
 import urllib.error
 import urllib.request
-from collections import defaultdict
+from collections import Counter, defaultdict
 from os import environ
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 TOOLS = json.loads((ROOT / "src/data/tools.json").read_text(encoding="utf-8"))
-ALIASES = json.loads((ROOT / "data/contributor_orgs.json").read_text(encoding="utf-8"))
+ORGS = json.loads((ROOT / "data/contributor_orgs.json").read_text(encoding="utf-8"))
 OUT = ROOT / "src/data/contributors.json"
-RECENT_DAYS = 730
 # Bots and AI coding agents are not people from an organization.
 BOTS = re.compile(r"\[bot\]$|^dependabot|^pre-commit-ci|^github-actions|^claude$|^copilot|^codex", re.I)
+UNAFFILIATED = "unaffiliated"
 
 
 def token():
@@ -50,13 +53,10 @@ def get(path, retries=6):
     for attempt in range(retries):
         try:
             with urllib.request.urlopen(req, timeout=60) as r:
-                if r.status == 202:  # statistics are being computed; ask again shortly
-                    time.sleep(3 + 2 * attempt)
-                    continue
                 return json.loads(r.read() or b"null")
         except urllib.error.HTTPError as e:
             if e.code in (403, 429) and attempt < retries - 1:
-                time.sleep(30)
+                time.sleep(60)
                 continue
             if e.code in (404, 409):  # missing or empty repository
                 return None
@@ -75,48 +75,46 @@ def paged(path):
 
 
 def normalize(company):
-    """Profile company text → organization name, using the alias list; '' when not set."""
-    raw = re.sub(r"\s+", " ", (company or "").strip().lstrip("@").strip()).rstrip(".")
+    """Profile company text → (organization name, link). ('', '') when not set or not an organization."""
+    text = re.sub(r"\s+", " ", (company or "").strip()).rstrip(".")
+    handle = text[1:].split()[0] if text.startswith("@") and len(text) > 1 else ""
+    raw = text.lstrip("@").strip()
     if not raw:
-        return ""
+        return "", ""
     key = raw.lower()
-    for name, variants in ALIASES.items():
-        if (name and key == name.lower()) or key in (v.lower() for v in variants):
-            return name
-    return raw
+    for name, entry in ORGS.items():
+        if (name and key == name.lower()) or key in (a.lower() for a in entry.get("aliases", [])):
+            return name, entry.get("url", "")
+    return raw, f"https://github.com/{handle}" if handle else ""
 
 
 def main():
     profiles = {}
     out = {"generated": datetime.date.today().isoformat(), "tools": {}}
-    for tool in (t for t in TOOLS if t.get("github_org") and t["license"] == "open_source"):
-        org = tool["github_org"]
-        repos = [r for r in paged(f"/orgs/{org}/repos?type=public") if not r["fork"]]
-        print(f"{tool['name']}: {len(repos)} repositories in {org}", flush=True)
-        since = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=RECENT_DAYS)).isoformat()
-        people = defaultdict(lambda: {"prs": 0, "recent": 0})
-        for repo in repos:
-            for pr in paged(f"/repos/{org}/{repo['name']}/pulls?state=closed"):
+    for tool in (t for t in TOOLS if t.get("github_orgs") and t["license"] == "open_source"):
+        repos = [(o, r["name"]) for o in tool["github_orgs"] for r in paged(f"/orgs/{o}/repos?type=public") if not r["fork"]]
+        print(f"{tool['name']}: {len(repos)} repositories in {', '.join(tool['github_orgs'])}", flush=True)
+        months = defaultdict(Counter)  # login -> {"2025-03": merged pull requests}
+        for owner, name in repos:
+            for pr in paged(f"/repos/{owner}/{name}/pulls?state=closed"):
                 login = (pr.get("user") or {}).get("login")
-                if not pr.get("merged_at") or not login or BOTS.search(login):
-                    continue
-                people[login]["prs"] += 1
-                people[login]["recent"] += pr["merged_at"] >= since
-        for login in people:
+                if pr.get("merged_at") and login and not BOTS.search(login):
+                    months[login][pr["merged_at"][:7]] += 1
+        for login in months:
             if login not in profiles:
                 profiles[login] = normalize((get(f"/users/{login}") or {}).get("company"))
-        orgs = defaultdict(lambda: {"contributors": 0, "mergedPRs": 0, "recentPRs": 0})
-        for login, p in people.items():
-            o = orgs[profiles[login] or "unaffiliated"]
-            o["contributors"] += 1
-            o["mergedPRs"] += p["prs"]
-            o["recentPRs"] += p["recent"]
-        ranked = sorted(({"name": k, **v} for k, v in orgs.items()), key=lambda o: (-o["recentPRs"], -o["mergedPRs"], o["name"]))
+        orgs = {}
+        for login, m in months.items():
+            name, url = profiles[login]
+            o = orgs.setdefault(name or UNAFFILIATED, {"name": name or UNAFFILIATED, "url": url, "people": []})
+            o["url"] = o["url"] or url
+            o["people"].append(dict(sorted(m.items())))
+        ranked = sorted(orgs.values(), key=lambda o: (-sum(sum(p.values()) for p in o["people"]), o["name"]))
         out["tools"][tool["name"]] = {
-            "githubOrg": org, "repositories": len(repos), "contributors": len(people),
-            "affiliated": sum(1 for login in people if profiles[login]), "organizations": ranked,
+            "githubOrgs": tool["github_orgs"], "repositories": len(repos), "contributors": len(months),
+            "affiliated": sum(1 for login in months if profiles[login][0]), "organizations": ranked,
         }
-    OUT.write_text(json.dumps(out, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    OUT.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
     print(f"wrote {OUT.relative_to(ROOT)}", flush=True)
 
 

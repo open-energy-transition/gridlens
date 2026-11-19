@@ -12,6 +12,7 @@ import Projects from './pages/Projects';
 import Methodology from './pages/Methodology';
 import Changelog from './pages/Changelog';
 import Contact from './pages/Contact';
+import Legal from './pages/Legal';
 
 const catalogue = catalogueData as CatalogueRecord[];
 
@@ -39,6 +40,7 @@ export default function App() {
           {route.page === '/about' && <Methodology catalogue={catalogue} />}
           {route.page === '/about/changelog' && <Changelog />}
           {route.page === '/about/contact' && <Contact />}
+          {route.page === '/about/legal' && <Legal />}
         </div>
       </Shell>
     </ChartFiltersProvider>

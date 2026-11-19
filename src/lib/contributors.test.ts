@@ -1,19 +1,35 @@
 import { describe, expect, it } from 'vitest';
-import { builders, contributingOrgs, CONTRIBUTORS, UNAFFILIATED } from './contributors';
+import { contributorsInWindow, windowStart, type ToolContributors } from './contributors';
 
-describe('contributors', () => {
-  it('never lists unaffiliated contributors as an organization', () => {
-    for (const tool of Object.keys(CONTRIBUTORS.tools)) {
-      expect(contributingOrgs(tool).some((o) => o.name === UNAFFILIATED || o.name === '')).toBe(false);
-    }
+const tool = (orgs: ToolContributors['organizations']): ToolContributors =>
+  ({ githubOrgs: ['x'], repositories: 1, contributors: 3, affiliated: 2, organizations: orgs });
+
+const source = {
+  generated: '2026-11-19',
+  tools: {
+    A: tool([
+      { name: 'OET', url: 'https://oet', people: [{ '2026-10': 5, '2020-01': 50 }, { '2019-05': 9 }] },
+      { name: 'unaffiliated', url: '', people: [{ '2026-11': 7 }] },
+    ]),
+    B: tool([{ name: 'OET', url: '', people: [{ '2026-01': 2 }] }, { name: 'Uni', url: '', people: [{ '2025-12': 4 }] }]),
+  },
+};
+
+describe('contribution window', () => {
+  it('ends with the month the data was fetched', () => {
+    expect(windowStart(12, '2026-11-19')).toBe('2025-12');
+    expect(windowStart(1, '2026-11-19')).toBe('2026-11');
   });
 
-  it('adds up an organization across tools and ranks by recently merged pull requests', () => {
-    const all = builders();
-    for (let i = 1; i < all.length; i++) expect(all[i - 1].recentPRs).toBeGreaterThanOrEqual(all[i].recentPRs);
-    for (const b of all) {
-      const sum = b.tools.reduce((n, t) => n + (contributingOrgs(t).find((o) => o.name === b.name)?.recentPRs ?? 0), 0);
-      expect(b.recentPRs).toBe(sum);
-    }
+  it('counts only pull requests and people active in the window, without the unaffiliated', () => {
+    expect(contributorsInWindow(['A'], 12, source)).toEqual([{ name: 'OET', url: 'https://oet', prs: 5, people: 1, tools: ['A'] }]);
+  });
+
+  it('adds an organization up across tools and ranks by pull requests', () => {
+    expect(contributorsInWindow(['A', 'B'], 12, source).map((o) => [o.name, o.prs, o.tools])).toEqual([
+      ['OET', 7, ['A', 'B']],
+      ['Uni', 4, ['B']],
+    ]);
+    expect(contributorsInWindow(['A'], 120, source)[0].prs).toBe(64);
   });
 });

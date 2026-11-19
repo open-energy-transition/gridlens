@@ -97,7 +97,7 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
   const iconBtn = 'flex h-9 items-center gap-1.5 rounded-full border border-ink-700/80 px-3 text-xs font-medium text-ink-300 transition-colors hover:border-ink-500 hover:text-ink-50';
 
   return (
-    <div className={plain ? '' : 'rounded-2xl border border-ink-800/80 bg-ink-900/40 p-4 sm:p-6'}>
+    <div className={plain ? '' : 'rounded-2xl border border-ink-800/80 bg-ink-900/40 p-4 transition-colors duration-300 hover:border-ink-700 sm:p-6'}>
       <div className="mb-4 flex flex-wrap items-start gap-3">
         <div className="order-1 min-w-0 flex-1 basis-48">
           {title && <h3 className="font-display text-xl font-medium text-ink-50">{title}</h3>}

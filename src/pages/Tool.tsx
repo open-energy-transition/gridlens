@@ -1,9 +1,8 @@
-import { useMemo, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { ArrowUpRight } from 'lucide-react';
-import type { CatalogueRecord } from '../types';
 import { useChart } from '../lib/chartFilters';
 import { decisionOf, DECISION_INFO, OTHER_DECISION, organizationDirectory, projectsPerYear, serviceProviders } from '../lib/insights';
-import { CONTRIBUTORS, contributingOrgs } from '../lib/contributors';
+import { CONTRIBUTORS, contributorsInWindow } from '../lib/contributors';
 import { TOOLS, toolInfo, isOpenSource } from '../lib/tools';
 import { projectImpact } from '../lib/impact';
 import { orgGroupLabel } from '../lib/orgTypes';
@@ -13,12 +12,13 @@ import { OPEN_SOURCE, PROPRIETARY } from '../lib/colors';
 import { Link, slug } from '../lib/router';
 import HorizontalBarChart from '../components/charts/HorizontalBarChart';
 import WorldMap from '../components/charts/WorldMap';
+import YearBars from '../components/charts/YearBars';
 import ChartCard, { ALL_FIELDS } from '../components/chart/ChartCard';
 import LicenseBadge from '../components/common/LicenseBadge';
 import ToolLogo from '../components/common/ToolLogo';
 import EmptyState from '../components/common/EmptyState';
 import { ProjectRow } from '../sections/GridDecisions';
-import { ContributionCaveat, ContributorBars } from '../sections/Builders';
+import { ContributionCaveat, ContributionSource, ContributorBars, WindowSlider } from '../sections/Builders';
 import { ProviderList } from '../sections/Providers';
 
 const THIS_YEAR = new Date().getFullYear();
@@ -30,31 +30,6 @@ function Panel({ id, title, note, children, className = '' }: { id?: string; tit
       {note && <p className="mb-4 text-sm text-ink-400">{note}</p>}
       {children}
     </section>
-  );
-}
-
-function YearBars({ records, color }: { records: CatalogueRecord[]; color: string }) {
-  const years = projectsPerYear(records, THIS_YEAR - 14, THIS_YEAR);
-  const max = Math.max(1, ...years.map((y) => y.open + y.proprietary));
-  return (
-    <>
-      <div className="flex h-40 items-end gap-[3px] sm:gap-1.5" role="img" aria-label="Projects per year">
-        {years.map((y) => {
-          const n = y.open + y.proprietary;
-          return (
-            <div key={y.year} className="flex h-full flex-1 flex-col justify-end" title={`${y.year}: ${n} projects`}>
-              <span className="tabular mb-1 hidden text-center text-[10px] text-ink-500 sm:block">{n || ''}</span>
-              <div className="rounded-t-sm" style={{ height: `${(100 * n) / max}%`, background: color }} />
-            </div>
-          );
-        })}
-      </div>
-      <div className="mt-2 flex gap-[3px] sm:gap-1.5">
-        {years.map((y, i) => (
-          <span key={y.year} className="tabular flex-1 text-center text-[10px] text-ink-500">{i % 2 === 0 ? `’${String(y.year).slice(2)}` : ''}</span>
-        ))}
-      </div>
-    </>
   );
 }
 
@@ -92,7 +67,8 @@ function ToolProfile({ name }: { name: string }) {
     [records],
   );
   const providers = useMemo(() => serviceProviders(records), [records]);
-  const builders = contributingOrgs(name).filter((o) => o.recentPRs > 0);
+  const [months, setMonths] = useState(12);
+  const builders = useMemo(() => contributorsInWindow([name], months), [name, months]);
   const gh = CONTRIBUTORS.tools[name];
   const categories = [...new Set(records.flatMap((r) => splitCategories(r.tool_category)))].filter((c) => c !== 'unspecified' && c !== 'other');
 
@@ -116,7 +92,7 @@ function ToolProfile({ name }: { name: string }) {
               Website <ArrowUpRight size={15} />
             </a>
             {gh && (
-              <a href={`https://github.com/${gh.githubOrg}`} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center gap-1.5 rounded-full border border-ink-700 px-4 text-sm text-ink-200 hover:border-ink-500">
+              <a href={`https://github.com/${gh.githubOrgs[0]}`} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center gap-1.5 rounded-full border border-ink-700 px-4 text-sm text-ink-200 hover:border-ink-500">
                 Code <ArrowUpRight size={15} />
               </a>
             )}
@@ -151,12 +127,12 @@ function ToolProfile({ name }: { name: string }) {
               {decisions.length ? <HorizontalBarChart data={decisions} colorOf={() => color} unit="projects" /> : <p className="text-sm text-ink-500">No decision stated in the sources yet.</p>}
             </Panel>
             <Panel title="Projects per year" note={`Projects with a known year, ${THIS_YEAR - 14}–${THIS_YEAR}. ${THIS_YEAR} is still in progress.`}>
-              <YearBars records={records} color={color} />
+              <YearBars years={projectsPerYear(records, THIS_YEAR - 14, THIS_YEAR)} split={false} color={color} />
             </Panel>
             <Panel title="Top users" note="Organizations with the most projects using this tool.">
               <ul className="divide-y divide-ink-800/80">
                 {orgs.slice(0, 10).map((o) => (
-                  <li key={o.name} className="flex items-baseline justify-between gap-4 py-2.5 text-sm">
+                  <li key={o.name} className="-mx-2 flex items-baseline justify-between gap-4 rounded-lg px-2 py-2.5 text-sm transition-colors hover:bg-ink-800/40">
                     <span className="min-w-0">
                       <span className="text-ink-100">{o.name}</span>
                       <span className="ml-2 text-xs text-ink-500">{orgGroupLabel(o.group)}</span>
@@ -178,8 +154,10 @@ function ToolProfile({ name }: { name: string }) {
       {gh && (
         <div className="mt-6">
           <Panel id="builders" title={`Who builds ${name}`}
-            note={<>Organizations whose people had the most pull requests merged across the {gh.repositories} repositories of <a className="text-ink-200 hover:text-ink-50" href={`https://github.com/${gh.githubOrg}`} target="_blank" rel="noreferrer">github.com/{gh.githubOrg}</a> in the last 24 months, by the organization on each contributor’s public GitHub profile ({gh.affiliated} of {gh.contributors} name one). Updated {CONTRIBUTORS.generated}.</>}>
+            note="Organizations whose people had the most pull requests merged into the tool’s code in the chosen period.">
+            <div className="mb-4 flex"><WindowSlider months={months} onChange={setMonths} /></div>
             <ContributorBars orgs={builders} />
+            <ContributionSource tools={[name]} />
             <ContributionCaveat />
           </Panel>
         </div>

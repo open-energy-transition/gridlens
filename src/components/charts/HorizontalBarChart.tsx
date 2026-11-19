@@ -27,12 +27,12 @@ export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorO
   const fill = colorFor(colorIndex);
   const max = Math.max(1, ...data.map((d) => d.count));
   return (
-    <ol className="space-y-3 sm:space-y-1.5">
+    <ol className="group/list space-y-2 sm:space-y-0.5">
       {data.map((d, i) => {
         const href = hrefOf?.(d.name);
         return (
           <li key={d.name} title={`${d.name}: ${d.count} ${unit}`.trim()}
-            className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1.5 sm:grid-cols-[minmax(10rem,17rem)_1fr_3rem]">
+            className="grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1.5 rounded-lg px-2 py-1 transition-[opacity,background-color] duration-150 hover:bg-ink-800/50 group-hover/list:opacity-50 hover:!opacity-100 sm:grid-cols-[minmax(10rem,17rem)_1fr_3rem]">
             <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-200">
               {ranked && <span className="tabular w-5 shrink-0 text-xs text-ink-600">{i + 1}</span>}
               {icon?.(d.name)}
@@ -43,7 +43,7 @@ export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorO
             </span>
             <span className="tabular text-right text-sm text-ink-300 sm:order-last">{d.count}</span>
             <div className="col-span-2 h-1.5 rounded-sm bg-ink-800/60 sm:col-span-1 sm:h-[18px]" aria-hidden="true">
-              <div className="h-full rounded-sm" style={{ width: `${Math.max(1.5, (100 * d.count) / max)}%`, background: colorOf?.(d.name) ?? fill }} />
+              <div className="h-full rounded-sm transition-[width] duration-500" style={{ width: `${Math.max(1.5, (100 * d.count) / max)}%`, background: colorOf?.(d.name) ?? fill }} />
             </div>
           </li>
         );

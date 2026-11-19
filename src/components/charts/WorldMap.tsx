@@ -3,7 +3,8 @@ import { ComposableMap, Geographies, Geography, ZoomableGroup, Sphere, Graticule
 import { mapColorFor, MAP_HOVER } from '../../lib/colors';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 
-const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
+// Natural Earth via world-atlas (ISC licence), served from this site.
+const GEO_URL = '/geo/countries-110m.json';
 
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 8;

@@ -53,7 +53,7 @@ scripts/
   validate_dataset.py            Run before every data change: schema/enum/duplicate/alias checks against data/schema.json
   sync_dataset.py                Regenerates data/catalogue_merged.csv + src/data/catalogue.json from catalogue.jsonl
   merge_batches.py                Merges parallel research batches from data/raw/incoming/ into catalogue.jsonl (id-collision + duplicate checking)
-  fetch_contributors.py           Refreshes src/data/contributors.json: organizations behind each open-source tool's GitHub commits (aliases in data/contributor_orgs.json)
+  fetch_contributors.py           Refreshes src/data/contributors.json: merged pull requests per organization and month in each open-source tool's GitHub organizations (names/links in data/contributor_orgs.json)
   export_known_institutions.py    Exports research/known_institutions.csv -- give this to research agents as context to avoid re-finding/duplicating known orgs
 
 src/                              The React + TypeScript app (Vite + Tailwind v4)
@@ -65,7 +65,7 @@ src/                              The React + TypeScript app (Vite + Tailwind v4
                                   insights.ts (purpose matrix, per-year counts, organization directory, service providers, tool stats),
                                   chartFilters.tsx + filterParams.ts (each chart's own filters, kept in the URL as ?<chart>.<key>=),
                                   impact.ts, colors.ts (palette + choropleth buckets), csv.ts, countryAliases.ts
-  pages/                          One file per page: Overview (the one-pager), Tool (/tools/<slug>), Organizations, Projects, and the About pages (Methodology, Changelog, Contact)
+  pages/                          One file per page: Overview (the one-pager), Tool (/tools/<slug>), Organizations, Projects, and the About pages (Methodology, Changelog, Contact, Legal)
   sections/                       The Overview's charts: PurposeMatrix, Momentum, Geographic, GridDecisions, Builders; Providers (list used on tool pages)
   components/
     layout/Shell.tsx              Top nav with Tools and About dropdowns (menu on phones), the overview's left section index, footer

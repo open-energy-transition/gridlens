@@ -207,12 +207,14 @@ export default function Shell({ route, children }: { route: Route; children: Rea
             <Link href="/about/changelog" className="hover:text-ink-200">Changelog</Link>
             <Link href="/projects" className="hover:text-ink-200">Download data</Link>
             <Link href="/about/contact" className="hover:text-ink-200">Contact</Link>
+            <a href="https://www.openenergytransition.org/imprint" target="_blank" rel="noreferrer" className="hover:text-ink-200">Imprint</a>
             <a href={REPO} target="_blank" rel="noreferrer" className="hover:text-ink-200">GitHub</a>
           </nav>
         </div>
         <p className="mx-auto max-w-[1440px] px-4 pb-8 text-xs text-ink-600 md:px-6">
-          Runs entirely in your browser: no account, no tracking, no backend. Product names and logos are trademarks of their
-          owners, used only to identify the tools; GridLens is independent and not endorsed by any vendor.
+          No cookies, no tracking. Product names and logos are trademarks of their owners, used only to identify the tools;
+          GridLens is independent and not endorsed by any vendor.{' '}
+          <Link href="/about/legal" className="underline decoration-ink-700 underline-offset-2 hover:text-ink-300">Legal &amp; privacy</Link>
         </p>
       </footer>
     </div>

@@ -8,6 +8,7 @@ export const PAGES = [
   { path: '/about', label: 'Methodology', title: 'About & methodology · GridLens' },
   { path: '/about/changelog', label: 'Changelog', title: 'Changelog · GridLens' },
   { path: '/about/contact', label: 'Contact', title: 'Contact · GridLens' },
+  { path: '/about/legal', label: 'Legal & privacy', title: 'Legal & privacy · GridLens' },
 ] as const;
 
 export type PagePath = (typeof PAGES)[number]['path'] | '/tools';
