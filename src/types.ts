@@ -74,13 +74,3 @@ export const EMPTY_FILTERS: Filters = {
   search: '',
 };
 
-export type Section =
-  | 'overview'
-  | 'geographic'
-  | 'tools'
-  | 'decisions'
-  | 'institutions'
-  | 'top-users'
-  | 'records'
-  | 'about'
-  | 'changelog';

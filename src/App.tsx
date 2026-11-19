@@ -1,133 +1,86 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useEffect, useMemo, type ReactNode } from 'react';
 import { LayoutDashboard, Building2, Globe2, Wrench } from 'lucide-react';
 import catalogueData from './data/catalogue.json';
-import type { CatalogueRecord, Filters, Section } from './types';
-import { applyFilters, uniqSorted, uniqueCount } from './lib/filters';
-import { splitCategories, TOOL_CATEGORIES } from './lib/toolCategories';
-import { orgGroup, ORG_GROUPS } from './lib/orgTypes';
-import { useRoute, getPageTitle } from './lib/routes';
-import { filtersToSearch, searchToFilters } from './lib/filterParams';
-import Sidebar from './components/layout/Sidebar';
-import FilterBar from './components/layout/FilterBar';
+import type { CatalogueRecord } from './types';
+import { uniqueCount } from './lib/filters';
+import { CHART_IDS, legacyRoute } from './lib/routes';
+import { ChartFiltersProvider } from './lib/chartFilters';
+import { activeCount, searchToFilters } from './lib/filterParams';
+import SectionNav from './components/layout/SectionNav';
 import KpiCard from './components/kpi/KpiCard';
 import Hero from './components/common/Hero';
-import Overview from './sections/Overview';
+import AdoptionRanking from './components/common/AdoptionRanking';
+import Domains from './sections/Domains';
 import Geographic from './sections/Geographic';
-import ToolsAndCategories from './sections/ToolsAndCategories';
 import GridDecisions from './sections/GridDecisions';
-import Institutions from './sections/Institutions';
 import TopUsersByTool from './sections/TopUsersByTool';
+import Institutions from './sections/Institutions';
+import Evidence from './sections/Evidence';
 import RecordsExport from './sections/RecordsExport';
-import About from './sections/About';
 import ChangelogPage from './sections/ChangelogPage';
+import About from './sections/About';
 import Footer from './components/layout/Footer';
 
 const catalogue = catalogueData as CatalogueRecord[];
 
+/**
+ * Links from before the one-page layout (/grid-decisions?country=Spain, /top-users/PLEXOS) become
+ * /#decisions with that chart's filters. Runs once, before the filters are read from the URL.
+ */
+const legacy = legacyRoute(window.location.pathname);
+if (legacy) {
+  const params = new URLSearchParams(window.location.search);
+  if (legacy.tool) params.set('tool', legacy.tool);
+  const s = params.toString();
+  window.history.replaceState(null, '', `/${s ? `?${s}` : ''}#${legacy.section}`);
+} else if (window.location.pathname !== '/') {
+  window.history.replaceState(null, '', `/${window.location.search}${window.location.hash}`);
+}
+
+function Section({ id, children }: { id: string; children: ReactNode }) {
+  return <section id={id} className="scroll-mt-16">{children}</section>;
+}
+
 export default function App() {
-  const { section, tool, navigateTo } = useRoute();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [filters, setFilters] = useState<Filters>(() => searchToFilters(window.location.search));
+  // Unprefixed filters (old links) belong to the section the old link pointed at.
+  const legacyChart = legacy && activeCount(searchToFilters(window.location.search)) > 0 ? legacy.section : undefined;
 
-  // The address bar always carries the active filters, so a copied link reopens the same view.
   useEffect(() => {
-    const search = filtersToSearch(filters);
-    if (search !== window.location.search) {
-      window.history.replaceState(window.history.state, '', window.location.pathname + search + window.location.hash);
-    }
-  }, [filters]);
-
-  // Back/forward restores the filters of that history entry.
-  useEffect(() => {
-    const onPop = () => setFilters(searchToFilters(window.location.search));
-    window.addEventListener('popstate', onPop);
-    return () => window.removeEventListener('popstate', onPop);
+    const id = window.location.hash.slice(1);
+    if (id) document.getElementById(id)?.scrollIntoView({ block: 'start' });
   }, []);
 
-  const countries = useMemo(() => [...new Set(catalogue.flatMap((r) => r.countries))].sort((a, b) => a.localeCompare(b)), []);
-  const toolNames = useMemo(() => uniqSorted(catalogue, 'tool_name'), []);
-  const toolCategories = useMemo(() => {
-    const present = new Set(catalogue.flatMap((r) => splitCategories(r.tool_category)));
-    return TOOL_CATEGORIES.map((c) => c.id).filter((id) => present.has(id));
-  }, []);
-  const evidenceStrengths = useMemo(() => uniqSorted(catalogue, 'evidence_strength'), []);
-  const orgTypes = useMemo(() => {
-    const present = new Set(catalogue.map(orgGroup));
-    return ORG_GROUPS.map((g) => g.id).filter((id) => present.has(id));
-  }, []);
-  const sourceGroups = useMemo(() => ['industry', 'academic'].filter((g) => catalogue.some((r) => r.source_group === g)), []);
-
-  const filtered = useMemo(() => applyFilters(catalogue, filters), [filters]);
-
-  function handleSelectSection(s: Section) {
-    navigateTo(s);
-    setSidebarOpen(false);
-  }
-
-  const isStaticPage = section === 'about' || section === 'changelog';
-
-  // Update page title and scroll to top on navigation
-  useEffect(() => {
-    document.title = getPageTitle(section);
-    window.scrollTo(0, 0);
-  }, [section]);
+  const kpis = useMemo(() => ({
+    countries: new Set(catalogue.flatMap((r) => r.countries)).size,
+    institutions: new Set(catalogue.flatMap((r) => r.organizations.map((o) => o.name))).size,
+    tools: uniqueCount(catalogue, 'tool_name'),
+  }), []);
 
   return (
-    <div className="flex min-h-screen bg-ink-950 text-ink-100">
-      <Sidebar active={section} onSelect={handleSelectSection} open={sidebarOpen} recordCount={catalogue.length} />
-      {sidebarOpen && (
-        <button
-          type="button"
-          aria-label="Close sidebar"
-          onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 z-20 bg-black/50 md:hidden"
-        />
-      )}
-      <div className="flex min-h-screen flex-1 flex-col">
-        {!isStaticPage && (
-          <FilterBar
-            filters={filters}
-            onChange={setFilters}
-            countries={countries}
-            toolNames={toolNames}
-            toolCategories={toolCategories}
-            evidenceStrengths={evidenceStrengths}
-            orgTypes={orgTypes}
-            sourceGroups={sourceGroups}
-            onToggleSidebar={() => setSidebarOpen((o) => !o)}
-            resultCount={filtered.length}
-            totalCount={catalogue.length}
-          />
-        )}
-        <main className="flex-1 px-4 py-6 md:px-8">
-          {section === 'overview' && <Hero />}
-
-          {!isStaticPage && (
-            <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <KpiCard
-                icon={LayoutDashboard}
-                label="Projects"
-                value={filtered.length}
-                context={`of ${catalogue.length} total`}
-              />
-              <KpiCard icon={Globe2} label="Countries" value={new Set(filtered.flatMap((r) => r.countries)).size} />
-              <KpiCard icon={Building2} label="Institutions" value={new Set(filtered.flatMap((r) => r.organizations.map((o) => o.name))).size} />
-              <KpiCard icon={Wrench} label="Tools" value={uniqueCount(filtered, 'tool_name')} />
-            </div>
-          )}
-
-          {section === 'overview' && <Overview records={filtered} onNavigate={handleSelectSection} sector={filters.sector} />}
-          {section === 'geographic' && <Geographic records={filtered} />}
-          {section === 'tools' && <ToolsAndCategories records={filtered} />}
-          {section === 'decisions' && <GridDecisions records={filtered} country={filters.country === 'All' ? undefined : filters.country} />}
-          {section === 'institutions' && <Institutions records={filtered} />}
-          {section === 'top-users' && <TopUsersByTool allRecords={catalogue} tool={tool} onToolChange={(t) => navigateTo('top-users', t)} />}
-          {section === 'records' && <RecordsExport records={filtered} />}
-          {section === 'about' && <About />}
-          {section === 'changelog' && <ChangelogPage />}
+    <ChartFiltersProvider catalogue={catalogue} chartIds={CHART_IDS} legacyChart={legacyChart}>
+      <div className="min-h-screen bg-ink-950 text-ink-100">
+        <SectionNav />
+        <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 md:space-y-8 md:px-8">
+          <Hero />
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <KpiCard icon={LayoutDashboard} label="Projects" value={catalogue.length} />
+            <KpiCard icon={Globe2} label="Countries" value={kpis.countries} />
+            <KpiCard icon={Building2} label="Institutions" value={kpis.institutions} />
+            <KpiCard icon={Wrench} label="Tools" value={kpis.tools} />
+          </div>
+          <Section id="adoption"><AdoptionRanking /></Section>
+          <Section id="domains"><Domains /></Section>
+          <Section id="map"><Geographic /></Section>
+          <Section id="decisions"><GridDecisions /></Section>
+          <Section id="top-users"><TopUsersByTool /></Section>
+          <Section id="institutions"><Institutions /></Section>
+          <Section id="evidence"><Evidence /></Section>
+          <Section id="projects"><RecordsExport /></Section>
+          <Section id="changelog"><ChangelogPage /></Section>
+          <Section id="about"><About /></Section>
         </main>
         <Footer />
       </div>
-    </div>
+    </ChartFiltersProvider>
   );
 }

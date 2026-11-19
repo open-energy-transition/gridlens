@@ -2,7 +2,6 @@ import { ExternalLink, Database, ShieldCheck, Search } from 'lucide-react';
 import catalogueData from '../data/catalogue.json';
 import type { CatalogueRecord } from '../types';
 import { safe } from '../lib/filters';
-import SectionHeader from '../components/common/SectionHeader';
 import Card from '../components/common/Card';
 import GitHubIcon from '../components/common/GitHubIcon';
 
@@ -12,13 +11,14 @@ const catalogue = catalogueData as CatalogueRecord[];
 const projectCount = catalogue.length;
 const countryCount = new Set(catalogue.map(r => safe(r.country_label)).filter(Boolean)).size;
 
+/** About GridLens. */
 export default function About() {
   return (
-    <div>
-      <SectionHeader
-        title="About GridLens"
-        description="What this catalogue is, how it's built, and where the data comes from."
-      />
+    <>
+      <h2 className="font-display mb-4 text-xl font-semibold text-ink-50">About GridLens</h2>
+      <p className="mb-4 text-sm leading-relaxed text-ink-500">
+        What this catalogue is, how it's built, and where the data comes from.
+      </p>
 
       <Card className="mb-6">
         <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-sage-400">
@@ -118,6 +118,6 @@ export default function About() {
           </p>
         </div>
       </Card>
-    </div>
+    </>
   );
 }

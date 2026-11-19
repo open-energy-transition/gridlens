@@ -1,34 +1,30 @@
 import { Download } from 'lucide-react';
-import type { CatalogueRecord } from '../types';
 import { downloadCsv } from '../lib/csv';
 import DataTable from '../components/table/DataTable';
-import SectionHeader from '../components/common/SectionHeader';
-import Card from '../components/common/Card';
+import ChartCard from '../components/chart/ChartCard';
+import { useChart } from '../lib/chartFilters';
 
-interface RecordsExportProps {
-  records: CatalogueRecord[];
-}
+/** All projects. */
+export default function RecordsExport() {
+  const { records } = useChart('projects');
 
-export default function RecordsExport({ records }: RecordsExportProps) {
   return (
-    <div>
-      <SectionHeader
-        title="Projects & Export"
-        description="Browse, sort and export the currently filtered projects."
-      />
-      <Card>
-        <div className="mb-4 flex justify-end">
-          <button
-            type="button"
-            onClick={() => downloadCsv('catalogue_filtered.csv', records)}
-            className="flex items-center gap-2 rounded-lg bg-brand-500 px-3 py-2 text-sm font-semibold text-ink-950 transition-colors hover:bg-brand-400"
-          >
-            <Download size={16} />
-            Download filtered CSV
-          </button>
-        </div>
-        <DataTable records={records} />
-      </Card>
-    </div>
+    <ChartCard
+      id="projects"
+      title="All projects"
+      actions={
+        <button
+          type="button"
+          onClick={() => downloadCsv('catalogue_filtered.csv', records)}
+          className="flex h-9 items-center gap-1.5 rounded-lg border border-ink-800 px-2.5 text-xs font-medium text-ink-300 hover:border-ink-700 hover:text-ink-100"
+          aria-label="Download filtered CSV"
+        >
+          <Download size={14} />
+          <span className="hidden sm:inline">Download CSV</span>
+        </button>
+      }
+    >
+      <DataTable records={records} />
+    </ChartCard>
   );
 }

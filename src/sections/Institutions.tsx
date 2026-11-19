@@ -1,27 +1,21 @@
 import { useMemo } from 'react';
-import type { CatalogueRecord } from '../types';
 import { countByOrganization } from '../lib/filters';
 import HorizontalBarChart from '../components/charts/HorizontalBarChart';
-import SectionHeader from '../components/common/SectionHeader';
-import Card from '../components/common/Card';
+import ChartCard from '../components/chart/ChartCard';
 import EmptyState from '../components/common/EmptyState';
+import { useChart } from '../lib/chartFilters';
 
-interface InstitutionsProps {
-  records: CatalogueRecord[];
-}
-
-export default function Institutions({ records }: InstitutionsProps) {
+/** Top 25 institutions. */
+export default function Institutions() {
+  const { records } = useChart('institutions');
   const data = useMemo(() => countByOrganization(records).slice(0, 25), [records]);
 
   return (
-    <div>
-      <SectionHeader
-        title="Institutions"
-        description="The top 25 institutions by number of catalogued projects in the current selection."
-      />
-      <Card title="Top 25 institutions">
-        {data.length === 0 ? <EmptyState /> : <HorizontalBarChart data={data} />}
-      </Card>
-    </div>
+    <ChartCard
+      id="institutions"
+      title="Top 25 institutions"
+    >
+      {data.length === 0 ? <EmptyState /> : <HorizontalBarChart data={data} />}
+    </ChartCard>
   );
 }

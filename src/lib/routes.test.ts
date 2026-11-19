@@ -1,56 +1,24 @@
 import { describe, it, expect } from 'vitest';
-import { pathToRoute, routeToPath, getPageTitle } from './routes';
-import type { Section } from '../types';
+import { legacyRoute, SECTIONS, CHART_IDS } from './routes';
 
-const SECTIONS: Section[] = [
-  'overview', 'geographic', 'tools', 'decisions', 'institutions',
-  'top-users', 'records', 'about', 'changelog',
-];
-
-describe('pathToRoute / routeToPath round-trips', () => {
-  for (const section of SECTIONS) {
-    it(`round-trips ${section}`, () => {
-      const t = section === 'top-users' ? 'PLEXOS' : undefined;
-      const path = routeToPath(section, t);
-      const parsed = pathToRoute(path);
-      expect(parsed.section).toBe(section);
-      if (t) expect(parsed.tool).toBe(t);
-    });
-  }
-
-  it('overview maps to /', () => {
-    expect(routeToPath('overview')).toBe('/');
-    expect(pathToRoute('/')).toEqual({ section: 'overview' });
+describe('legacyRoute', () => {
+  it('maps the old pages to their section', () => {
+    expect(legacyRoute('/grid-decisions')).toEqual({ section: 'decisions' });
+    expect(legacyRoute('/geographic/')).toEqual({ section: 'map' });
+    expect(legacyRoute('/records')).toEqual({ section: 'projects' });
   });
 
-  it('trailing slash is tolerated', () => {
-    expect(pathToRoute('/geographic/')).toEqual({ section: 'geographic' });
-    expect(pathToRoute('/top-users/')).toEqual({ section: 'top-users' });
-    expect(pathToRoute('/institutions/')).toEqual({ section: 'institutions' });
+  it('keeps the tool of /top-users/<tool>', () => {
+    expect(legacyRoute('/top-users/PSS%2FE')).toEqual({ section: 'top-users', tool: 'PSS/E' });
   });
 
-  it('unknown paths default to overview', () => {
-    expect(pathToRoute('/unknown')).toEqual({ section: 'overview' });
-    expect(pathToRoute('/foo/bar/baz')).toEqual({ section: 'overview' });
+  it('returns null for the home page and unknown paths', () => {
+    expect(legacyRoute('/')).toBeNull();
+    expect(legacyRoute('/nope')).toBeNull();
   });
 
-  it('/top-users/<tool> extracts tool', () => {
-    expect(pathToRoute('/top-users/PyPSA')).toEqual({ section: 'top-users', tool: 'PyPSA' });
-    expect(pathToRoute('/top-users/pypsa')).toEqual({ section: 'top-users', tool: 'pypsa' });
-    expect(pathToRoute('/top-users/PLEXOS')).toEqual({ section: 'top-users', tool: 'PLEXOS' });
-  });
-
-  it('routeToPath encodes tool names with special chars', () => {
-    const path = routeToPath('top-users', 'A/B C');
-    expect(path).toBe('/top-users/A%2FB%20C');
-    expect(pathToRoute(path).tool).toBe('A/B C');
-  });
-});
-
-describe('getPageTitle', () => {
-  it('returns the correct title for each section', () => {
-    expect(getPageTitle('overview')).toBe("GridLens — See who's using which energy models, where");
-    expect(getPageTitle('geographic')).toBe('Geographic Analysis · GridLens');
-    expect(getPageTitle('about')).toBe('About · GridLens');
+  it('only lists charts that are sections', () => {
+    const ids = SECTIONS.map((s) => s.id as string);
+    expect(CHART_IDS.every((c) => ids.includes(c))).toBe(true);
   });
 });

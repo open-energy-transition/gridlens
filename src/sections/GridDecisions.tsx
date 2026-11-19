@@ -14,17 +14,11 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import type { CatalogueRecord } from '../types';
-import SectionHeader from '../components/common/SectionHeader';
-import Card from '../components/common/Card';
+import ChartCard from '../components/chart/ChartCard';
+import { useChart } from '../lib/chartFilters';
 import EmptyState from '../components/common/EmptyState';
 import { IMPACT_INFO, IMPACT_ORDER, projectImpact, rankProjects, type Impact } from '../lib/impact';
 import { orgGroup, orgGroupLabel } from '../lib/orgTypes';
-
-interface GridDecisionsProps {
-  records: CatalogueRecord[];
-  /** Selected country filter, if any: orders each impact level national, multi-country, global. */
-  country?: string;
-}
 
 const DECISION_ICONS: Record<string, LucideIcon> = {
   'Capacity & Resource Planning': TrendingUp,
@@ -62,7 +56,9 @@ function groupByDecisionType(records: CatalogueRecord[]) {
   return Array.from(groups.entries()).sort((a, b) => b[1].length - a[1].length);
 }
 
-const PAGE = 3;
+const PAGE = 2;
+/** Decision types shown before "Show all". */
+const TYPES = 6;
 const MORE = 6;
 
 const IMPACT_STYLE: Record<Impact, string> = {
@@ -94,7 +90,7 @@ function DecisionCard({ decisionType, records, country }: { decisionType: string
   const examples = ranked.slice(0, shown);
 
   return (
-    <Card>
+    <div className="rounded-lg border border-ink-800 bg-ink-950/40 p-4">
       <div className="mb-3 flex items-start gap-3">
         <div className="rounded-lg bg-brand-500/10 p-2 text-brand-400">
           <Icon size={20} />
@@ -177,20 +173,26 @@ function DecisionCard({ decisionType, records, country }: { decisionType: string
           )}
         </div>
       )}
-    </Card>
+    </div>
   );
 }
 
-export default function GridDecisions({ records, country }: GridDecisionsProps) {
+/** Grid decisions by type, highest impact first; with a country filter, its own studies before multi-country and global ones. */
+export default function GridDecisions() {
+  const { filters, records } = useChart('decisions');
   const groups = useMemo(() => groupByDecisionType(records), [records]);
+  // Keep the one-page layout scannable: the largest decision types first, the rest on request.
+  const [allTypes, setAllTypes] = useState(false);
+  const visible = allTypes ? groups : groups.slice(0, TYPES);
+  const country = filters.country === 'All' ? undefined : filters.country;
 
   return (
-    <div>
-      <SectionHeader
-        title="Grid Decisions"
-        description="What grid decisions each tool is actually used for, with the highest-impact examples first. Filter by tool, country or organization type above to see what your peers did."
-      />
-      <div className="mb-5 flex flex-wrap gap-x-6 gap-y-2 text-xs text-ink-400">
+    <ChartCard
+      id="decisions"
+      title="Grid decisions"
+      description="What each tool is actually used for, highest-impact examples first. Filter by tool, country or organization type to see what your peers did."
+    >
+      <div className="mb-4 flex flex-wrap gap-x-6 gap-y-2 text-xs text-ink-400">
         {IMPACT_ORDER.map((i) => (
           <span key={i} className="flex items-center gap-2">
             <ImpactBadge impact={i} />
@@ -201,12 +203,17 @@ export default function GridDecisions({ records, country }: GridDecisionsProps) 
       {groups.length === 0 ? (
         <EmptyState />
       ) : (
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {groups.map(([decisionType, decisionRecords]) => (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {visible.map(([decisionType, decisionRecords]) => (
             <DecisionCard key={decisionType} decisionType={decisionType} records={decisionRecords} country={country} />
           ))}
         </div>
       )}
-    </div>
+      {groups.length > TYPES && (
+        <button type="button" onClick={() => setAllTypes((a) => !a)} className="mt-4 h-9 rounded-lg border border-ink-800 px-3 text-xs font-medium text-ink-300 hover:text-ink-100">
+          {allTypes ? 'Show fewer decision types' : `Show all ${groups.length} decision types`}
+        </button>
+      )}
+    </ChartCard>
   );
 }
