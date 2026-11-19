@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { adoptionByTool, applyFilters, countBy, countByOrganization, uniqSorted, uniqueCount, safe } from './filters';
+import { adoptionByTool, applyFilters, periodStart, countBy, countByOrganization, uniqSorted, uniqueCount, safe } from './filters';
 import type { CatalogueRecord, Filters } from '../types';
 import { EMPTY_FILTERS } from '../types';
 
@@ -186,5 +186,23 @@ describe('sector', () => {
   it('ranks tools by distinct organizations, optionally of one sector', () => {
     expect(adoptionByTool([mixed, academic, industry])).toEqual([{ name: 'PyPSA', count: 2 }, { name: 'PLEXOS', count: 1 }]);
     expect(adoptionByTool([mixed, academic, industry], 'industry')).toEqual([{ name: 'PLEXOS', count: 1 }, { name: 'PyPSA', count: 1 }]);
+  });
+});
+
+describe('study period', () => {
+  const recent = record({ tool_name: 'PyPSA', year: 2025 });
+  const edge = record({ tool_name: 'PyPSA', year: 2022 });
+  const old = record({ tool_name: 'PyPSA', year: 2009 });
+  const undated = record({ tool_name: 'PyPSA' });
+
+  it('starts the period so that it includes the current year', () => {
+    expect(periodStart('5', 2026)).toBe(2022);
+  });
+
+  it('keeps dated studies inside the period and leaves undated ones out', () => {
+    const all = [recent, edge, old, undated];
+    expect(applyFilters(all, { ...EMPTY_FILTERS, period: '5' }, 2026)).toEqual([recent, edge]);
+    expect(applyFilters(all, { ...EMPTY_FILTERS, period: '20' }, 2026)).toEqual([recent, edge, old]);
+    expect(applyFilters(all, EMPTY_FILTERS, 2026)).toEqual(all);
   });
 });

@@ -53,6 +53,8 @@ export interface Filters {
   toolCategory: string;
   orgType: string;
   sector: string;
+  /** Only studies from the last N years ('5', '10', '20'), or 'All'. */
+  period: string;
   license: string;
   evidenceStrength: string;
   sourceGroup: string;
@@ -65,6 +67,7 @@ export const EMPTY_FILTERS: Filters = {
   toolCategory: 'All',
   orgType: 'All',
   sector: 'All',
+  period: 'All',
   license: 'All',
   evidenceStrength: 'All',
   sourceGroup: 'All',
