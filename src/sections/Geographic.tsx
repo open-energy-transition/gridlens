@@ -1,36 +1,29 @@
 import { useMemo, useState } from 'react';
-import type { CatalogueRecord } from '../types';
 import { safe } from '../lib/filters';
 import { toAtlasName } from '../lib/countryAliases';
 import WorldMap from '../components/charts/WorldMap';
 import MapLegend from '../components/charts/MapLegend';
-import SectionHeader from '../components/common/SectionHeader';
-import Card from '../components/common/Card';
-
-interface GeographicProps {
-  records: CatalogueRecord[];
-}
+import Segmented from '../components/chart/Segmented';
+import ChartCard from '../components/chart/ChartCard';
+import { useChart } from '../lib/chartFilters';
 
 type Metric = 'records' | 'tools';
 
-export default function Geographic({ records }: GeographicProps) {
+/** Where the tools are used. */
+export default function Geographic() {
+  const { records } = useChart('map');
   const [metric, setMetric] = useState<Metric>('records');
 
   const { mapValueByAtlasName, maxValue, rows, multiCountryCount, globalCount } = useMemo(() => {
     const recordCounts = new Map<string, number>();
     const toolSets = new Map<string, Set<string>>();
-    // Separate aggregation keyed by the map atlas's own country names, so
-    // e.g. "United States" -> "United States of America" and the two
-    // dataset spellings "Turkey" / "Türkiye" both land on the same polygon.
-    // The raw country_label aggregation above is still used for the
-    // Top-15 list and tooltip, so display text never changes.
     const atlasRecordCounts = new Map<string, number>();
     const atlasToolSets = new Map<string, Set<string>>();
     let mcCount = 0;
     let gCount = 0;
     for (const r of records) {
       const country = safe(r.country_label);
-      if (!country) continue;
+      if (!country || r.geo_scope !== 'national') continue;
       recordCounts.set(country, (recordCounts.get(country) ?? 0) + 1);
       const tool = safe(r.tool_name);
       if (tool) {
@@ -55,7 +48,6 @@ export default function Geographic({ records }: GeographicProps) {
       .sort((a, b) => b.count - a.count)
       .slice(0, 15);
 
-    // Count multi-country and global projects
     for (const r of records) {
       if (r.geo_scope === 'multi_country') mcCount += 1;
       else if (r.geo_scope === 'global') gCount += 1;
@@ -65,58 +57,37 @@ export default function Geographic({ records }: GeographicProps) {
   }, [records, metric]);
 
   return (
-    <div>
-      <SectionHeader
-        title="Geographic Analysis"
-        description="Where catalogued institutions and tools are located, by country."
-      />
-      <Card noPadding className="overflow-hidden">
-        <div className="flex items-center gap-2 border-b border-ink-800 px-5 py-4">
-          <span className="text-xs font-semibold uppercase tracking-wide text-ink-500">Metric</span>
-          <div className="flex overflow-hidden rounded-lg border border-ink-800">
-            {(['records', 'tools'] as Metric[]).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setMetric(m)}
-                className={`px-3 py-1.5 text-sm font-medium transition-colors ${
-                  metric === m ? 'bg-brand-500/20 text-brand-300' : 'text-ink-400 hover:bg-ink-900'
-                }`}
-              >
-                {m === 'records' ? 'Total Projects' : 'Unique Tools'}
-              </button>
-            ))}
-          </div>
+    <ChartCard
+      id="map"
+      title="Where the tools are used"
+      description="Projects per country. Regional and global studies are counted separately below the map."
+      actions={
+        <Segmented
+          label="Metric"
+          value={metric}
+          onChange={(v) => setMetric(v as Metric)}
+          options={[{ id: 'records', label: 'Projects' }, { id: 'tools', label: 'Distinct tools' }]}
+        />
+      }
+    >
+      <div className="flex flex-col lg:flex-row lg:gap-4">
+        <div className="min-w-0 flex-1">
+          <WorldMap valueByCountry={mapValueByAtlasName} maxValue={maxValue} unit={metric === 'records' ? 'projects' : 'tools'} />
         </div>
-        <div className="flex flex-col lg:flex-row">
-          <div className="min-w-0 flex-1">
-            <WorldMap valueByCountry={mapValueByAtlasName} maxValue={maxValue} />
-          </div>
-          <MapLegend maxValue={maxValue} unitLabel={metric === 'records' ? 'Records' : 'Unique tools'} />
-        </div>
-      </Card>
-
-      {multiCountryCount > 0 && (
-        <p className="mt-2 text-xs text-ink-500">
-          Plus {multiCountryCount} multi-country and {globalCount} global projects.
-        </p>
+        <MapLegend maxValue={maxValue} unitLabel={metric === 'records' ? 'Projects' : 'Tools'} />
+      </div>
+      {multiCountryCount + globalCount > 0 && (
+        <p className="mt-3 text-xs text-ink-500">Plus {multiCountryCount} multi-country and {globalCount} global projects.</p>
       )}
-
-      <Card title="Top 15 countries" className="mt-6">
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {rows.map((row) => (
-            <div
-              key={row.name}
-              className="flex items-center justify-between rounded-lg border border-ink-800 bg-ink-950/40 px-3 py-2 text-sm"
-            >
-              <span className="truncate text-ink-300" title={row.name}>
-                {row.name}
-              </span>
-              <span className="font-semibold text-brand-400">{row.count}</span>
-            </div>
-          ))}
-        </div>
-      </Card>
-    </div>
+      <h3 className="mb-3 mt-6 text-xs uppercase tracking-[0.14em] text-ink-500">Top countries</h3>
+      <ol className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
+        {rows.map((row, i) => (
+          <li key={row.name} className="flex items-baseline justify-between gap-3 border-b border-ink-800/70 py-2 text-sm">
+            <span className="flex min-w-0 gap-3"><span className="tabular w-5 shrink-0 text-xs text-ink-600">{i + 1}</span><span className="truncate text-ink-200" title={row.name}>{row.name}</span></span>
+            <span className="tabular text-ink-300">{row.count}</span>
+          </li>
+        ))}
+      </ol>
+    </ChartCard>
   );
 }

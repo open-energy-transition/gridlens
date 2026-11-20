@@ -311,7 +311,8 @@ def project_record(rows):
         name = (r.get("institution_name") or "").strip()
         orgs.setdefault(name, {"name": name, "role": (r.get("role") or "").strip(),
                                "institution_category": (r.get("institution_category") or "").strip(),
-                               "country_label": (r.get("country_label") or "").strip()})
+                               "country_label": (r.get("country_label") or "").strip(),
+                               "website": (r.get("official_website") or "").strip()})
         link = (r.get("source_url") or "").strip()
         sources.setdefault(link, {"title": (r.get("source_title") or "").strip(), "date": (r.get("source_date") or "").strip(),
                                   "link": link, "quote": (r.get("exact_snippet_or_quote") or "").strip(),

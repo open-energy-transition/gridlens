@@ -53,20 +53,24 @@ scripts/
   validate_dataset.py            Run before every data change: schema/enum/duplicate/alias checks against data/schema.json
   sync_dataset.py                Regenerates data/catalogue_merged.csv + src/data/catalogue.json from catalogue.jsonl
   merge_batches.py                Merges parallel research batches from data/raw/incoming/ into catalogue.jsonl (id-collision + duplicate checking)
+  fetch_contributors.py           Refreshes src/data/contributors.json: merged pull requests per organization and month in each open-source tool's GitHub organizations (names/links in data/contributor_orgs.json)
   export_known_institutions.py    Exports research/known_institutions.csv -- give this to research agents as context to avoid re-finding/duplicating known orgs
 
 src/                              The React + TypeScript app (Vite + Tailwind v4)
   data/catalogue.json             What the app imports — generated, never hand-edit
   data/changelog.json             Dataset-change feed shown in the app (see CHANGELOG_MAINTENANCE.md)
-  types.ts                        CatalogueRecord (the data schema as TS types), Section (page/nav enum)
-  App.tsx                         Top-level layout + section router (no real routing library — section is useState)
-  lib/                            Pure helpers: filters.ts (filtering/aggregation), colors.ts (palette + choropleth bucket logic), csv.ts (export), countryAliases.ts (dataset-name -> map-atlas-name mapping), filters.ts
+  types.ts                        CatalogueRecord (the data schema as TS types) and Filters
+  App.tsx                         Picks the page for the current route inside the Shell
+  lib/                            Pure helpers: router.tsx (pages, overview sections, old-URL redirects, Link), filters.ts (filtering/aggregation),
+                                  insights.ts (purpose matrix, per-year counts, organization directory, service providers, tool stats),
+                                  chartFilters.tsx + filterParams.ts (each chart's own filters, kept in the URL as ?<chart>.<key>=),
+                                  impact.ts, colors.ts (palette + choropleth buckets), csv.ts, countryAliases.ts
+  pages/                          One file per page: Overview (the one-pager), Tool (/tools/<slug>), Organizations, Projects, and the About pages (Methodology, Changelog, Contact, Legal)
+  sections/                       The Overview's charts: PurposeMatrix, Momentum, Geographic, GridDecisions, Builders; Providers (list used on tool pages)
   components/
-    layout/                       Sidebar, FilterBar, Footer
-    common/                       Card, SectionHeader, EmptyState, Hero, Changelog, GitHubIcon
-    kpi/, charts/, table/          KpiCard; HorizontalBarChart, VerticalBarChart, DonutChart, WorldMap, MapLegend; DataTable
-  sections/                       One file per nav page: Overview, Geographic, ToolsAndCategories, Institutions, TopUsersByTool, RecordsExport, About, ChangelogPage
-
+    layout/Shell.tsx              Top nav with Tools and About dropdowns (menu on phones), the overview's left section index, footer
+    chart/                        ChartCard (title + per-chart Filters button, popover on desktop / bottom sheet on phones + copy link), Segmented
+    common/, charts/, table/      AdoptionRanking, LicenseBadge, EmptyState, GitHubIcon; HorizontalBarChart, WorldMap, MapLegend; DataTable
 CHANGELOG_MAINTENANCE.md          Convention for src/data/changelog.json — read before any dataset change
 CONTRIBUTING.md                   Human-facing contribution guide
 DEPLOYMENT.md                     How to publish a build (GitHub Pages / Vercel / Netlify / any static host)
@@ -117,15 +121,13 @@ test → build → lint on every push/PR — all four must pass.
 Standard React/TypeScript work. Conventions already established in this
 codebase, follow them rather than introducing a new pattern:
 - Tailwind v4 utility classes throughout, no CSS modules/styled-components.
-  Brand colors/fonts come from the OET style guide (Oswald display font +
-  Plus Jakarta Sans body font, red `#e31937` / sage `#7c9885` — see
-  `tailwind.config`/`index.css` `@theme` block, and the
-  `react-tailwind-v4-brand-restyle`-style conventions already in the code).
+  Colours and fonts live in the `@theme` block of `src/index.css`: night-blue neutrals (`ink`), ember accent
+  (`brand`, also the colour of open-source tools), dusk rose; Newsreader (display) and Plus Jakarta Sans (body).
 - Shared chart/UI colors live in `src/lib/colors.ts` — don't hardcode a new
   hex value in a component; add it there if a genuinely new one is needed.
-- Every new nav page: add to the `Section` union in `types.ts`, add a file
-  under `src/sections/`, wire it into `App.tsx`'s section switch, add a nav
-  entry in `Sidebar.tsx`.
+- A new page: add it to `PAGES` in `lib/router.tsx`, a file under `src/pages/`, a line in `App.tsx`, and its path
+  to `PAGE_NAMES` in `vite.config.ts` (each page is emitted as its own `index.html`). A new overview chart: wrap it in
+  `ChartCard` with its own id, add the id to `CHART_IDS` (and to `SECTIONS` if it gets an entry in the left index).
 - `npm run build` must show 0 TypeScript errors before any commit.
 - After a UI change, actually look at it (a headless browser + a real
   screenshot/DOM query, not just "the code looks right") before calling it

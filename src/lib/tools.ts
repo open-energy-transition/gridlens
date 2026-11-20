@@ -6,6 +6,15 @@ export interface ToolInfo {
   license: 'open_source' | 'proprietary';
   licenseName?: string;
   url: string;
+  /** GitHub organizations holding the tool's ecosystem of repositories (open-source tools). */
+  github_orgs?: string[];
+}
+
+/** Logo file in public/logos/, when we have a usable one (tool ecosystem for open source, vendor otherwise). */
+const LOGOS = new Set(['antares', 'balmorel', 'bid3', 'digsilent-powerfactory', 'plexos', 'promod', 'pscad', 'pss-e', 'pypsa', 'sddp', 'sienna', 'times']);
+
+export function logoOf(slug: string): string | undefined {
+  return LOGOS.has(slug) ? `/logos/${slug}.png` : undefined;
 }
 
 /** The tools GridLens tracks (src/data/tools.json); sync_dataset.py publishes only these. */

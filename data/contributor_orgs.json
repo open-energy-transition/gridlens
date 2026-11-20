@@ -1,0 +1,166 @@
+{
+ "Open Energy Transition": {
+  "aliases": [
+   "open-energy-transition",
+   "openenergytransition",
+   "OET"
+  ],
+  "url": "https://openenergytransition.org"
+ },
+ "Technical University of Berlin": {
+  "aliases": [
+   "Technische Universität Berlin",
+   "TU Berlin",
+   "TUB",
+   "tu-berlin"
+  ],
+  "url": "https://www.tu.berlin/en/ensys"
+ },
+ "National Renewable Energy Laboratory (NREL)": {
+  "aliases": [
+   "National Renewable Energy Laboratory",
+   "NREL",
+   "National Renewable Energy Lab",
+   "National Laboratory of the Rockies",
+   "National Lab of the Rockies",
+   "NatLabRockies"
+  ],
+  "url": "https://www.nrel.gov"
+ },
+ "Technical University of Denmark (DTU)": {
+  "aliases": [
+   "DTU",
+   "Technical University of Denmark",
+   "DTU Wind",
+   "DTU Management"
+  ],
+  "url": "https://www.dtu.dk"
+ },
+ "RTE": {
+  "aliases": [
+   "rte-france",
+   "RTE France",
+   "Meritis/RTE",
+   "Réseau de Transport d'Électricité"
+  ],
+  "url": "https://www.rte-france.com"
+ },
+ "RTE International": {
+  "aliases": [
+   "RTE International SEE",
+   "RTEi South-East Europe",
+   "RTEi"
+  ],
+  "url": "https://www.rte-international.com"
+ },
+ "University of Melbourne": {
+  "aliases": [
+   "The University of Melbourne",
+   "University of Melbourne | @ARPST-UniMelb"
+  ],
+  "url": "https://www.unimelb.edu.au"
+ },
+ "Microsoft": {
+  "aliases": [
+   "Microsoft Research"
+  ],
+  "url": "https://www.microsoft.com"
+ },
+ "CSIRO": {
+  "aliases": [
+   "CSIRO Energy"
+  ],
+  "url": "https://www.csiro.au"
+ },
+ "Eurodecision": {
+  "aliases": [
+   "EURODECISION"
+  ],
+  "url": "https://www.eurodecision.com"
+ },
+ "University College London": {
+  "aliases": [
+   "UCL"
+  ],
+  "url": "https://www.ucl.ac.uk"
+ },
+ "": {
+  "aliases": [
+   "AntaresSimulatorTeam",
+   "PyPSA",
+   "actions",
+   "anthropics",
+   "pypsa-meets-earth"
+  ]
+ },
+ "Stanford University": {
+  "aliases": [],
+  "url": "https://www.stanford.edu"
+ },
+ "University of Michigan": {
+  "aliases": [
+   "UMich"
+  ],
+  "url": "https://umich.edu"
+ },
+ "Treehouse Energy": {
+  "aliases": [],
+  "url": "https://treehouse.energy"
+ },
+ "PhareNumerique": {
+  "aliases": [],
+  "url": "https://github.com/PhareNumerique"
+ },
+ "LASR Labs @ Arcadia Impact": {
+  "aliases": [],
+  "url": "https://www.arcadiaimpact.org"
+ },
+ "Axpo": {
+  "aliases": [],
+  "url": "https://www.axpo.com"
+ },
+ "AGGM": {
+  "aliases": [],
+  "url": "https://www.aggm.at"
+ },
+ "University of Pisa": {
+  "aliases": [],
+  "url": "https://www.unipi.it"
+ },
+ "Chalmers Next Labs": {
+  "aliases": [],
+  "url": "https://www.chalmersnextlabs.se"
+ },
+ "RWTH Aachen": {
+  "aliases": [],
+  "url": "https://www.rwth-aachen.de"
+ },
+ "University of Applied Sciences Aachen": {
+  "aliases": [],
+  "url": "https://www.fh-aachen.de"
+ },
+ "Universidad Politécnica de Madrid": {
+  "aliases": [],
+  "url": "https://www.upm.es"
+ },
+ "Ostbayerische Technische Hochschule Regensburg": {
+  "aliases": [],
+  "url": "https://www.oth-regensburg.de"
+ },
+ "University of Exeter": {
+  "aliases": [],
+  "url": "https://www.exeter.ac.uk"
+ },
+ "CU Boulder": {
+  "aliases": [],
+  "url": "https://www.colorado.edu"
+ },
+ "Equilibrium Energy": {
+  "aliases": [],
+  "url": "https://equilibriumenergy.com"
+ },
+ "Lawrence Berkeley Lab": {
+  "aliases": [],
+  "url": "https://www.lbl.gov"
+ }
+}

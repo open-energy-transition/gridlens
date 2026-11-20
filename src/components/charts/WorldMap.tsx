@@ -3,7 +3,8 @@ import { ComposableMap, Geographies, Geography, ZoomableGroup, Sphere, Graticule
 import { mapColorFor, MAP_HOVER } from '../../lib/colors';
 import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 
-const GEO_URL = 'https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json';
+// Natural Earth via world-atlas (ISC licence), served from this site.
+const GEO_URL = '/geo/countries-110m.json';
 
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 8;
@@ -18,9 +19,11 @@ interface WorldMapProps {
   valueByCountry: Map<string, number>;
   maxValue: number;
   onHover?: (name: string | null) => void;
+  /** Unit in the tooltip ("projects"). */
+  unit?: string;
 }
 
-export default function WorldMap({ valueByCountry, maxValue, onHover }: WorldMapProps) {
+export default function WorldMap({ valueByCountry, maxValue, onHover, unit = 'projects' }: WorldMapProps) {
   const [loadError, setLoadError] = useState(false);
   const [hoveredKey, setHoveredKey] = useState<string | null>(null);
   const [position, setPosition] = useState<{ coordinates: [number, number]; zoom: number }>({
@@ -54,14 +57,14 @@ export default function WorldMap({ valueByCountry, maxValue, onHover }: WorldMap
 
   if (loadError) {
     return (
-      <div className="flex h-[560px] items-center justify-center text-sm text-ink-500">
+      <div className="flex aspect-[800/420] items-center justify-center text-sm text-ink-500">
         Unable to load world map data (offline?).
       </div>
     );
   }
 
   return (
-    <div ref={wrapperRef} className="relative overflow-hidden rounded-xl border border-ink-800 bg-ink-950">
+    <div ref={wrapperRef} className="relative overflow-hidden rounded-xl border border-ink-800/80 bg-[radial-gradient(ellipse_at_center,#121633_0%,#080a13_70%)]">
       {/* Zoom controls */}
       <div className="absolute right-3 top-3 z-10 flex flex-col overflow-hidden rounded-lg border border-ink-700 bg-ink-900/90 shadow-lg backdrop-blur-sm">
         <button
@@ -93,12 +96,14 @@ export default function WorldMap({ valueByCountry, maxValue, onHover }: WorldMap
       </div>
 
       <p className="pointer-events-none absolute left-3 top-3 z-10 rounded-md bg-ink-900/80 px-2 py-1 text-[10px] uppercase tracking-wide text-ink-500 backdrop-blur-sm">
-        Scroll or pinch to zoom &middot; drag to pan
+        Pinch or scroll to zoom
       </p>
 
       <ComposableMap
-        projectionConfig={{ scale: 160 }}
-        style={{ width: '100%', height: '560px', cursor: 'grab' }}
+        width={800}
+        height={420}
+        projectionConfig={{ scale: 150, center: [0, 8] }}
+        style={{ width: '100%', height: 'auto', cursor: 'grab', display: 'block' }}
         onMouseMove={(e) => {
           if (!tooltip || !wrapperRef.current) return;
           const rect = wrapperRef.current.getBoundingClientRect();
@@ -127,8 +132,8 @@ export default function WorldMap({ valueByCountry, maxValue, onHover }: WorldMap
               inside the transformed group, keeps the "raster" (graticule +
               sphere) and the vector country data moving together as one
               consistent coordinate space at every zoom/pan state. */}
-          <Sphere id="sphere-outline" fill="transparent" stroke="#262626" strokeWidth={0.5 / position.zoom} />
-          <Graticule stroke="#1a1a1a" strokeWidth={0.4 / position.zoom} />
+          <Sphere id="sphere-outline" fill="transparent" stroke="#2f3245" strokeWidth={0.6 / position.zoom} />
+          <Graticule stroke="#151829" strokeWidth={0.4 / position.zoom} />
           <Geographies geography={GEO_URL}>
             {({ geographies }) =>
               geographies.map((geo) => {
@@ -153,7 +158,7 @@ export default function WorldMap({ valueByCountry, maxValue, onHover }: WorldMap
                       setTooltip(null);
                     }}
                     fill={isHovered ? MAP_HOVER : mapColorFor(value, maxValue)}
-                    stroke="#0b0b0b"
+                    stroke="#080a13"
                     strokeWidth={0.5 / position.zoom}
                     style={{ outline: 'none', cursor: 'pointer' }}
                   />
@@ -170,7 +175,7 @@ export default function WorldMap({ valueByCountry, maxValue, onHover }: WorldMap
           style={{ left: tooltip.x, top: tooltip.y }}
         >
           <p className="font-semibold text-ink-100">{tooltip.name}</p>
-          <p className="text-brand-300">{tooltip.value.toLocaleString()} records</p>
+          <p className="text-brand-300">{tooltip.value.toLocaleString()} {unit}</p>
         </div>
       )}
     </div>

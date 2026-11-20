@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filtersToSearch, searchToFilters } from './filterParams';
+import { filtersToSearch, mergeChartSearch, searchToChartFilters, searchToFilters } from './filterParams';
 import { EMPTY_FILTERS } from '../types';
 
 describe('filter query string', () => {
@@ -17,5 +17,18 @@ describe('filter query string', () => {
 
   it('ignores unknown keys', () => {
     expect(searchToFilters('?country=Spain&utm_source=x')).toEqual({ ...EMPTY_FILTERS, country: 'Spain' });
+  });
+});
+
+describe('per-chart filters in the URL', () => {
+  it('keeps each chart apart and restores it', () => {
+    const state = { decisions: { ...EMPTY_FILTERS, country: 'Spain' }, map: { ...EMPTY_FILTERS, toolName: 'PyPSA' } };
+    const s = mergeChartSearch('', state);
+    expect(s).toBe('?decisions.country=Spain&map.tool=PyPSA');
+    expect(searchToChartFilters(s, ['decisions', 'map'])).toEqual(state);
+  });
+
+  it('leaves other parameters of the page alone', () => {
+    expect(mergeChartSearch('?type=consultancy&tool=PyPSA', { decisions: EMPTY_FILTERS })).toBe('?type=consultancy&tool=PyPSA');
   });
 });
