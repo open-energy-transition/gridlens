@@ -1,6 +1,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { useChart } from '../lib/chartFilters';
+import { toggleValue, valuesOf } from '../lib/multi';
 import type { Filters } from '../types';
 import { dateKey, formatDate } from '../lib/dates';
 import { filtersToSearch } from '../lib/filterParams';
@@ -95,12 +96,12 @@ function WhereSection({ name }: { name: string }) {
   }, [countries]);
   return (
     <Section name={name} id="tool-map" title="Where it is used" className="lg:col-span-2" ignore={['country']}
-      note="Projects per country; regional and global studies count in every country they cover. Click a country to filter."
+      note="Projects per country; regional and global studies count in every country they cover. Click countries to filter."
       fields={['period', 'decision', 'impact', 'sector', 'orgType', 'evidenceStrength', 'search']}>
       {records.length ? (
         <WorldMap valueByCountry={atlas} maxValue={Math.max(1, ...atlas.values())}
-          selected={filters.country === 'All' ? undefined : toAtlasName(filters.country)}
-          onSelect={(n) => { const c = [...countries.keys()].find((k) => toAtlasName(k) === n) ?? n; setFilters({ ...filters, country: filters.country === c ? 'All' : c }); }} />
+          selected={valuesOf(filters.country).map(toAtlasName)}
+          onSelect={(n) => { const c = [...countries.keys()].find((k) => toAtlasName(k) === n) ?? n; setFilters({ ...filters, country: toggleValue(filters.country, c) }); }} />
       ) : <EmptyState />}
     </Section>
   );

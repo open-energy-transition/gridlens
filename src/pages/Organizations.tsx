@@ -3,6 +3,7 @@ import { ArrowDown, ArrowUp, ArrowUpRight, Search } from 'lucide-react';
 import type { Filters } from '../types';
 import { Link, slug } from '../lib/router';
 import { useChart } from '../lib/chartFilters';
+import { toggleValue, valuesOf } from '../lib/multi';
 import { organizationDirectory, type OrgEntry } from '../lib/insights';
 import { ORG_GROUPS, orgGroupLabel } from '../lib/orgTypes';
 import { host } from '../sections/Providers';
@@ -46,16 +47,20 @@ export default function Organizations() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const all = useMemo(() => organizationDirectory(records), [records]);
+  const types = valuesOf(filters.orgType);
+  const isOn = (id: string) => (id === 'All' ? !types.length : types.includes(id));
   const matches = (o: OrgEntry) => !q || `${o.name} ${o.countries.join(' ')}`.toLowerCase().includes(q.toLowerCase());
   // Organizations per type for the current filters and search, so each number is what a click shows.
   const count = new Map<string, number>([['All', 0]]);
   for (const o of all) if (matches(o)) { count.set(o.group, (count.get(o.group) ?? 0) + 1); count.set('All', count.get('All')! + 1); }
-  const groups = [{ id: 'All', label: 'All' }, ...ORG_GROUPS.filter((g) => count.has(g.id) || filters.orgType === g.id)];
+  const groups = [{ id: 'All', label: 'All' }, ...ORG_GROUPS.filter((g) => count.has(g.id) || types.includes(g.id))];
 
   const list = all
-    .filter((o) => (filters.orgType === 'All' || o.group === filters.orgType) && matches(o))
+    .filter((o) => (!types.length || types.includes(o.group)) && matches(o))
     .sort((a, b) => (sort.desc ? -1 : 1) * compare(a, b, sort.key) || b.projects - a.projects || a.name.localeCompare(b.name));
 
+  // Buttons: "All" clears, a type is added or removed (several types at once); the phone select picks one.
+  const toggleGroup = (id: string) => { setFilters({ ...filters, orgType: id === 'All' ? 'All' : toggleValue(filters.orgType, id) }); setLimit(PAGE); };
   const pickGroup = (id: string) => { setFilters({ ...filters, orgType: id }); setLimit(PAGE); };
   const pickSort = (key: SortKey) => {
     const first = SORTS.find((s) => s.key === key)!.desc;
@@ -85,8 +90,8 @@ export default function Organizations() {
       {/* Types: every button visible on wider screens (they wrap); on phones a select. */}
       <div className="mt-8 hidden flex-wrap gap-2 sm:flex" role="group" aria-label="Type of organization">
         {groups.map((g) => (
-          <button key={g.id} type="button" aria-pressed={filters.orgType === g.id} className={chip(filters.orgType === g.id)} onClick={() => pickGroup(g.id)}>
-            {g.label} <span className={`tabular ml-1 ${filters.orgType === g.id ? 'text-ink-600' : 'text-ink-500'}`}>{(count.get(g.id) ?? 0).toLocaleString('en')}</span>
+          <button key={g.id} type="button" aria-pressed={isOn(g.id)} className={chip(isOn(g.id))} onClick={() => toggleGroup(g.id)}>
+            {g.label} <span className={`tabular ml-1 ${isOn(g.id) ? 'text-ink-600' : 'text-ink-500'}`}>{(count.get(g.id) ?? 0).toLocaleString('en')}</span>
           </button>
         ))}
       </div>
@@ -99,7 +104,8 @@ export default function Organizations() {
         </label>
         <label className="sm:hidden">
           <span className="sr-only">Type of organization</span>
-          <select value={filters.orgType} onChange={(e) => pickGroup(e.target.value)} className={select}>
+          <select value={types.length === 1 ? types[0] : types.length ? 'several' : 'All'} onChange={(e) => pickGroup(e.target.value)} className={select}>
+            {types.length > 1 && <option value="several" disabled>{types.length} types</option>}
             {groups.map((g) => <option key={g.id} value={g.id}>{g.id === 'All' ? 'All types' : g.label} ({(count.get(g.id) ?? 0).toLocaleString('en')})</option>)}
           </select>
         </label>

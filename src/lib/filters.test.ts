@@ -228,3 +228,13 @@ describe('grid decision and impact filters', () => {
     expect(applyFilters([operator, research], { ...EMPTY_FILTERS, impact: 'low' })).toEqual([research]);
   });
 });
+
+describe('several values in one filter', () => {
+  it('keep projects in any chosen country or tool', () => {
+    const es = record({ project_id: 'E', country_label: 'Spain', tool_name: 'PyPSA' });
+    const fr = record({ project_id: 'F', country_label: 'France', tool_name: 'PLEXOS' });
+    const de = record({ project_id: 'D', country_label: 'Germany', tool_name: 'PyPSA' });
+    expect(applyFilters([es, fr, de], { ...EMPTY_FILTERS, country: 'Spain|France' })).toEqual([es, fr]);
+    expect(applyFilters([es, fr, de], { ...EMPTY_FILTERS, toolName: 'PLEXOS|PyPSA', country: 'Germany|France' })).toEqual([fr, de]);
+  });
+});

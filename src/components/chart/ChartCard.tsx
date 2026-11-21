@@ -11,6 +11,8 @@ import { orgGroupLabel, sectorLabel, SECTORS, SOURCE_GROUP_LABELS } from '../../
 import { LICENSE_LABELS } from '../../lib/tools';
 import { DECISION_INFO } from '../../lib/insights';
 import { IMPACT_INFO, type Impact } from '../../lib/impact';
+import { MULTI, toggleValue, valuesOf } from '../../lib/multi';
+import MultiSelect from './MultiSelect';
 
 export type FilterKey = keyof Filters;
 
@@ -19,34 +21,34 @@ export const ALL_FIELDS: FilterKey[] = [
   'country', 'toolName', 'period', 'decision', 'impact', 'sector', 'license', 'toolCategory', 'orgType', 'evidenceStrength', 'sourceGroup', 'search',
 ];
 
-interface Field { label: string; options: (o: FilterOptions) => string[]; display: (v: string) => string; hint?: string }
+interface Field { label: string; options: (o: FilterOptions) => string[]; display: (v: string) => string }
 
 const FIELDS: Record<Exclude<FilterKey, 'search'>, Field> = {
   country: { label: 'Country', options: (o) => o.countries, display: (v) => v },
   toolName: { label: 'Tool', options: (o) => o.toolNames, display: (v) => v },
   period: { label: 'Study year', options: () => PERIODS, display: (p) => (p === 'All' ? 'All years' : `Last ${p} year${p === '1' ? '' : 's'} (${periodStart(p)}+)`) },
   undated: { label: 'Unknown year', options: () => ['include'], display: (v) => (v === 'include' ? 'Unknown years included' : 'Unknown years left out') },
-  sector: { label: 'Sector', options: () => SECTORS.map((s) => s.id), display: sectorLabel, hint: 'Who the organization is: industry and government, or academia.' },
+  sector: { label: 'Sector', options: () => SECTORS.map((s) => s.id), display: sectorLabel },
   license: { label: 'Licence', options: () => ['open_source', 'proprietary'], display: (v) => LICENSE_LABELS[v] ?? v },
   toolCategory: { label: 'Tool category', options: (o) => o.toolCategories, display: categoryLabel },
   orgType: { label: 'Organization type', options: (o) => o.orgTypes, display: orgGroupLabel },
   evidenceStrength: { label: 'Evidence strength', options: (o) => o.evidenceStrengths, display: (v) => v },
-  sourceGroup: { label: 'Evidence from', options: (o) => o.sourceGroups, display: (v) => SOURCE_GROUP_LABELS[v] ?? v,
-    hint: 'Where the evidence was published, whoever the organization is.' },
+  sourceGroup: { label: 'Evidence from', options: (o) => o.sourceGroups, display: (v) => SOURCE_GROUP_LABELS[v] ?? v},
   decision: { label: 'Grid decision', options: (o) => o.decisions, display: (v) => DECISION_INFO[v]?.short ?? v },
-  impact: { label: 'Impact', options: () => ['high', 'medium', 'low'], display: (v) => IMPACT_INFO[v as Impact]?.label ?? v,
-    hint: 'High: an operator, utility, regulator or ministry decided. Medium: their advisers. Lower: research.' },
+  impact: { label: 'Impact', options: () => ['high', 'medium', 'low'], display: (v) => IMPACT_INFO[v as Impact]?.label ?? v},
 };
 
 function chipText(key: FilterKey, value: string) {
-  return key === 'search' ? `“${value}”` : FIELDS[key].display(value);
+  if (key === 'search') return `“${value}”`;
+  const vs = MULTI.includes(key) ? valuesOf(value) : [value];
+  return vs.map(FIELDS[key].display).join(', ');
 }
 
-function Select({ label, value, options, display, hint, onChange }: {
-  label: string; value: string; options: string[]; display: (v: string) => string; hint?: string; onChange: (v: string) => void;
+function Select({ label, value, options, display, onChange }: {
+  label: string; value: string; options: string[]; display: (v: string) => string; onChange: (v: string) => void;
 }) {
   return (
-    <label className="flex flex-col gap-1 text-xs font-medium text-ink-400" title={hint}>
+    <label className="flex flex-col gap-1 text-xs font-medium text-ink-400">
       {label}
       <select
         value={value}
@@ -56,7 +58,6 @@ function Select({ label, value, options, display, hint, onChange }: {
         <option value="All">All</option>
         {options.map((o) => <option key={o} value={o}>{display(o)}</option>)}
       </select>
-      {hint && <span className="text-[11px] font-normal leading-snug text-ink-500">{hint}</span>}
     </label>
   );
 }
@@ -171,7 +172,9 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
                       </span>
                     </label>
                   ) : (
-                    <Select key={k} label={FIELDS[k].label} value={filters[k]} options={FIELDS[k].options(options)} display={FIELDS[k].display} hint={FIELDS[k].hint} onChange={(v) => set(k, v)} />
+                    MULTI.includes(k)
+                      ? <MultiSelect key={k} label={FIELDS[k].label} value={filters[k]} options={FIELDS[k].options(options)} display={FIELDS[k].display} onChange={(v) => set(k, v)} />
+                      : <Select key={k} label={FIELDS[k].label} value={filters[k]} options={FIELDS[k].options(options)} display={FIELDS[k].display} onChange={(v) => set(k, v)} />
                   ))}
                 </div>
                 {fields.includes('period') && undatedNote && <UndatedNote id={id} ignore={ignore} scope={scope} className="mt-3" />}
@@ -188,7 +191,20 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
       </div>
       {active.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-1.5">
-          {active.map((k) => filters[k] === DEFAULT_FILTERS[k] ? (
+          {active.flatMap((k) => filters[k] === DEFAULT_FILTERS[k] || !MULTI.includes(k) ? [k] : valuesOf(filters[k]).map((v) => `${k}=${v}`)).map((c) => {
+            // A multi-value filter shows one chip per value; its cross removes just that value.
+            const [k, v] = c.includes('=') ? (c.split(/=(.*)/s) as [FilterKey, string]) : [c as FilterKey, undefined];
+            if (v !== undefined) {
+              return (
+                <button key={c} type="button" onClick={() => set(k, toggleValue(filters[k], v))}
+                  className="flex max-w-full items-center gap-1 rounded-full border border-ink-700 bg-ink-800/60 px-2.5 py-1 text-xs text-ink-200 hover:border-ink-600"
+                  aria-label={`Remove filter ${FIELDS[k as Exclude<FilterKey, 'search'>].display(v)}`}>
+                  <span className="truncate">{FIELDS[k as Exclude<FilterKey, 'search'>].display(v)}</span>
+                  <X size={12} className="shrink-0" />
+                </button>
+              );
+            }
+            return filters[k] === DEFAULT_FILTERS[k] ? (
             <span key={k} className="flex max-w-full items-center rounded-full border border-ink-800 px-2.5 py-1 text-xs text-ink-400">{chipText(k, filters[k])}</span>
           ) : (
             <button
@@ -201,7 +217,8 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
               <span className="truncate">{chipText(k, filters[k])}</span>
               <X size={12} className="shrink-0" />
             </button>
-          ))}
+          );
+          })}
         </div>
       )}
       {years && undatedNote && <UndatedNote id={id} ignore={ignore} scope={scope} />}

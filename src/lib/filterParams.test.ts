@@ -36,4 +36,9 @@ describe('shared filters in the URL', () => {
     expect(searchToFilters(filtersToSearch(f))).toEqual(f);
     expect(filtersToSearch(f)).toContain('impact=high');
   });
+
+  it('round-trips several values in one filter', () => {
+    const f = { ...DEFAULT_FILTERS, country: 'Spain|France', toolName: 'PyPSA|PLEXOS' };
+    expect(searchToFilters(filtersToSearch(f))).toEqual(f);
+  });
 });

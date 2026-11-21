@@ -6,6 +6,7 @@ import MapLegend from '../components/charts/MapLegend';
 import Segmented from '../components/chart/Segmented';
 import ChartCard from '../components/chart/ChartCard';
 import { useChart } from '../lib/chartFilters';
+import { toggleValue, valuesOf } from '../lib/multi';
 import { isOpenSource } from '../lib/tools';
 import ToolLogo from '../components/common/ToolLogo';
 
@@ -86,14 +87,14 @@ export default function Geographic() {
   }, [records, metric]);
 
   const unplaced = records.filter((r) => !r.countries.length && r.geo_scope !== 'global').length;
-  const pick = (country: string) => setFilters({ ...filters, country: filters.country === country ? 'All' : country });
+  const pick = (country: string) => setFilters({ ...filters, country: toggleValue(filters.country, country) });
 
   return (
     <ChartCard
       id="map"
       years
       title="Where the tools are used"
-      description="Hover a country for the tools used there; click it to filter every chart to that country. Regional and global studies are counted below the map."
+      description="Hover a country for the tools used there; click countries to filter every chart to them. Regional and global studies are counted below the map."
       actions={
         <Segmented
           label="Metric"
@@ -106,7 +107,7 @@ export default function Geographic() {
       <div className="flex flex-col lg:flex-row lg:gap-4">
         <div className="min-w-0 flex-1">
           <WorldMap valueByCountry={mapValueByAtlasName} maxValue={maxValue} unit={metric === 'records' ? 'projects' : 'tools'}
-            details={(n) => <ToolList tools={atlasTools.get(n)} />} selected={filters.country === 'All' ? undefined : toAtlasName(filters.country)}
+            details={(n) => <ToolList tools={atlasTools.get(n)} />} selected={valuesOf(filters.country).map(toAtlasName)}
             onSelect={(n) => pick(atlasLabel.get(n) ?? n)} />
         </div>
         <MapLegend maxValue={maxValue} unitLabel={metric === 'records' ? 'Projects' : 'Tools'} />
@@ -121,7 +122,7 @@ export default function Geographic() {
         {rows.map((row, i) => (
           <li key={row.name} className="border-b border-ink-800/70">
             <button type="button" onClick={() => pick(row.name)} title={`Filter every chart to ${row.name}`}
-              className={`-mx-2 flex w-[calc(100%+1rem)] items-baseline justify-between gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-ink-800/50 ${filters.country === row.name ? 'text-ink-50' : ''}`}>
+              className={`-mx-2 flex w-[calc(100%+1rem)] items-baseline justify-between gap-3 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-ink-800/50 ${valuesOf(filters.country).includes(row.name) ? 'text-ink-50' : ''}`}>
               <span className="flex min-w-0 gap-3"><span className="tabular w-5 shrink-0 text-xs text-ink-600">{i + 1}</span><span className="truncate text-ink-200">{row.name}</span></span>
               <span className="tabular text-ink-300">{row.count}</span>
             </button>

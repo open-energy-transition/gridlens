@@ -25,8 +25,8 @@ interface WorldMapProps {
   details?: (name: string) => ReactNode;
   /** Click on a country (atlas name). */
   onSelect?: (name: string) => void;
-  /** Country shown as selected (atlas name). */
-  selected?: string;
+  /** Countries shown as selected (atlas names). */
+  selected?: string[];
 }
 
 export default function WorldMap({ valueByCountry, maxValue, onHover, unit = 'projects', details, onSelect, selected }: WorldMapProps) {
@@ -165,8 +165,8 @@ export default function WorldMap({ valueByCountry, maxValue, onHover, unit = 'pr
                     }}
                     onClick={() => value > 0 && onSelect?.(name)}
                     fill={isHovered ? MAP_HOVER : mapColorFor(value, maxValue)}
-                    stroke={selected === name ? '#f4efe6' : '#080a13'}
-                    strokeWidth={(selected === name ? 1.6 : 0.5) / position.zoom}
+                    stroke={selected?.includes(name) ? '#f4efe6' : '#080a13'}
+                    strokeWidth={(selected?.includes(name) ? 1.6 : 0.5) / position.zoom}
                     style={{ outline: 'none', cursor: 'pointer' }}
                   />
                 );
@@ -184,7 +184,7 @@ export default function WorldMap({ valueByCountry, maxValue, onHover, unit = 'pr
           <p className="font-semibold text-ink-50">{tooltip.name}</p>
           <p className="text-brand-300">{tooltip.value.toLocaleString()} {unit}</p>
           {tooltip.value > 0 && details?.(tooltip.name)}
-          {tooltip.value > 0 && onSelect && <p className="mt-1.5 text-[10px] text-ink-500">{selected === tooltip.name ? 'Click to clear the country filter' : 'Click to filter every chart'}</p>}
+          {tooltip.value > 0 && onSelect && <p className="mt-1.5 text-[10px] text-ink-500">{selected?.includes(tooltip.name) ? 'Click to remove this country from the filter' : selected?.length ? 'Click to add this country to the filter' : 'Click to filter every chart'}</p>}
         </div>
       )}
     </div>

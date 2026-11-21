@@ -4,6 +4,7 @@ import type { CatalogueRecord } from '../types';
 import ChartCard from '../components/chart/ChartCard';
 import EmptyState from '../components/common/EmptyState';
 import { useChart } from '../lib/chartFilters';
+import { single } from '../lib/multi';
 import { IMPACT_INFO, IMPACT_ORDER, projectImpact, rankProjects, type Impact } from '../lib/impact';
 import { orgGroup, orgGroupLabel } from '../lib/orgTypes';
 import { DECISION_INFO, DECISION_TYPES, decisionOf } from '../lib/insights';
@@ -67,7 +68,8 @@ export function ProjectRow({ r }: { r: CatalogueRecord }) {
  */
 export default function GridDecisions() {
   const { filters, records } = useChart('decisions');
-  const country = filters.country === 'All' ? undefined : filters.country;
+  // With one country chosen, its own studies come first.
+  const country = single(filters.country);
   const counts = useMemo(() => {
     const m = new Map<string, number>();
     for (const r of records) m.set(decisionOf(r), (m.get(decisionOf(r)) ?? 0) + 1);
