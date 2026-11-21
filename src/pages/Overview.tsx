@@ -40,11 +40,11 @@ function CatalogueUpdated() {
   const updated = catalogueUpdated();
   if (!updated) return null;
   return (
-    <div className="group relative mt-6 w-fit text-sm text-ink-400">
+    <div className="group relative mt-3 w-fit text-xs text-ink-400">
       <button type="button" className="underline decoration-ink-700 decoration-dotted underline-offset-4 hover:text-ink-200">
         Catalogue updated <span className="text-ink-200">{formatDate(updated)}</span>
       </button>
-      <div role="tooltip" className="invisible absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-ink-800 bg-ink-950 p-4 opacity-0 shadow-2xl transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
+      <div role="tooltip" className="invisible absolute left-0 top-full z-30 mt-2 w-72 max-w-[calc(100vw-3rem)] rounded-xl border border-ink-800 bg-ink-950 p-4 opacity-0 shadow-2xl transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
         <p className="mb-2 text-xs uppercase tracking-[0.14em] text-ink-500">Last search per tool</p>
         <ul className="space-y-1">
           {searchFreshness().map((t) => (
@@ -100,7 +100,6 @@ export default function Overview({ catalogue }: { catalogue: CatalogueRecord[] }
             </div>
           ))}
         </dl>
-        <CatalogueUpdated />
         {facts.openNow !== null && (
           <p className="mt-8 text-sm text-ink-400">
             <span className="text-brand-300">{facts.openNow}%</span> of {THIS_YEAR - 1}’s projects used an open-source tool
@@ -114,6 +113,7 @@ export default function Overview({ catalogue }: { catalogue: CatalogueRecord[] }
           <h2 className="text-xs uppercase tracking-[0.14em] text-ink-400">Latest in the data</h2>
           <Link href="/about/changelog" className="text-xs text-ink-400 hover:text-ink-100">All changes</Link>
         </div>
+        <CatalogueUpdated />
         <ol className="mt-4 space-y-4 border-l border-ink-800 pl-4">
           {(changelog as { date: string; title: string }[]).slice(0, 4).map((e) => (
             <li key={e.title} className="relative">
