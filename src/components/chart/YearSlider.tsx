@@ -18,30 +18,30 @@ export default function YearSlider({ id }: { id: string }) {
   );
 }
 
-/**
- * Projects whose year is unknown cannot be placed in a period. This line says how many are left out
- * (or included) and switches them in or out.
- */
-export function UndatedNote({ id, ignore = [] }: { id: string; ignore?: Parameters<typeof useChart>[1] }) {
-  const { filters, setFilters, catalogue } = useChart(id, ignore);
-  const n = useMemo(() => {
-    if (filters.period === 'All') return 0;
+/** Projects (with the other filters applied) whose year is unknown: the ones a period leaves out. */
+export function useUndatedCount(id: string, ignore: Parameters<typeof useChart>[1] = []) {
+  const { filters, catalogue } = useChart(id, ignore);
+  return useMemo(() => {
     const f = { ...filters, period: 'All' };
     for (const k of ignore ?? []) (f[k] as string) = 'All';
     return applyFilters(catalogue, f).filter((r) => !r.year).length;
   }, [catalogue, filters, ignore]);
-  if (!n) return null;
+}
+
+/**
+ * Projects whose year is unknown cannot be placed in a period. A tick box says how many there are and
+ * counts them in or out; shown whenever a period is set.
+ */
+export function UndatedNote({ id, ignore = [], className = 'mb-4' }: { id: string; ignore?: Parameters<typeof useChart>[1]; className?: string }) {
+  const { filters, setFilters } = useChart(id, ignore);
+  const n = useUndatedCount(id, ignore);
+  if (filters.period === 'All' || !n) return null;
   const included = filters.undated === 'include';
   return (
-    <p className="mb-4 flex items-start gap-2 text-xs text-ink-500">
-      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ink-600" aria-hidden="true" />
-      <span>
-      {included ? `Includes ${n.toLocaleString('en')} projects with an unknown year.` : `${n.toLocaleString('en')} projects with an unknown year are not counted.`}{' '}
-      <button type="button" onClick={() => setFilters({ ...filters, undated: included ? 'exclude' : 'include' })}
-        className="text-ink-300 underline decoration-ink-700 underline-offset-2 hover:text-ink-50">
-        {included ? 'Leave them out' : 'Include them'}
-      </button>
-      </span>
-    </p>
+    <label className={`flex w-fit cursor-pointer items-center gap-2 text-xs text-ink-400 hover:text-ink-200 ${className}`}>
+      <input type="checkbox" checked={included} onChange={(e) => setFilters({ ...filters, undated: e.target.checked ? 'include' : 'exclude' })}
+        className="h-4 w-4 cursor-pointer rounded border-ink-600 bg-ink-900 accent-brand-500" />
+      Include {n.toLocaleString('en')} projects with an unknown year
+    </label>
   );
 }

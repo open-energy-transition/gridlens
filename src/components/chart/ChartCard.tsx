@@ -119,7 +119,9 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
           </button>
           {fields.length > 0 && <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="Filters" className={`${iconBtn} ${active.length ? 'border-brand-500/70 text-brand-200' : ''}`}>
             <SlidersHorizontal size={15} />
-            <span className="hidden sm:inline">Filters</span>{active.length > 0 && <span className="rounded-full bg-brand-500/20 px-1.5 tabular-nums">{active.length}</span>}
+            <span className="hidden sm:inline">Filters</span>
+            {/* Always takes its space, so neighbouring controls (the year slider) never shift when a filter is set. */}
+            <span className={`min-w-5 rounded-full bg-brand-500/20 px-1.5 text-center tabular-nums ${active.length ? '' : 'invisible'}`}>{active.length || 0}</span>
           </button>}
           {open && (
             <>
@@ -156,6 +158,7 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
                     <Select key={k} label={FIELDS[k].label} value={filters[k]} options={FIELDS[k].options(options)} display={FIELDS[k].display} onChange={(v) => set(k, v)} />
                   ))}
                 </div>
+                {fields.includes('period') && <UndatedNote id={id} ignore={ignore} className="mt-3" />}
                 <div className="sticky -bottom-6 -mx-4 mt-4 flex justify-end gap-2 border-t border-ink-800 bg-ink-950 px-4 pb-1 pt-3 md:static md:mx-0 md:border-0 md:p-0">
                   {activeCount(filters) > 0 && (
                     <button type="button" onClick={() => setFilters({ ...DEFAULT_FILTERS, ...Object.fromEntries(ignore.map((k) => [k, filters[k]])) })} className="rounded-full border border-ink-700 px-4 py-2 text-sm text-ink-300 hover:text-ink-100">Clear all</button>
