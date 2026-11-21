@@ -35,7 +35,7 @@ export default function App() {
         <div key={route.page + (route.tool ?? '')}>
           {route.page === '/' && <Overview catalogue={catalogue} />}
           {route.page === '/tools' && <Tool tool={route.tool} />}
-          {route.page === '/organizations' && <Organizations catalogue={catalogue} />}
+          {route.page === '/organizations' && <Organizations />}
           {route.page === '/projects' && <Projects />}
           {route.page === '/about' && <Methodology catalogue={catalogue} />}
           {route.page === '/about/changelog' && <Changelog />}
