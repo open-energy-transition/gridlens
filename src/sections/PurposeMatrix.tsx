@@ -7,11 +7,12 @@ import ChartCard from '../components/chart/ChartCard';
 import Segmented from '../components/chart/Segmented';
 import EmptyState from '../components/common/EmptyState';
 import ToolLogo from '../components/common/ToolLogo';
+import { useUrlState } from '../lib/urlState';
 
 /** Which tools are used for which grid decision: a heat matrix of projects per tool and purpose. */
 export default function PurposeMatrix() {
   const { records } = useChart('purpose', ['decision']);
-  const [mode, setMode] = useState('count');
+  const [mode, setMode] = useUrlState('purpose_show', 'count');
   // Hovered cell: its row and column are highlighted, everything else dims slightly.
   const [at, setAt] = useState<{ r: number; c: number } | null>(null);
   // The last column holds projects whose source names no decision: shown, in a neutral colour, so the gap is visible.
@@ -23,6 +24,7 @@ export default function PurposeMatrix() {
   return (
     <ChartCard
       id="purpose"
+      data={() => m.rows.map((r) => ({ tool: r.tool, projects: r.total, ...Object.fromEntries(m.decisions.map((d, j) => [DECISION_INFO[d]?.short ?? d, r.counts[j]])) }))}
       years
       title="Which tool for which decision"
       description="Projects per tool and kind of grid decision. Hover a column for what it covers."

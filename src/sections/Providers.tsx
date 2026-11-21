@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import type { OrgEntry } from '../lib/insights';
 import { Link, slug } from '../lib/router';
 import EmptyState from '../components/common/EmptyState';
+import { useUrlState } from '../lib/urlState';
 
 const SHOWN = 12;
 
@@ -16,8 +16,10 @@ export function host(url: string): string {
 }
 
 /** Grid of companies with their tools and a quick link (website, or latest project when unknown). */
-export function ProviderList({ list }: { list: OrgEntry[] }) {
-  const [all, setAll] = useState(false);
+export function ProviderList({ list, id = 'providers' }: { list: OrgEntry[]; id?: string }) {
+  const [allParam, setAllParam] = useUrlState(`${id}_all`, '');
+  const all = allParam === '1';
+  const setAll = (v: boolean | ((x: boolean) => boolean)) => setAllParam((typeof v === 'function' ? v(all) : v) ? '1' : '');
   const shown = all ? list : list.slice(0, SHOWN);
   if (list.length === 0) return <EmptyState title="No consultancies documented for this selection yet" />;
   return (

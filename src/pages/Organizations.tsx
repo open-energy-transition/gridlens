@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { ArrowDown, ArrowUp, ArrowUpRight, Search } from 'lucide-react';
 import type { Filters } from '../types';
 import { Link, slug } from '../lib/router';
@@ -9,6 +9,7 @@ import { ORG_GROUPS, orgGroupLabel } from '../lib/orgTypes';
 import { host } from '../sections/Providers';
 import ChartCard from '../components/chart/ChartCard';
 import ToolLogo from '../components/common/ToolLogo';
+import { useUrlState } from '../lib/urlState';
 
 const PAGE = 40;
 // The type is picked with the buttons above the table; the panel holds the filters shared with the rest of the site.
@@ -32,9 +33,16 @@ function compare(a: OrgEntry, b: OrgEntry, key: SortKey): number {
 /** Every organization with the tools it uses. The filters are the site's shared ones: a country picked on the map applies here too. */
 export default function Organizations() {
   const { records, filters, setFilters } = useChart('organizations', ['orgType']);
-  const [q, setQ] = useState('');
-  const [limit, setLimit] = useState(PAGE);
-  const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>({ key: 'projects', desc: true });
+  const [q, setQ] = useUrlState('orgs_q', '');
+  const [limitParam, setLimitParam] = useUrlState('orgs_n', String(PAGE));
+  const limit = Math.max(PAGE, Number(limitParam) || PAGE);
+  const setLimit = (v: number | ((l: number) => number)) => setLimitParam(String(typeof v === 'function' ? v(limit) : v));
+  const [sortParam, setSortParam] = useUrlState('orgs_sort', 'projects-desc');
+  const sort = { key: (SORTS.some((s) => s.key === sortParam.split('-')[0]) ? sortParam.split('-')[0] : 'projects') as SortKey, desc: !sortParam.endsWith('-asc') };
+  const setSort = (f: { key: SortKey; desc: boolean } | ((s: { key: SortKey; desc: boolean }) => { key: SortKey; desc: boolean })) => {
+    const n = typeof f === 'function' ? f(sort) : f;
+    setSortParam(`${n.key}-${n.desc ? 'desc' : 'asc'}`);
+  };
 
   // Older links used ?type=consultancy for the organization type.
   useEffect(() => {
@@ -118,7 +126,7 @@ export default function Organizations() {
       </div>
 
       <div className="mt-6">
-        <ChartCard id="organizations" title={`${list.length.toLocaleString('en')} organizations`} years fields={FIELDS} ignore={['orgType']}>
+        <ChartCard id="organizations" data={() => list.map((x) => ({ organization: x.name, type: orgGroupLabel(x.group), projects: x.projects, latest_year: x.latestYear ?? '', tools: x.tools.join('; '), countries: x.countries.join('; '), website: x.website }))} title={`${list.length.toLocaleString('en')} organizations`} years fields={FIELDS} ignore={['orgType']}>
           <div className="-mx-4 overflow-hidden border-y border-ink-800/80 sm:-mx-6">
             <table className="w-full text-sm">
               <thead className="hidden bg-ink-900/60 text-left text-xs text-ink-500 md:table-header-group">

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { safe } from '../lib/filters';
 import { toAtlasName } from '../lib/countryAliases';
 import WorldMap from '../components/charts/WorldMap';
@@ -9,6 +9,7 @@ import { useChart } from '../lib/chartFilters';
 import { toggleValue, valuesOf } from '../lib/multi';
 import { isOpenSource } from '../lib/tools';
 import ToolLogo from '../components/common/ToolLogo';
+import { useUrlState } from '../lib/urlState';
 
 type Metric = 'records' | 'tools';
 
@@ -34,9 +35,10 @@ export function ToolList({ tools }: { tools?: Map<string, number> }) {
 export default function Geographic() {
   // The map keeps every country visible so another one can be picked; the country filter only marks it.
   const { records, filters, setFilters } = useChart('map', ['country']);
-  const [metric, setMetric] = useState<Metric>('tools');
+  const [metricParam, setMetric] = useUrlState('map_show', 'tools');
+  const metric = metricParam as Metric;
 
-  const { mapValueByAtlasName, maxValue, rows, multiCountryCount, globalCount, atlasTools, atlasLabel } = useMemo(() => {
+  const { valueByCountry, mapValueByAtlasName, maxValue, rows, multiCountryCount, globalCount, atlasTools, atlasLabel } = useMemo(() => {
     const recordCounts = new Map<string, number>();
     const toolSets = new Map<string, Set<string>>();
     const atlasRecordCounts = new Map<string, number>();
@@ -92,6 +94,7 @@ export default function Geographic() {
   return (
     <ChartCard
       id="map"
+      data={() => [...valueByCountry].sort((a, b) => b[1] - a[1]).map(([country, n]) => ({ country, [metric === 'records' ? 'projects' : 'distinct_tools']: n }))}
       years
       title="Where the tools are used"
       description="Hover a country for the tools used there; click countries to filter every chart to them. Regional and global studies are counted below the map."

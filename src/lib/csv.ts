@@ -53,9 +53,15 @@ export function toCsv(records: CatalogueRecord[], columns: (keyof CatalogueRecor
   return [header, ...rows].join('\n');
 }
 
-export function downloadCsv(filename: string, records: CatalogueRecord[], columns?: (keyof CatalogueRecord)[]): void {
-  const csv = toCsv(records, columns);
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+/** A table of plain rows (a chart's numbers) as CSV, columns in the order of the first row. */
+export function rowsToCsv(rows: Record<string, string | number | null | undefined>[]): string {
+  if (!rows.length) return '';
+  const cols = Object.keys(rows[0]);
+  return [cols.join(','), ...rows.map((r) => cols.map((c) => escapeCsvCell(r[c] ?? '')).join(','))].join('\n');
+}
+
+export function saveFile(filename: string, content: Blob | string, type = 'text/csv;charset=utf-8;'): void {
+  const blob = typeof content === 'string' ? new Blob([content], { type }) : content;
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
@@ -65,5 +71,10 @@ export function downloadCsv(filename: string, records: CatalogueRecord[], column
   document.body.removeChild(link);
   URL.revokeObjectURL(url);
 }
+
+export function downloadCsv(filename: string, records: CatalogueRecord[], columns?: (keyof CatalogueRecord)[]): void {
+  saveFile(filename, toCsv(records, columns));
+}
+
 
 export { ALL_COLUMNS };
