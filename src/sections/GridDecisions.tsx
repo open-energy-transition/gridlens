@@ -9,6 +9,7 @@ import { orgGroup, orgGroupLabel } from '../lib/orgTypes';
 import { DECISION_INFO, DECISION_TYPES, decisionOf } from '../lib/insights';
 import { Link, slug } from '../lib/router';
 import { filtersToSearch } from '../lib/filterParams';
+import { formatDate } from '../lib/dates';
 
 const IMPACT_DOT: Record<Impact, string> = { high: 'bg-brand-400', medium: 'bg-rose-400', low: 'bg-ink-500' };
 const PAGE = 6;
@@ -40,7 +41,7 @@ export function ProjectRow({ r }: { r: CatalogueRecord }) {
           ))}
         </p>
         <p className="mt-1 text-xs text-ink-500">
-          {[r.year, <Link key="t" href={`/tools/${slug(r.tool_name)}`} className="text-ink-300 hover:text-ink-50">{r.tool_name}</Link>,
+          {[<span key="d" className={r.year ? '' : 'italic text-ink-600'}>{formatDate(r.date, r.year)}</span>, <Link key="t" href={`/tools/${slug(r.tool_name)}`} className="text-ink-300 hover:text-ink-50">{r.tool_name}</Link>,
             <span key="w" title={r.countries.join(', ')}>{where}</span>, orgGroupLabel(orgGroup(r)),
             r.decision_basis !== 'documented' ? 'decision inferred' : null]
             .filter(Boolean)
@@ -91,6 +92,7 @@ export default function GridDecisions() {
   return (
     <ChartCard
       id="decisions"
+      years
       title="Grid decisions"
       description="What the tools are actually used to decide, with the most consequential examples first: projects in which a grid operator, utility, regulator or ministry used or commissioned the modelling."
     >

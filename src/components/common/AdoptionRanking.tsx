@@ -27,6 +27,7 @@ export default function AdoptionRanking() {
   return (
     <ChartCard
       id="adoption"
+      years
       title="Most adopted tools"
       description="Organizations with documented use of each tool. An organization counts once per tool, however many projects it ran."
       actions={

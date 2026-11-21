@@ -4,9 +4,11 @@ import { contributorsInWindow, CONTRIBUTORS, WINDOWS, windowLabel, type Contribu
 import { Link, slug } from '../lib/router';
 import { isOpenSource, TOOLS, toolInfo } from '../lib/tools';
 import { useChart } from '../lib/chartFilters';
+import { DEFAULT_FILTERS } from '../types';
 import ChartCard from '../components/chart/ChartCard';
 import EmptyState from '../components/common/EmptyState';
 import ToolLogo from '../components/common/ToolLogo';
+import StepSlider from '../components/chart/StepSlider';
 
 const OPEN_TOOLS = TOOLS.filter((t) => t.license === 'open_source' && CONTRIBUTORS.tools[t.name]).map((t) => t.name);
 const SHOWN = 12;
@@ -29,19 +31,7 @@ export function ContributionCaveat() {
 
 /** Slider over the contribution window: 3 months to 10 years. */
 export function WindowSlider({ months, onChange }: { months: number; onChange: (m: number) => void }) {
-  const i = Math.max(0, WINDOWS.indexOf(months));
-  return (
-    <label className="flex min-w-0 flex-1 basis-64 items-center gap-3 text-xs text-ink-400 sm:min-w-72">
-      <span className="shrink-0">Last</span>
-      <input
-        type="range" min={0} max={WINDOWS.length - 1} step={1} value={i}
-        onChange={(e) => onChange(WINDOWS[Number(e.target.value)])}
-        aria-valuetext={windowLabel(months)}
-        className="h-1.5 min-w-0 flex-1 cursor-pointer appearance-none rounded-full bg-ink-800 accent-brand-500"
-      />
-      <span className="tabular w-20 shrink-0 text-sm text-ink-100">{windowLabel(months)}</span>
-    </label>
-  );
+  return <StepSlider steps={WINDOWS} value={months} onChange={onChange} label={windowLabel} />;
 }
 
 /** Organizations ranked by pull requests merged in the window; each name links to the organization. */
@@ -128,7 +118,7 @@ export default function Builders() {
       choices={CHOICES}
       actions={<WindowSlider months={months} onChange={setMonths} />}
     >
-      {(['country', 'sector', 'orgType', 'period'] as const).some((k) => filters[k] !== 'All') && (
+      {(['country', 'sector', 'orgType', 'period'] as const).some((k) => filters[k] !== DEFAULT_FILTERS[k]) && (
         <p className="mb-4 text-xs text-ink-500">Code contributions are not tied to a country, sector or study year, so those filters don’t change this ranking.</p>
       )}
       {tools.length === 0 ? (

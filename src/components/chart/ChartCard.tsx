@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Check, Link2, Search, SlidersHorizontal, X } from 'lucide-react';
 import type { Filters } from '../../types';
-import { EMPTY_FILTERS } from '../../types';
+import { DEFAULT_FILTERS } from '../../types';
+import YearSlider, { UndatedNote } from './YearSlider';
 import { useChart, type FilterOptions } from '../../lib/chartFilters';
 import { activeCount, filtersToSearch } from '../../lib/filterParams';
 import { categoryLabel } from '../../lib/toolCategories';
@@ -21,7 +22,8 @@ interface Field { label: string; options: (o: FilterOptions) => string[]; displa
 const FIELDS: Record<Exclude<FilterKey, 'search'>, Field> = {
   country: { label: 'Country', options: (o) => o.countries, display: (v) => v },
   toolName: { label: 'Tool', options: (o) => o.toolNames, display: (v) => v },
-  period: { label: 'Study year', options: () => PERIODS, display: (p) => `Last ${p} years (${periodStart(p)}+)` },
+  period: { label: 'Study year', options: () => PERIODS, display: (p) => (p === 'All' ? 'All years' : `Last ${p} year${p === '1' ? '' : 's'} (${periodStart(p)}+)`) },
+  undated: { label: 'Unknown year', options: () => ['include'], display: (v) => (v === 'include' ? 'Unknown years included' : 'Unknown years left out') },
   sector: { label: 'Sector', options: () => SECTORS.map((s) => s.id), display: sectorLabel },
   license: { label: 'Licence', options: () => ['open_source', 'proprietary'], display: (v) => LICENSE_LABELS[v] ?? v },
   toolCategory: { label: 'Tool category', options: (o) => o.toolCategories, display: categoryLabel },
@@ -56,8 +58,10 @@ function Select({ label, value, options, display, onChange }: {
  * Card for one chart: title, a filter button (popover on desktop, bottom sheet on phones) for the filters
  * every chart shares, the active ones as removable chips, and a button that copies a link to this view.
  */
-export default function ChartCard({ id, title, description, fields = ALL_FIELDS, actions, plain = false, ignore = [], choices, children }: {
+export default function ChartCard({ id, title, description, fields = ALL_FIELDS, actions, plain = false, ignore = [], choices, years = false, children }: {
   id: string;
+  /** Show the study-year slider (shared by every chart) and how many undated projects it leaves out. */
+  years?: boolean;
   /** Filters this view sets itself (a tool page's tool): not counted, not offered. */
   ignore?: FilterKey[];
   /** Narrower choices for this chart (e.g. only the open-source tools). */
@@ -77,7 +81,7 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const panel = useRef<HTMLDivElement>(null);
-  const active = fields.filter((k) => !ignore.includes(k) && filters[k].trim() !== EMPTY_FILTERS[k]);
+  const active = fields.filter((k) => !ignore.includes(k) && filters[k].trim() !== DEFAULT_FILTERS[k]);
 
   useEffect(() => {
     if (!open) return;
@@ -108,7 +112,7 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
           {title && <h3 className="font-display text-xl font-medium text-ink-50">{title}</h3>}
           {description && <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-400">{description}</p>}
         </div>
-        {actions && <div className="order-3 flex basis-full flex-wrap items-center gap-2 lg:order-2 lg:basis-auto">{actions}</div>}
+        {(actions || years) && <div className="order-3 flex basis-full flex-wrap items-center gap-x-4 gap-y-2 lg:order-2 lg:basis-auto">{years && <YearSlider id={id} />}{actions}</div>}
         <div className="relative order-2 flex items-center gap-2 lg:order-3">
           <button type="button" onClick={copyLink} className={iconBtn} aria-label={`Copy link to ${title ?? 'this view'}`} title="Copy link to this view">
             {copied ? <Check size={15} /> : <Link2 size={15} />}
@@ -154,7 +158,7 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
                 </div>
                 <div className="sticky -bottom-6 -mx-4 mt-4 flex justify-end gap-2 border-t border-ink-800 bg-ink-950 px-4 pb-1 pt-3 md:static md:mx-0 md:border-0 md:p-0">
                   {activeCount(filters) > 0 && (
-                    <button type="button" onClick={() => setFilters({ ...EMPTY_FILTERS, ...Object.fromEntries(ignore.map((k) => [k, filters[k]])) })} className="rounded-full border border-ink-700 px-4 py-2 text-sm text-ink-300 hover:text-ink-100">Clear all</button>
+                    <button type="button" onClick={() => setFilters({ ...DEFAULT_FILTERS, ...Object.fromEntries(ignore.map((k) => [k, filters[k]])) })} className="rounded-full border border-ink-700 px-4 py-2 text-sm text-ink-300 hover:text-ink-100">Clear all</button>
                   )}
                   <button type="button" onClick={() => setOpen(false)} className="rounded-full bg-ink-50 px-4 py-2 text-sm font-medium text-ink-950 hover:bg-white">Done</button>
                 </div>
@@ -169,7 +173,7 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
             <button
               key={k}
               type="button"
-              onClick={() => set(k, EMPTY_FILTERS[k])}
+              onClick={() => set(k, DEFAULT_FILTERS[k])}
               className="flex max-w-full items-center gap-1 rounded-full border border-ink-700 bg-ink-800/60 px-2.5 py-1 text-xs text-ink-200 hover:border-ink-600"
               aria-label={`Remove filter ${chipText(k, filters[k])}`}
             >
@@ -179,6 +183,7 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
           ))}
         </div>
       )}
+      {years && <UndatedNote id={id} ignore={ignore} />}
       {children}
     </div>
   );

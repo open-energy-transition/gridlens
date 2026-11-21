@@ -19,7 +19,7 @@ export function uniqSorted(records: CatalogueRecord[], field: keyof CatalogueRec
 }
 
 /** Periods offered in the filter, in years back from the current year (inclusive). */
-export const PERIODS = ['5', '10', '20'];
+export const PERIODS = ['1', '2', '3', '5', '10', '15', '20'];
 
 /** First year of a period: the last 5 years in 2026 are 2022–2026. */
 export function periodStart(period: string, thisYear = new Date().getFullYear()): number {
@@ -30,8 +30,8 @@ export function applyFilters(records: CatalogueRecord[], filters: Filters, thisY
   const search = filters.search.trim().toLowerCase();
   const since = filters.period === 'All' ? null : periodStart(filters.period, thisYear);
   return records.filter((r) => {
-    // Undated studies are left out of a period: we cannot say they are recent.
-    if (since !== null && (r.year ?? 0) < since) return false;
+    // Undated studies are left out of a period (we cannot say they are recent) unless the reader includes them.
+    if (since !== null && (r.year ? r.year < since : filters.undated !== 'include')) return false;
     if (filters.country !== 'All' && coversCountry(r, filters.country) === null) return false;
     if (filters.orgType !== 'All' && !r.organizations.some((o) => orgGroup(o) === filters.orgType)) return false;
     if (filters.sector !== 'All' && !r.organizations.some((o) => sectorOf(o) === filters.sector)) return false;

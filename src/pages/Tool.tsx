@@ -8,7 +8,7 @@ import { projectImpact } from '../lib/impact';
 import { orgGroupLabel } from '../lib/orgTypes';
 import { categoryLabel, splitCategories } from '../lib/toolCategories';
 import { toAtlasName } from '../lib/countryAliases';
-import { OPEN_SOURCE, PROPRIETARY } from '../lib/colors';
+import { OPEN_SOURCE, PROPRIETARY, UNKNOWN } from '../lib/colors';
 import { Link, slug } from '../lib/router';
 import HorizontalBarChart from '../components/charts/HorizontalBarChart';
 import WorldMap from '../components/charts/WorldMap';
@@ -56,8 +56,12 @@ function ToolProfile({ name }: { name: string }) {
   }, [countries]);
   const decisions = useMemo(() => {
     const m = new Map<string, number>();
-    for (const r of records) if (decisionOf(r) !== OTHER_DECISION) m.set(decisionOf(r), (m.get(decisionOf(r)) ?? 0) + 1);
-    return [...m].map(([d, c]) => ({ name: DECISION_INFO[d]?.short ?? d, count: c })).sort((a, b) => b.count - a.count);
+    for (const r of records) m.set(decisionOf(r), (m.get(decisionOf(r)) ?? 0) + 1);
+    // Projects whose source names no decision stay visible, last, so the gap in the data shows.
+    const other = m.get(OTHER_DECISION);
+    m.delete(OTHER_DECISION);
+    const rows = [...m].map(([d, c]) => ({ name: DECISION_INFO[d]?.short ?? d, count: c })).sort((a, b) => b.count - a.count);
+    return other ? [...rows, { name: DECISION_INFO[OTHER_DECISION].short, count: other }] : rows;
   }, [records]);
   const notable = useMemo(
     () => records
@@ -100,7 +104,7 @@ function ToolProfile({ name }: { name: string }) {
         </div>
       </header>
 
-      <ChartCard id="tool" plain ignore={['toolName', 'license']} fields={ALL_FIELDS.filter((f) => f !== 'toolName' && f !== 'license')}
+      <ChartCard id="tool" plain years ignore={['toolName', 'license']} fields={ALL_FIELDS.filter((f) => f !== 'toolName' && f !== 'license')}
         description={records.length === total ? `${total === 1 ? 'One documented project' : `All ${total} documented projects`}. Filter by country, period, sector or type of organization.` : `${records.length} of ${total} projects match the filters.`}>
         <dl className="grid grid-cols-2 gap-6 border-y border-ink-800/80 py-6 sm:grid-cols-4">
           {[
@@ -125,8 +129,8 @@ function ToolProfile({ name }: { name: string }) {
                 selected={filters.country === 'All' ? undefined : toAtlasName(filters.country)}
                 onSelect={(n) => { const c = [...countries.keys()].find((k) => toAtlasName(k) === n) ?? n; setFilters({ ...filters, country: filters.country === c ? 'All' : c }); }} />
             </Panel>
-            <Panel title="Used for" note="Projects per kind of grid decision, where the source names one.">
-              {decisions.length ? <HorizontalBarChart data={decisions} colorOf={() => color} unit="projects" /> : <p className="text-sm text-ink-500">No decision stated in the sources yet.</p>}
+            <Panel title="Used for" note="Projects per kind of grid decision; “Not specified” where the source names none.">
+              {decisions.length ? <HorizontalBarChart data={decisions} colorOf={(n) => (n === DECISION_INFO[OTHER_DECISION].short ? UNKNOWN : color)} unit="projects" /> : <p className="text-sm text-ink-500">No decision stated in the sources yet.</p>}
             </Panel>
             <Panel title="Projects per year" note={`Projects with a known year, ${THIS_YEAR - 14}–${THIS_YEAR}. ${THIS_YEAR} is still in progress.`}>
               <YearBars years={projectsPerYear(records, THIS_YEAR - 14, THIS_YEAR)} split={false} color={color} />
