@@ -2,7 +2,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { useChart } from '../lib/chartFilters';
 import { decisionOf, DECISION_INFO, OTHER_DECISION, organizationDirectory, projectsPerYear, serviceProviders } from '../lib/insights';
-import { CONTRIBUTORS, contributorsInWindow } from '../lib/contributors';
+import { CONTRIBUTORS, contributorsInWindow, type Metric } from '../lib/contributors';
 import { TOOLS, toolInfo, isOpenSource } from '../lib/tools';
 import { projectImpact } from '../lib/impact';
 import { orgGroupLabel } from '../lib/orgTypes';
@@ -18,7 +18,7 @@ import LicenseBadge from '../components/common/LicenseBadge';
 import ToolLogo from '../components/common/ToolLogo';
 import EmptyState from '../components/common/EmptyState';
 import { ProjectRow } from '../sections/GridDecisions';
-import { ContributionCaveat, ContributionSource, ContributorBars, WindowSlider } from '../sections/Builders';
+import { ContributionCaveat, ContributionSource, ContributorBars, MetricSwitch, WindowSlider } from '../sections/Builders';
 import { ProviderList } from '../sections/Providers';
 
 const THIS_YEAR = new Date().getFullYear();
@@ -72,7 +72,8 @@ function ToolProfile({ name }: { name: string }) {
   );
   const providers = useMemo(() => serviceProviders(records), [records]);
   const [months, setMonths] = useState(12);
-  const builders = useMemo(() => contributorsInWindow([name], months), [name, months]);
+  const [metric, setMetric] = useState<Metric>('prs');
+  const builders = useMemo(() => contributorsInWindow([name], months, CONTRIBUTORS, metric), [name, months, metric]);
   const gh = CONTRIBUTORS.tools[name];
   const categories = [...new Set(records.flatMap((r) => splitCategories(r.tool_category)))].filter((c) => c !== 'unspecified' && c !== 'other');
 
@@ -160,9 +161,9 @@ function ToolProfile({ name }: { name: string }) {
       {gh && (
         <div className="mt-6">
           <Panel id="builders" title={`Who builds ${name}`}
-            note="Organizations whose people had the most pull requests merged into the tool’s code in the chosen period.">
-            <div className="mb-4 flex"><WindowSlider months={months} onChange={setMonths} /></div>
-            <ContributorBars orgs={builders} />
+            note="Organizations whose people contribute most to the tool’s code in the chosen period, by the “Company” on their GitHub profile.">
+            <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2"><MetricSwitch value={metric} onChange={setMetric} /><WindowSlider months={months} onChange={setMonths} /></div>
+            <ContributorBars orgs={builders} metric={metric} />
             <ContributionSource tools={[name]} />
             <ContributionCaveat />
           </Panel>
