@@ -35,27 +35,39 @@ const PATHS = [
   { who: 'Researchers', what: 'Every project with its sources, as CSV', href: '/projects' },
 ];
 
-/** When the catalogue was last searched; hover or tap for each tool's last search, stalest first. */
-function CatalogueUpdated() {
+/** How fresh the catalogue is: the latest search, how many tools have had one, and each tool's last search. */
+function ToolUpdateStats() {
   const updated = catalogueUpdated();
+  const tools = searchFreshness();
+  const searched = tools.filter((t) => t.lastSearched);
   if (!updated) return null;
   return (
-    <div className="group relative mt-6 w-fit text-sm text-ink-400">
-      <button type="button" className="underline decoration-ink-700 decoration-dotted underline-offset-4 hover:text-ink-200">
-        Catalogue updated <span className="text-ink-200">{formatDate(updated)}</span>
-      </button>
-      <div role="tooltip" className="invisible absolute left-0 top-full z-30 mt-2 w-72 rounded-xl border border-ink-800 bg-ink-950 p-4 opacity-0 shadow-2xl transition-opacity group-hover:visible group-hover:opacity-100 group-focus-within:visible group-focus-within:opacity-100">
-        <p className="mb-2 text-xs uppercase tracking-[0.14em] text-ink-500">Last search per tool</p>
-        <ul className="space-y-1">
-          {searchFreshness().map((t) => (
+    <section aria-labelledby="tool-update-stats" className="mt-5 border-t border-ink-800 pt-4">
+      <h2 id="tool-update-stats" className="text-xs uppercase tracking-[0.14em] text-ink-400">Tool update stats</h2>
+      <dl className="mt-3 grid grid-cols-2 gap-3">
+        <div>
+          <dd className="font-display text-xl text-ink-50">{formatDate(updated)}</dd>
+          <dt className="text-xs text-ink-500">latest search</dt>
+        </div>
+        <div>
+          <dd className="font-display tabular text-xl text-ink-50">{searched.length}<span className="text-ink-500"> / {tools.length}</span></dd>
+          <dt className="text-xs text-ink-500">tracked tools searched in depth</dt>
+        </div>
+      </dl>
+      <details className="group mt-3">
+        <summary className="cursor-pointer list-none text-xs text-brand-300 hover:text-brand-200 [&::-webkit-details-marker]:hidden">
+          <span className="group-open:hidden">Last search per tool</span><span className="hidden group-open:inline">Hide</span>
+        </summary>
+        <ul className="mt-2 space-y-1">
+          {tools.map((t) => (
             <li key={t.name} className="flex justify-between gap-4 text-xs">
               <Link href={`/tools/${toolSlug(t.name)}`} className="text-ink-200 hover:text-brand-200">{t.name}</Link>
               <span className={t.lastSearched ? 'tabular text-ink-400' : 'text-ink-500'}>{t.lastSearched ? formatDate(t.lastSearched) : 'not yet'}</span>
             </li>
           ))}
         </ul>
-      </div>
-    </div>
+      </details>
+    </section>
   );
 }
 
@@ -100,7 +112,6 @@ export default function Overview({ catalogue }: { catalogue: CatalogueRecord[] }
             </div>
           ))}
         </dl>
-        <CatalogueUpdated />
         {facts.openNow !== null && (
           <p className="mt-8 text-sm text-ink-400">
             <span className="text-brand-300">{facts.openNow}%</span> of {THIS_YEAR - 1}’s projects used an open-source tool
@@ -123,6 +134,7 @@ export default function Overview({ catalogue }: { catalogue: CatalogueRecord[] }
             </li>
           ))}
         </ol>
+        <ToolUpdateStats />
       </aside>
       </div>
 
