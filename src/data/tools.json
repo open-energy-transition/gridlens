@@ -12,5 +12,6 @@
   {"name": "INTEGRAL", "vendor": "FGH", "license": "proprietary", "url": "https://www.fgh-ma.de/en/products/integral", "categories": ["other"]},
   {"name": "Sienna", "vendor": "NREL", "license": "open_source", "licenseName": "BSD-3-Clause", "url": "https://www.nrel.gov/analysis/sienna.html", "github_orgs": ["Sienna-Platform"], "categories": ["capacity_expansion", "production_cost", "power_flow_dynamics"]},
   {"name": "Balmorel", "vendor": "Balmorel community", "license": "open_source", "licenseName": "ISC", "url": "https://github.com/balmorelcommunity/Balmorel", "github_orgs": ["balmorelcommunity"], "categories": ["capacity_expansion", "production_cost"]},
-  {"name": "Antares", "vendor": "RTE", "license": "open_source", "licenseName": "MPL-2.0", "url": "https://antares-simulator.org", "github_orgs": ["AntaresSimulatorTeam"], "categories": ["capacity_expansion", "production_cost"]}
+  {"name": "Antares", "vendor": "RTE", "license": "open_source", "licenseName": "MPL-2.0", "url": "https://antares-simulator.org", "github_orgs": ["AntaresSimulatorTeam"], "categories": ["capacity_expansion", "production_cost"]},
+  {"name": "PowSyBl", "vendor": "LF Energy (started by RTE)", "license": "open_source", "licenseName": "MPL-2.0", "url": "https://www.powsybl.org", "github_orgs": ["powsybl"], "categories": ["power_flow_dynamics"]}
 ]
