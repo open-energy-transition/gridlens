@@ -41,7 +41,9 @@
    "rte-france",
    "RTE France",
    "Meritis/RTE",
-   "Réseau de Transport d'Électricité"
+   "Réseau de Transport d'Électricité",
+   "RTE (Réseau de Transport d'Electricité)",
+   "Réseau de Transport d'Electricité"
   ],
   "url": "https://www.rte-france.com"
  },
@@ -90,7 +92,9 @@
    "PyPSA",
    "actions",
    "anthropics",
-   "pypsa-meets-earth"
+   "pypsa-meets-earth",
+   "dynawo",
+   "powsybl"
   ]
  },
  "Stanford University": {
@@ -162,5 +166,24 @@
  "Lawrence Berkeley Lab": {
   "aliases": [],
   "url": "https://www.lbl.gov"
+ },
+ "AIA": {
+  "aliases": [
+   "grupoaia",
+   "Grupo AIA"
+  ],
+  "url": "https://www.aia.es"
+ },
+ "Artelys": {
+  "aliases": [],
+  "url": "https://www.artelys.com"
+ },
+ "Silicom": {
+  "aliases": [],
+  "url": "https://www.silicom.fr"
+ },
+ "Aubay": {
+  "aliases": [],
+  "url": "https://www.aubay.com"
  }
 }
