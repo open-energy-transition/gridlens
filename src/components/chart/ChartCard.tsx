@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { Check, Link2, Search, SlidersHorizontal, X } from 'lucide-react';
+import { Check, Download, ImageDown, Link2, Search, SlidersHorizontal, X } from 'lucide-react';
+import { flushSync } from 'react-dom';
+import { rowsToCsv, saveFile, toCsv } from '../../lib/csv';
 import type { Filters } from '../../types';
 import { DEFAULT_FILTERS, type CatalogueRecord } from '../../types';
 import YearSlider, { UndatedNote } from './YearSlider';
@@ -66,7 +68,7 @@ function Select({ label, value, options, display, onChange }: {
  * Card for one chart: title, a filter button (popover on desktop, bottom sheet on phones) for the filters
  * every chart shares, the active ones as removable chips, and a button that copies a link to this view.
  */
-export default function ChartCard({ id, title, description, fields = ALL_FIELDS, actions, plain = false, ignore = [], choices, years = false, undatedNote = true, scope, className = '', children }: {
+export default function ChartCard({ id, title, description, fields = ALL_FIELDS, actions, plain = false, ignore = [], choices, years = false, undatedNote = true, scope, className = '', data, children }: {
   id: string;
   /** Extra classes for the card frame (e.g. h-full to match its neighbours in a grid row). */
   className?: string;
@@ -88,12 +90,16 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
   fields?: FilterKey[];
   /** Extra controls next to the filter button (e.g. a metric switch). */
   actions?: ReactNode;
+  /** The numbers behind the chart, for "Download data" (default: the projects it counts). */
+  data?: () => Record<string, string | number | null | undefined>[];
   children: ReactNode;
 }) {
   const { filters, setFilters, records, catalogue, options: all } = useChart(id, ignore);
   const options = { ...all, ...choices };
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const card = useRef<HTMLDivElement>(null);
   const panel = useRef<HTMLDivElement>(null);
   // Filters set away from their defaults (the badge on the Filters button).
   const changed = fields.filter((k) => !ignore.includes(k) && filters[k].trim() !== DEFAULT_FILTERS[k]).length;
@@ -121,26 +127,54 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
     setTimeout(() => setCopied(false), 1500);
   }
 
+  const name = `gridlens-${id}`;
+  function downloadData() {
+    saveFile(`${name}.csv`, data ? rowsToCsv(data()) : toCsv(records));
+  }
+  // The card as a PNG, without its controls, with the source and the link to this view underneath.
+  async function downloadImage() {
+    if (!card.current) return;
+    flushSync(() => setExporting(true));
+    try {
+      const { toPng } = await import('html-to-image');
+      const png = await toPng(card.current, {
+        pixelRatio: 2, backgroundColor: '#080a13',
+        filter: (n) => !(n instanceof HTMLElement && n.dataset.noexport !== undefined),
+      });
+      const a = document.createElement('a');
+      a.href = png; a.download = `${name}.png`; a.click();
+    } finally {
+      setExporting(false);
+    }
+  }
+
   const set = (k: FilterKey, v: string) => setFilters({ ...filters, [k]: v });
-  const iconBtn = 'flex h-9 items-center gap-1.5 rounded-full border border-ink-700/80 px-3 text-xs font-medium text-ink-300 transition-colors hover:border-ink-500 hover:text-ink-50';
+  const iconBtn = 'flex h-9 items-center gap-1.5 rounded-full border border-ink-700/80 px-2.5 text-xs font-medium text-ink-300 transition-colors hover:border-ink-500 hover:text-ink-50';
 
   return (
-    <div className={`@container ${plain ? '' : 'rounded-2xl border border-ink-800/80 bg-ink-900/40 p-4 sm:p-6'} ${className}`}>
-      <div className="mb-4 flex flex-wrap items-start gap-3">
-        <div className="order-1 min-w-0 flex-1 basis-48">
+    <div ref={card} className={`@container ${plain ? '' : 'rounded-2xl border border-ink-800/80 bg-ink-900/40 p-4 sm:p-6'} ${className}`}>
+      {/* Title left and the four buttons (copy link, image, data, filters) top right in every card; chart controls below. */}
+      <div className="mb-4 flex flex-col gap-3">
+        <div className="flex items-start gap-3">
+        <div className="min-w-0 flex-1">
           {title && <h3 className="font-display text-xl font-medium text-ink-50">{title}</h3>}
           {description && <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-400">{description}</p>}
         </div>
-        {(actions || years) && <div className="order-3 flex basis-full flex-wrap items-center gap-x-4 gap-y-2 @5xl:order-2 @5xl:basis-auto">{years && <YearSlider id={id} />}{actions}</div>}
-        <div className="relative order-2 flex items-center gap-2 @5xl:order-3">
+        <div data-noexport className="relative flex shrink-0 items-center gap-1.5 sm:gap-2">
           <button type="button" onClick={copyLink} className={iconBtn} aria-label={`Copy link to ${title ?? 'this view'}`} title="Copy link to this view">
             {copied ? <Check size={15} /> : <Link2 size={15} />}
           </button>
+          <button type="button" onClick={downloadImage} className={iconBtn} aria-label={`Download ${title ?? 'this view'} as an image`} title="Download image (PNG)">
+            <ImageDown size={15} />
+          </button>
+          <button type="button" onClick={downloadData} className={iconBtn} aria-label={`Download the data of ${title ?? 'this view'}`} title="Download data (CSV)">
+            <Download size={15} />
+          </button>
           {fields.length > 0 && <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="Filters" className={`${iconBtn} ${changed ? 'border-brand-500/70 text-brand-200' : ''}`}>
             <SlidersHorizontal size={15} />
-            <span className="hidden sm:inline">Filters</span>
+            <span className="hidden @xl:inline">Filters</span>
             {/* Always takes its space, so neighbouring controls (the year slider) never shift when a filter is set. */}
-            <span className={`min-w-5 rounded-full bg-brand-500/20 px-1.5 text-center tabular-nums ${changed ? '' : 'invisible hidden sm:inline-block'}`}>{changed || 0}</span>
+            <span className={`min-w-5 rounded-full bg-brand-500/20 px-1.5 text-center tabular-nums ${changed ? '' : 'invisible hidden @xl:inline-block'}`}>{changed || 0}</span>
           </button>}
           {open && (
             <>
@@ -190,6 +224,8 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
             </>
           )}
         </div>
+        </div>
+        {(actions || years) && <div data-noexport className="flex flex-wrap items-center gap-x-4 gap-y-2">{years && <YearSlider id={id} />}{actions}</div>}
       </div>
       {active.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-1.5">
@@ -223,8 +259,9 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
           })}
         </div>
       )}
-      {years && undatedNote && <UndatedNote id={id} ignore={ignore} scope={scope} />}
+      {years && undatedNote && <div data-noexport><UndatedNote id={id} ignore={ignore} scope={scope} /></div>}
       {children}
+      {exporting && <p className="mt-5 text-xs text-ink-500">GridLens · {window.location.host}{window.location.pathname}{window.location.search}</p>}
     </div>
   );
 }

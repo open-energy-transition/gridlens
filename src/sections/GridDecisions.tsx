@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import type { CatalogueRecord } from '../types';
 import ChartCard from '../components/chart/ChartCard';
 import EmptyState from '../components/common/EmptyState';
 import { useChart } from '../lib/chartFilters';
-import { single } from '../lib/multi';
+import { matcher, single, valuesOf } from '../lib/multi';
+import { useUrlState } from '../lib/urlState';
 import { IMPACT_INFO, IMPACT_ORDER, projectImpact, rankProjects, type Impact } from '../lib/impact';
 import { orgGroup, orgGroupLabel } from '../lib/orgTypes';
 import { DECISION_INFO, DECISION_TYPES, decisionOf } from '../lib/insights';
@@ -67,27 +68,29 @@ export function ProjectRow({ r }: { r: CatalogueRecord }) {
  * With a country filter, that country's own studies come before multi-country and global ones.
  */
 export default function GridDecisions() {
-  const { filters, records } = useChart('decisions');
+  // The tabs are the shared grid-decision filter, so a tab is kept in the link and applies to the other charts.
+  const { filters, setFilters, records: all } = useChart('decisions', ['decision']);
   // With one country chosen, its own studies come first.
   const country = single(filters.country);
   const counts = useMemo(() => {
     const m = new Map<string, number>();
-    for (const r of records) m.set(decisionOf(r), (m.get(decisionOf(r)) ?? 0) + 1);
+    for (const r of all) m.set(decisionOf(r), (m.get(decisionOf(r)) ?? 0) + 1);
     return m;
-  }, [records]);
+  }, [all]);
   const types = DECISION_TYPES.filter((d) => counts.get(d));
-  const [picked, setPicked] = useState('All');
-  const type = picked === 'All' || counts.get(picked) ? picked : 'All';
-  const [shown, setShown] = useState(PAGE);
-  const ranked = useMemo(
-    () => rankProjects(type === 'All' ? records : records.filter((r) => decisionOf(r) === type), country),
-    [records, type, country],
-  );
+  const chosen = valuesOf(filters.decision);
+  const records = useMemo(() => all.filter((r) => matcher(filters.decision)(decisionOf(r))), [all, filters.decision]);
+  const type = chosen.length === 1 ? chosen[0] : 'All';
+  const [shownParam, setShownParam] = useUrlState('decisions_n', String(PAGE));
+  const shown = Math.max(PAGE, Number(shownParam) || PAGE);
+  const setShown = (f: (n: number) => number) => setShownParam(String(f(shown)));
+  const pick = (id: string) => { setFilters({ ...filters, decision: id === 'All' || (chosen.length === 1 && chosen[0] === id) ? 'All' : id }); setShownParam(String(PAGE)); };
+  const ranked = useMemo(() => rankProjects(records, country), [records, country]);
 
   const tab = (id: string, label: string, n: number) => (
-    <button key={id} type="button" role="tab" aria-selected={type === id} onClick={() => { setPicked(id); setShown(PAGE); }}
-      className={`shrink-0 rounded-full px-3 py-1.5 text-sm transition-colors ${type === id ? 'bg-ink-50 text-ink-950' : 'text-ink-400 hover:bg-ink-800/70 hover:text-ink-100'}`}>
-      {label} <span className={`tabular ml-1 text-xs ${type === id ? 'text-ink-600' : 'text-ink-600'}`}>{n}</span>
+    <button key={id} type="button" role="tab" aria-selected={id === 'All' ? !chosen.length : chosen.includes(id)} onClick={() => pick(id)}
+      className={`shrink-0 rounded-full px-3 py-1.5 text-sm transition-colors ${(id === 'All' ? !chosen.length : chosen.includes(id)) ? 'bg-ink-50 text-ink-950' : 'text-ink-400 hover:bg-ink-800/70 hover:text-ink-100'}`}>
+      {label} <span className="tabular ml-1 text-xs text-ink-600">{n}</span>
     </button>
   );
 
@@ -98,16 +101,16 @@ export default function GridDecisions() {
       title="Grid decisions"
       description="What the tools are actually used to decide, with the most consequential examples first: projects in which a grid operator, utility, regulator or ministry used or commissioned the modelling."
     >
-      {records.length === 0 ? (
+      {all.length === 0 ? (
         <EmptyState />
       ) : (
         <>
-          <div role="tablist" aria-label="Decision type" className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 [scrollbar-width:none]">
-            {tab('All', 'All decisions', records.length)}
+          <div role="tablist" aria-label="Decision type" className="-mx-1 flex flex-wrap gap-1 px-1 pb-1">
+            {tab('All', 'All decisions', all.length)}
             {types.map((d) => tab(d, DECISION_INFO[d]?.short ?? d, counts.get(d)!))}
           </div>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-b border-ink-800/80 pb-3">
-            <p className="text-sm text-ink-400">{type === 'All' ? 'All projects, highest impact first.' : DECISION_INFO[type]?.description}</p>
+            <p className="text-sm text-ink-400">{type !== 'All' ? DECISION_INFO[type]?.description : chosen.length ? `${chosen.length} kinds of decision, highest impact first.` : 'All projects, highest impact first.'}</p>
             <div className="flex gap-4">{IMPACT_ORDER.map((i) => <ImpactMark key={i} impact={i} />)}</div>
           </div>
           <ul className="divide-y divide-ink-800/80">

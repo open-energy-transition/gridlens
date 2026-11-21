@@ -18,6 +18,7 @@
     "export-known-institutions": "python3 scripts/export_known_institutions.py"
   },
   "dependencies": {
+    "html-to-image": "^1.11.13",
     "lucide-react": "^1.70.0",
     "papaparse": "^5.7.0",
     "react": "^19.3.1",

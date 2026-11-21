@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, type ReactNode } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { useChart } from '../lib/chartFilters';
 import { toggleValue, valuesOf } from '../lib/multi';
@@ -25,6 +25,7 @@ import EmptyState from '../components/common/EmptyState';
 import { ProjectRow } from '../sections/GridDecisions';
 import { ContributionCaveat, ContributionSource, ContributorBars, MetricSwitch, windowMonths } from '../sections/Builders';
 import { ProviderList } from '../sections/Providers';
+import { useUrlState } from '../lib/urlState';
 
 const THIS_YEAR = new Date().getFullYear();
 
@@ -40,12 +41,13 @@ function useToolRecords(id: string, name: string, ignore: Key[] = []) {
 }
 
 /** One section of the tool page: a card with its own filter button (filters are shared with the rest of the site). */
-function Section({ id, name, title, note, fields, years = true, ignore = [], actions, className = '', children }: {
+function Section({ id, name, title, note, fields, years = true, ignore = [], actions, className = '', data, children }: {
+  data?: () => Record<string, string | number | null | undefined>[];
   id: string; name: string; title: string; note?: ReactNode; fields: Key[]; years?: boolean; ignore?: Key[]; actions?: ReactNode; className?: string; children: ReactNode;
 }) {
   return (
     <section id={id} className={`scroll-mt-20 ${className}`}>
-      <ChartCard id={id} title={title} description={note} fields={fields} years={years} ignore={[...TOOL_IGNORE, ...ignore]} actions={actions} className="flex h-full flex-col"
+      <ChartCard id={id} title={title} description={note} fields={fields} years={years} ignore={[...TOOL_IGNORE, ...ignore]} actions={actions} data={data} className="flex h-full flex-col"
         scope={(r) => r.tool_name === name}>
         {children}
       </ChartCard>
@@ -95,7 +97,7 @@ function WhereSection({ name }: { name: string }) {
     return m;
   }, [countries]);
   return (
-    <Section name={name} id="tool-map" title="Where it is used" className="lg:col-span-2" ignore={['country']}
+    <Section name={name} id="tool-map" title="Where it is used" data={() => [...countries].sort((a, b) => b[1] - a[1]).map(([country, projects]) => ({ country, projects }))} className="lg:col-span-2" ignore={['country']}
       note="Projects per country; regional and global studies count in every country they cover. Click countries to filter."
       fields={['period', 'decision', 'impact', 'sector', 'orgType', 'evidenceStrength', 'search']}>
       {records.length ? (
@@ -117,7 +119,7 @@ function UsedForSection({ name, color }: { name: string; color: string }) {
   // Projects whose source names no decision are counted below the bars, not as a bar that would dwarf the others.
   const unspecified = records.filter((r) => decisionOf(r) === OTHER_DECISION).length;
   return (
-    <Section name={name} id="tool-purpose" title="Used for" note="Projects per kind of grid decision, where the source names one."
+    <Section name={name} id="tool-purpose" title="Used for" data={() => [...decisions.map((d) => ({ decision: d.name, projects: d.count })), { decision: 'Not specified', projects: unspecified }]} note="Projects per kind of grid decision, where the source names one."
       ignore={['decision']} fields={['country', 'period', 'impact', 'sector', 'orgType', 'evidenceStrength']}>
       {decisions.length
         ? <HorizontalBarChart data={decisions} colorOf={() => color} unit="projects" />
@@ -132,7 +134,7 @@ function PerYearSection({ name, color }: { name: string; color: string }) {
   const { records } = useToolRecords('tool-years', name, ['period', 'undated']);
   const undated = records.filter((r) => !r.year).length;
   return (
-    <Section name={name} id="tool-years" title="Projects per year" years={false} ignore={['period', 'undated']}
+    <Section name={name} id="tool-years" title="Projects per year" data={() => [...projectsPerYear(records, THIS_YEAR - 14, THIS_YEAR).map((y) => ({ year: y.year, projects: y.open + y.proprietary })), { year: 'unknown', projects: undated }]} years={false} ignore={['period', 'undated']}
       note={`Projects with a known year, ${THIS_YEAR - 14}–${THIS_YEAR}. ${THIS_YEAR} is still in progress.`}
       fields={['country', 'decision', 'impact', 'sector', 'orgType', 'evidenceStrength']}>
       <YearBars years={projectsPerYear(records, THIS_YEAR - 14, THIS_YEAR)} split={false} color={color} />
@@ -146,7 +148,7 @@ function UsersSection({ name }: { name: string }) {
   const { records } = useToolRecords('tool-users', name);
   const orgs = useMemo(() => organizationDirectory(records).filter((o) => o.name !== info.vendor), [records, info.vendor]);
   return (
-    <Section name={name} id="tool-users" title="Top users" note="Organizations with the most projects using this tool."
+    <Section name={name} id="tool-users" title="Top users" data={() => orgs.map((o) => ({ organization: o.name, type: orgGroupLabel(o.group), projects: o.projects, countries: o.countries.join('; ') }))} note="Organizations with the most projects using this tool."
       fields={['country', 'period', 'decision', 'impact', 'sector', 'orgType']}>
       {orgs.length ? (
         <>
@@ -188,14 +190,15 @@ function DecisionsSection({ name }: { name: string }) {
 
 function BuildersSection({ name }: { name: string }) {
   const { filters } = useChart('tool-builders', TOOL_IGNORE);
-  const [metric, setMetric] = useState<Metric>('prs');
+  const [metricParam, setMetric] = useUrlState('builders_by', 'prs');
+  const metric = metricParam as Metric;
   const builders = useMemo(() => contributorsInWindow([name], windowMonths(filters.period), CONTRIBUTORS, metric), [name, filters.period, metric]);
   return (
     <section id="builders" className="scroll-mt-20">
-      <ChartCard id="tool-builders" className="h-full" title={`Who builds ${name}`} fields={['period']} years undatedNote={false} ignore={TOOL_IGNORE}
+      <ChartCard id="tool-builders" className="h-full" data={() => builders.map((o) => ({ organization: o.name, [metric]: o.count, people: o.people, url: o.url }))} title={`Who builds ${name}`} fields={['period']} years undatedNote={false} ignore={TOOL_IGNORE}
         description="Organizations whose people contribute most to the tool’s code in the chosen period, by the “Company” on their GitHub profile."
         actions={<MetricSwitch value={metric} onChange={setMetric} />}>
-        <ContributorBars orgs={builders} metric={metric} />
+        <ContributorBars orgs={builders} metric={metric} id="tool_builders" />
         <ContributionSource tools={[name]} />
         <ContributionCaveat />
       </ChartCard>
@@ -211,7 +214,7 @@ function ProvidersSection({ name, wide }: { name: string; wide: boolean }) {
     <Section name={name} id="tool-providers" className={wide ? 'lg:col-span-2' : ''} title={`Companies offering ${name} services`}
       note={`Consultancies with documented ${name} projects${isOpenSource(name) ? '' : `; ${info.vendor} itself is not listed`}.`}
       fields={['country', 'period']}>
-      <ProviderList list={providers} />
+      <ProviderList list={providers} id="tool_providers" />
     </Section>
   );
 }

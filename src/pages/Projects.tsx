@@ -1,5 +1,3 @@
-import { Download } from 'lucide-react';
-import { downloadCsv } from '../lib/csv';
 import { useChart } from '../lib/chartFilters';
 import DataTable from '../components/table/DataTable';
 import ChartCard from '../components/chart/ChartCard';
@@ -19,12 +17,6 @@ export default function Projects() {
           id="projects"
           years
           title={`${records.length.toLocaleString('en')} project${records.length === 1 ? '' : 's'}`}
-          actions={
-            <button type="button" onClick={() => downloadCsv('gridlens_projects.csv', records)} aria-label="Download these projects as CSV"
-              className="flex h-9 items-center gap-1.5 rounded-full bg-ink-50 px-3.5 text-xs font-medium text-ink-950 hover:bg-white">
-              <Download size={14} /> CSV
-            </button>
-          }
         >
           <DataTable records={records} />
         </ChartCard>

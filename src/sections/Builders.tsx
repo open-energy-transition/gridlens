@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { AVAILABLE_METRICS, contributorsInWindow, CONTRIBUTORS, METRICS, type ContributorOrg, type Metric } from '../lib/contributors';
 import Segmented from '../components/chart/Segmented';
@@ -10,6 +10,7 @@ import { DEFAULT_FILTERS } from '../types';
 import ChartCard from '../components/chart/ChartCard';
 import EmptyState from '../components/common/EmptyState';
 import ToolLogo from '../components/common/ToolLogo';
+import { useUrlState } from '../lib/urlState';
 
 const OPEN_TOOLS = TOOLS.filter((t) => t.license === 'open_source' && CONTRIBUTORS.tools[t.name]).map((t) => t.name);
 const SHOWN = 12;
@@ -36,9 +37,11 @@ export function windowMonths(period: string): number {
 }
 
 /** Organizations ranked by pull requests merged in the window; each name links to the organization. */
-export function ContributorBars({ orgs, showTools, limit = SHOWN, metric = 'prs' }: { orgs: ContributorOrg[]; showTools?: boolean; limit?: number; metric?: Metric }) {
+export function ContributorBars({ orgs, showTools, limit = SHOWN, metric = 'prs', id = 'builders' }: { orgs: ContributorOrg[]; showTools?: boolean; limit?: number; metric?: Metric; id?: string }) {
   const unit = METRICS.find((m) => m.id === metric)!.unit;
-  const [all, setAll] = useState(false);
+  const [allParam, setAllParam] = useUrlState(`${id}_all`, '');
+  const all = allParam === '1';
+  const setAll = (v: boolean | ((x: boolean) => boolean)) => setAllParam((typeof v === 'function' ? v(all) : v) ? '1' : '');
   if (orgs.length === 0) return <EmptyState title="No contributions from named organizations in this period" message="Widen the time window." />;
   const shown = all ? orgs : orgs.slice(0, limit);
   const max = Math.max(1, ...orgs.map((o) => o.count));
@@ -113,7 +116,8 @@ export function MetricSwitch({ value, onChange }: { value: Metric; onChange: (m:
 export default function Builders() {
   const { filters } = useChart('builders');
   const months = windowMonths(filters.period);
-  const [metric, setMetric] = useState<Metric>('prs');
+  const [metricParam, setMetric] = useUrlState('builders_by', 'prs');
+  const metric = (AVAILABLE_METRICS.some((m) => m.id === metricParam) ? metricParam : 'prs') as Metric;
   const tools = OPEN_TOOLS.filter((t) =>
     matcher(filters.toolName)(t) &&
     (filters.toolCategory === 'All' || toolInfo(t)!.categories.some(matcher(filters.toolCategory))) &&
@@ -124,6 +128,7 @@ export default function Builders() {
   return (
     <ChartCard
       id="builders"
+      data={() => orgs.map((o) => ({ organization: o.name, [metric]: o.count, people: o.people, tools: o.tools.join('; '), url: o.url }))}
       title="Who builds the open-source tools"
       description={<>Organizations whose people contribute most to each tool’s code.
         People count for the organization in the “Company” field of their public GitHub profile (e.g. <span className="text-ink-300">@open-energy-transition</span>);{' '}

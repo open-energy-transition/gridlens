@@ -27,6 +27,7 @@ export default function AdoptionRanking() {
   return (
     <ChartCard
       id="adoption"
+      data={() => data.map((d) => ({ tool: d.name, licence: isOpenSource(d.name) ? 'open source' : 'proprietary', organizations: d.count }))}
       years
       title="Most adopted tools"
       description="Organizations with documented use of each tool. An organization counts once per tool, however many projects it ran."

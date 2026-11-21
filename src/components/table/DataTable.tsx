@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink } from 'lucide-react';
 import type { CatalogueRecord } from '../../types';
 import { safe } from '../../lib/filters';
@@ -7,6 +7,7 @@ import { SCOPE_LABELS } from '../../lib/regions';
 import { DECISION_INFO, decisionOf } from '../../lib/insights';
 import { IMPACT_INFO, projectImpact } from '../../lib/impact';
 import { SOURCE_GROUP_LABELS } from '../../lib/orgTypes';
+import { useUrlState } from '../../lib/urlState';
 
 const IMPACT_RANK = { high: '0', medium: '1', low: '2' };
 
@@ -97,10 +98,17 @@ function OrgList({ orgs }: { orgs: CatalogueRecord['organizations'] }) {
 }
 
 export default function DataTable({ records }: DataTableProps) {
-  const [columns, setColumns] = useState<string[]>(DEFAULT_COLUMNS);
-  const [sortKey, setSortKey] = useState<string>('tool_name');
-  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc');
-  const [page, setPage] = useState(0);
+  // Columns, sort and page are kept in the URL, so a shared link opens the same table view.
+  const [colsParam, setColsParam] = useUrlState('cols', DEFAULT_COLUMNS.join(','));
+  const columns = colsParam.split(',').filter((c) => ALL_COLUMN_KEYS.includes(c));
+  const setColumns = (f: (prev: string[]) => string[]) => setColsParam(f(columns).join(','));
+  const [sortParam, setSortParam] = useUrlState('sort', 'tool_name');
+  const sortKey = sortParam.replace(/^-/, '');
+  const sortDir: 'asc' | 'desc' = sortParam.startsWith('-') ? 'desc' : 'asc';
+  const setSort = (key: string, dir: 'asc' | 'desc') => setSortParam(`${dir === 'desc' ? '-' : ''}${key}`);
+  const [pageParam, setPageParam] = useUrlState('page', '1');
+  const page = Math.max(0, (Number(pageParam) || 1) - 1);
+  const setPage = (f: number | ((p: number) => number)) => setPageParam(String((typeof f === 'function' ? f(page) : f) + 1));
 
   const sorted = useMemo(() => {
     const copy = [...records];
@@ -134,12 +142,7 @@ export default function DataTable({ records }: DataTableProps) {
   const pageRows = sorted.slice(clampedPage * PAGE_SIZE, clampedPage * PAGE_SIZE + PAGE_SIZE);
 
   function toggleSort(key: string) {
-    if (key === sortKey) {
-      setSortDir((d) => (d === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortKey(key);
-      setSortDir('asc');
-    }
+    setSort(key, key === sortKey && sortDir === 'asc' ? 'desc' : 'asc');
     setPage(0);
   }
 

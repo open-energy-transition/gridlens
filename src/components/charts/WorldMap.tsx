@@ -72,7 +72,7 @@ export default function WorldMap({ valueByCountry, maxValue, onHover, unit = 'pr
   return (
     <div ref={wrapperRef} className="relative overflow-hidden rounded-xl border border-ink-800/80 bg-[radial-gradient(ellipse_at_center,#121633_0%,#080a13_70%)]">
       {/* Zoom controls */}
-      <div className="absolute right-3 top-3 z-10 flex flex-col overflow-hidden rounded-lg border border-ink-700 bg-ink-900/90 shadow-lg backdrop-blur-sm">
+      <div data-noexport className="absolute right-3 top-3 z-10 flex flex-col overflow-hidden rounded-lg border border-ink-700 bg-ink-900/90 shadow-lg backdrop-blur-sm">
         <button
           type="button"
           aria-label="Zoom in"
@@ -101,7 +101,7 @@ export default function WorldMap({ valueByCountry, maxValue, onHover, unit = 'pr
         </button>
       </div>
 
-      <p className="pointer-events-none absolute left-3 top-3 z-10 rounded-md bg-ink-900/80 px-2 py-1 text-[10px] uppercase tracking-wide text-ink-500 backdrop-blur-sm">
+      <p data-noexport className="pointer-events-none absolute left-3 top-3 z-10 rounded-md bg-ink-900/80 px-2 py-1 text-[10px] uppercase tracking-wide text-ink-500 backdrop-blur-sm">
         Pinch or scroll to zoom
       </p>
 

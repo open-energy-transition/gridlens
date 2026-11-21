@@ -6,6 +6,7 @@ import EmptyState from '../components/common/EmptyState';
 import { LicenceLegend } from '../components/common/AdoptionRanking';
 import YearBars from '../components/charts/YearBars';
 import CoverageBar from '../components/charts/CoverageBar';
+import { isOpenSource } from '../lib/tools';
 
 const THIS_YEAR = new Date().getFullYear();
 const FROM = THIS_YEAR - 14;
@@ -27,6 +28,7 @@ export default function Momentum() {
   return (
     <ChartCard
       id="momentum"
+      data={() => [...years.map((y) => ({ year: y.year, open_source: y.open, proprietary: y.proprietary })), { year: 'unknown', open_source: records.filter((r) => !r.year && isOpenSource(r.tool_name)).length, proprietary: records.filter((r) => !r.year && !isOpenSource(r.tool_name)).length }]}
       ignore={['period', 'undated']}
       title="Projects per year"
       description="Projects per year of the study. A rising open-source share means new studies increasingly use tools anyone can inspect and reuse."
