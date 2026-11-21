@@ -30,4 +30,10 @@ describe('shared filters in the URL', () => {
     expect(mergeFilterSearch('?type=consultancy&tool=PyPSA&country=Chile', { ...DEFAULT_FILTERS, country: 'Spain' })).toBe('?type=consultancy&country=Spain');
     expect(mergeFilterSearch('?country=Chile', DEFAULT_FILTERS)).toBe('');
   });
+
+  it('writes the grid decision and impact filters', () => {
+    const f = { ...DEFAULT_FILTERS, decision: 'Transmission & Network Planning', impact: 'high' };
+    expect(searchToFilters(filtersToSearch(f))).toEqual(f);
+    expect(filtersToSearch(f)).toContain('impact=high');
+  });
 });

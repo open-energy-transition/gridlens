@@ -64,6 +64,10 @@ export interface Filters {
   license: string;
   evidenceStrength: string;
   sourceGroup: string;
+  /** Grid decision type (decision_type; 'Other / General Modeling' = not specified), or 'All'. */
+  decision: string;
+  /** Project impact: 'high' | 'medium' | 'low', or 'All'. */
+  impact: string;
   search: string;
 }
 
@@ -78,6 +82,8 @@ export const EMPTY_FILTERS: Filters = {
   license: 'All',
   evidenceStrength: 'All',
   sourceGroup: 'All',
+  decision: 'All',
+  impact: 'All',
   search: '',
 };
 

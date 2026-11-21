@@ -4,6 +4,19 @@ import type { CatalogueRecord } from '../../types';
 import { safe } from '../../lib/filters';
 import EmptyState from '../common/EmptyState';
 import { SCOPE_LABELS } from '../../lib/regions';
+import { DECISION_INFO, decisionOf } from '../../lib/insights';
+import { IMPACT_INFO, projectImpact } from '../../lib/impact';
+import { SOURCE_GROUP_LABELS } from '../../lib/orgTypes';
+
+const IMPACT_RANK = { high: '0', medium: '1', low: '2' };
+
+/** A cell's text: plain-language names for coded fields, the computed impact. */
+function cellText(r: CatalogueRecord, key: string): string {
+  if (key === 'impact') return IMPACT_INFO[projectImpact(r)].label;
+  if (key === 'decision_type') return DECISION_INFO[decisionOf(r)]?.short ?? decisionOf(r);
+  if (key === 'source_group') return SOURCE_GROUP_LABELS[r.source_group] ?? safe(r.source_group);
+  return safe(r[key as keyof CatalogueRecord]);
+}
 
 const COLUMN_LABELS: Record<string, string> = {
   country_label: 'Country',
@@ -26,6 +39,7 @@ const COLUMN_LABELS: Record<string, string> = {
   notes: 'Notes',
   dataset_origin: 'Dataset origin',
   decision_type: 'Grid decision',
+  impact: 'Impact',
   decision_basis: 'Decision basis',
   project_id: 'Project ID',
   project_title: 'Project title',
@@ -42,6 +56,7 @@ const DEFAULT_COLUMNS: string[] = [
   'tool_name',
   'tool_category',
   'decision_type',
+  'impact',
   'evidence_strength',
   'source_link',
   'geo_scope',
@@ -52,7 +67,7 @@ const ALL_COLUMN_KEYS: string[] = [
   'tool_name', 'tool_category', 'use_case', 'summary', 'evidence_strength',
   'source_type', 'source_group', 'source_title', 'source_date', 'source_link',
   'exact_snippet_or_quote', 'why_it_supports_the_claim', 'notes', 'dataset_origin',
-  'decision_type', 'decision_basis',
+  'decision_type', 'impact', 'decision_basis',
 ];
 
 const PAGE_SIZE = 20;
@@ -100,9 +115,12 @@ export default function DataTable({ records }: DataTableProps) {
       } else if (sortKey === 'countries') {
         av = a.countries.join(', ');
         bv = b.countries.join(', ');
+      } else if (sortKey === 'impact') {
+        av = IMPACT_RANK[projectImpact(a)];
+        bv = IMPACT_RANK[projectImpact(b)];
       } else {
-        av = safe(a[sortKey as keyof CatalogueRecord]).toLowerCase();
-        bv = safe(b[sortKey as keyof CatalogueRecord]).toLowerCase();
+        av = cellText(a, sortKey).toLowerCase();
+        bv = cellText(b, sortKey).toLowerCase();
       }
       if (av < bv) return sortDir === 'asc' ? -1 : 1;
       if (av > bv) return sortDir === 'asc' ? 1 : -1;
@@ -245,7 +263,7 @@ export default function DataTable({ records }: DataTableProps) {
                       </td>
                     );
                   }
-                  const value = safe(r[key as keyof CatalogueRecord]);
+                  const value = cellText(r, key);
                   return (
                     <td key={key} className="max-w-xs truncate px-4 py-2.5 text-ink-300" title={value}>
                       {value || <span className="text-ink-600">—</span>}

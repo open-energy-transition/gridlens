@@ -3,6 +3,8 @@ import { splitCategories } from './toolCategories';
 import { orgGroup, sectorOf } from './orgTypes';
 import { toolInfo } from './tools';
 import { coversCountry } from './regions';
+import { decisionOf } from './insights';
+import { projectImpact } from './impact';
 
 export function safe(value: unknown): string {
   if (value === null || value === undefined) return '';
@@ -36,6 +38,8 @@ export function applyFilters(records: CatalogueRecord[], filters: Filters, thisY
     if (filters.orgType !== 'All' && !r.organizations.some((o) => orgGroup(o) === filters.orgType)) return false;
     if (filters.sector !== 'All' && !r.organizations.some((o) => sectorOf(o) === filters.sector)) return false;
     if (filters.sourceGroup !== 'All' && r.source_group !== filters.sourceGroup) return false;
+    if (filters.decision !== 'All' && decisionOf(r) !== filters.decision) return false;
+    if (filters.impact !== 'All' && projectImpact(r) !== filters.impact) return false;
     if (search) {
       const haystack = [...Object.values(r).map(safe), ...r.organizations.map((o) => o.name)].join(' | ').toLowerCase();
       if (!haystack.includes(search)) return false;

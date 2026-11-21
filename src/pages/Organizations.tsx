@@ -11,7 +11,7 @@ import ToolLogo from '../components/common/ToolLogo';
 
 const PAGE = 40;
 // The type is picked with the buttons above the table; the panel holds the filters shared with the rest of the site.
-const FIELDS: (keyof Filters)[] = ['country', 'period', 'toolName', 'toolCategory', 'license', 'sector', 'evidenceStrength'];
+const FIELDS: (keyof Filters)[] = ['country', 'period', 'toolName', 'decision', 'impact', 'toolCategory', 'license', 'sector', 'evidenceStrength'];
 
 type SortKey = 'name' | 'group' | 'projects' | 'latestYear';
 const SORTS: { key: SortKey; label: string; desc: boolean }[] = [

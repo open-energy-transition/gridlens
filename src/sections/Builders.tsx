@@ -133,8 +133,8 @@ export default function Builders() {
       choices={CHOICES}
       actions={<MetricSwitch value={metric} onChange={setMetric} />}
     >
-      {(['country', 'sector', 'orgType'] as const).some((k) => filters[k] !== DEFAULT_FILTERS[k]) && (
-        <p className="mb-4 text-xs text-ink-500">Code contributions are not tied to a country, sector or type of organization, so those filters don’t change this ranking.</p>
+      {(['country', 'sector', 'orgType', 'decision', 'impact'] as const).some((k) => filters[k] !== DEFAULT_FILTERS[k]) && (
+        <p className="mb-4 text-xs text-ink-500">Code contributions are not tied to a country, sector, type of organization, grid decision or impact, so those filters don’t change this ranking.</p>
       )}
       {tools.length === 0 ? (
         <EmptyState title="No open-source tool matches these filters"

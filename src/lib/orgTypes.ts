@@ -44,7 +44,8 @@ export function orgGroupLabel(id: string): string {
   return LABEL_OF.get(id) ?? id;
 }
 
+/** Where the evidence was published (source_group), as opposed to who the organization is (sector). */
 export const SOURCE_GROUP_LABELS: Record<string, string> = {
-  industry: 'Industry & government',
-  academic: 'Academic & research',
+  industry: 'Reports & official documents',
+  academic: 'Academic publications',
 };
