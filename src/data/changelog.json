@@ -1,6 +1,12 @@
 [
   {
     "date": "21 Nov 2026",
+    "tag": "reclassified",
+    "title": "Corrected source links for 426 project records",
+    "description": "A bug in the deep-dive search attached some quotes to the wrong page of the same website. Every affected PLEXOS, PyPSA and PowSyBl record now links to the page that contains its quote (checked word for word against the stored page text). Two records whose quote could not be found on any fetched page are no longer published, and 31 study dates taken from the wrongly linked pages were removed until they are re-dated."
+  },
+  {
+    "date": "21 Nov 2026",
     "tag": "coverage",
     "title": "Study dates for 550 more projects",
     "description": "Projects without a date were dated from their sources: publication metadata of the page or PDF, a date in the URL, or a date a local model read from the text and quoted word for word (never a page-update, copyright, founding or release date). Dates keep the precision the source gives: a day, a month or a year. Projects with an unknown year fell from 927 to 379."
