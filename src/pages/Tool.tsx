@@ -11,7 +11,8 @@ import { projectImpact } from '../lib/impact';
 import { orgGroupLabel } from '../lib/orgTypes';
 import { categoryLabel, splitCategories } from '../lib/toolCategories';
 import { toAtlasName } from '../lib/countryAliases';
-import { OPEN_SOURCE, PROPRIETARY, UNKNOWN } from '../lib/colors';
+import { OPEN_SOURCE, PROPRIETARY } from '../lib/colors';
+import CoverageBar from '../components/charts/CoverageBar';
 import { Link, slug } from '../lib/router';
 import HorizontalBarChart from '../components/charts/HorizontalBarChart';
 import WorldMap from '../components/charts/WorldMap';
@@ -43,7 +44,7 @@ function Section({ id, name, title, note, fields, years = true, ignore = [], act
 }) {
   return (
     <section id={id} className={`scroll-mt-20 ${className}`}>
-      <ChartCard id={id} title={title} description={note} fields={fields} years={years} ignore={[...TOOL_IGNORE, ...ignore]} actions={actions}
+      <ChartCard id={id} title={title} description={note} fields={fields} years={years} ignore={[...TOOL_IGNORE, ...ignore]} actions={actions} className="flex h-full flex-col"
         scope={(r) => r.tool_name === name}>
         {children}
       </ChartCard>
@@ -109,19 +110,18 @@ function UsedForSection({ name, color }: { name: string; color: string }) {
   const { records } = useToolRecords('tool-purpose', name);
   const decisions = useMemo(() => {
     const m = new Map<string, number>();
-    for (const r of records) m.set(decisionOf(r), (m.get(decisionOf(r)) ?? 0) + 1);
-    // Projects whose source names no decision stay visible, last, so the gap in the data shows.
-    const other = m.get(OTHER_DECISION);
-    m.delete(OTHER_DECISION);
-    const rows = [...m].map(([d, c]) => ({ name: DECISION_INFO[d]?.short ?? d, count: c })).sort((a, b) => b.count - a.count);
-    return other ? [...rows, { name: DECISION_INFO[OTHER_DECISION].short, count: other }] : rows;
+    for (const r of records) if (decisionOf(r) !== OTHER_DECISION) m.set(decisionOf(r), (m.get(decisionOf(r)) ?? 0) + 1);
+    return [...m].map(([d, c]) => ({ name: DECISION_INFO[d]?.short ?? d, count: c })).sort((a, b) => b.count - a.count);
   }, [records]);
+  // Projects whose source names no decision are counted below the bars, not as a bar that would dwarf the others.
+  const unspecified = records.filter((r) => decisionOf(r) === OTHER_DECISION).length;
   return (
-    <Section name={name} id="tool-purpose" title="Used for" note="Projects per kind of grid decision; “Not specified” where the source names none."
+    <Section name={name} id="tool-purpose" title="Used for" note="Projects per kind of grid decision, where the source names one."
       fields={['country', 'period', 'sector', 'orgType', 'evidenceStrength']}>
       {decisions.length
-        ? <HorizontalBarChart data={decisions} colorOf={(n) => (n === DECISION_INFO[OTHER_DECISION].short ? UNKNOWN : color)} unit="projects" />
-        : <EmptyState />}
+        ? <HorizontalBarChart data={decisions} colorOf={() => color} unit="projects" />
+        : <EmptyState title="No decision named in these projects’ sources" />}
+      <CoverageBar known={records.length - unspecified} unknown={unspecified} knownLabel="projects with a named decision" unknownLabel="decision not specified, not shown" />
     </Section>
   );
 }
@@ -135,7 +135,7 @@ function PerYearSection({ name, color }: { name: string; color: string }) {
       note={`Projects with a known year, ${THIS_YEAR - 14}–${THIS_YEAR}. ${THIS_YEAR} is still in progress.`}
       fields={['country', 'sector', 'orgType', 'evidenceStrength']}>
       <YearBars years={projectsPerYear(records, THIS_YEAR - 14, THIS_YEAR)} split={false} color={color} />
-      {undated > 0 && <p className="mt-3 text-xs text-ink-500">{undated.toLocaleString('en')} of {records.length.toLocaleString('en')} projects have an unknown year and are not shown.</p>}
+      <CoverageBar known={records.length - undated} unknown={undated} knownLabel="projects with a known year" unknownLabel="with an unknown year, not shown" />
     </Section>
   );
 }
@@ -191,7 +191,7 @@ function BuildersSection({ name }: { name: string }) {
   const builders = useMemo(() => contributorsInWindow([name], windowMonths(filters.period), CONTRIBUTORS, metric), [name, filters.period, metric]);
   return (
     <section id="builders" className="scroll-mt-20">
-      <ChartCard id="tool-builders" title={`Who builds ${name}`} fields={['period']} years undatedNote={false} ignore={TOOL_IGNORE}
+      <ChartCard id="tool-builders" className="h-full" title={`Who builds ${name}`} fields={['period']} years undatedNote={false} ignore={TOOL_IGNORE}
         description="Organizations whose people contribute most to the tool’s code in the chosen period, by the “Company” on their GitHub profile."
         actions={<MetricSwitch value={metric} onChange={setMetric} />}>
         <ContributorBars orgs={builders} metric={metric} />
@@ -202,12 +202,12 @@ function BuildersSection({ name }: { name: string }) {
   );
 }
 
-function ProvidersSection({ name }: { name: string }) {
+function ProvidersSection({ name, wide }: { name: string; wide: boolean }) {
   const info = toolInfo(name)!;
   const { records } = useToolRecords('tool-providers', name);
   const providers = useMemo(() => serviceProviders(records), [records]);
   return (
-    <Section name={name} id="tool-providers" title={`Companies offering ${name} services`}
+    <Section name={name} id="tool-providers" className={wide ? 'lg:col-span-2' : ''} title={`Companies offering ${name} services`}
       note={`Consultancies with documented ${name} projects${isOpenSource(name) ? '' : `; ${info.vendor} itself is not listed`}.`}
       fields={['country', 'period']}>
       <ProviderList list={providers} />
@@ -254,15 +254,16 @@ function ToolProfile({ name }: { name: string }) {
       </header>
 
       <Headline name={name} />
-      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+      {/* Two columns on wide screens; cards in a row share one height. */}
+      <div className="mt-8 grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2">
         <WhereSection name={name} />
         <UsedForSection name={name} color={color} />
         <PerYearSection name={name} color={color} />
         <UsersSection name={name} />
         <DecisionsSection name={name} />
+        {gh ? <BuildersSection name={name} /> : null}
+        <ProvidersSection name={name} wide={!gh} />
       </div>
-      {gh && <div className="mt-6"><BuildersSection name={name} /></div>}
-      <div className="mt-6"><ProvidersSection name={name} /></div>
     </div>
   );
 }

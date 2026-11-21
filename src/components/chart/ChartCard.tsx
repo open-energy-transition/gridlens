@@ -58,8 +58,10 @@ function Select({ label, value, options, display, onChange }: {
  * Card for one chart: title, a filter button (popover on desktop, bottom sheet on phones) for the filters
  * every chart shares, the active ones as removable chips, and a button that copies a link to this view.
  */
-export default function ChartCard({ id, title, description, fields = ALL_FIELDS, actions, plain = false, ignore = [], choices, years = false, undatedNote = true, scope, children }: {
+export default function ChartCard({ id, title, description, fields = ALL_FIELDS, actions, plain = false, ignore = [], choices, years = false, undatedNote = true, scope, className = '', children }: {
   id: string;
+  /** Extra classes for the card frame (e.g. h-full to match its neighbours in a grid row). */
+  className?: string;
   /** Records this card is about (e.g. one tool's projects), for the unknown-year count. */
   scope?: (r: CatalogueRecord) => boolean;
   /** With `years`: show the tick box for projects with an unknown year (off where years do not apply to the data). */
@@ -113,14 +115,14 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
   const iconBtn = 'flex h-9 items-center gap-1.5 rounded-full border border-ink-700/80 px-3 text-xs font-medium text-ink-300 transition-colors hover:border-ink-500 hover:text-ink-50';
 
   return (
-    <div className={plain ? '' : 'rounded-2xl border border-ink-800/80 bg-ink-900/40 p-4 sm:p-6'}>
+    <div className={`@container ${plain ? '' : 'rounded-2xl border border-ink-800/80 bg-ink-900/40 p-4 sm:p-6'} ${className}`}>
       <div className="mb-4 flex flex-wrap items-start gap-3">
         <div className="order-1 min-w-0 flex-1 basis-48">
           {title && <h3 className="font-display text-xl font-medium text-ink-50">{title}</h3>}
           {description && <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-400">{description}</p>}
         </div>
-        {(actions || years) && <div className="order-3 flex basis-full flex-wrap items-center gap-x-4 gap-y-2 lg:order-2 lg:basis-auto">{years && <YearSlider id={id} />}{actions}</div>}
-        <div className="relative order-2 flex items-center gap-2 lg:order-3">
+        {(actions || years) && <div className="order-3 flex basis-full flex-wrap items-center gap-x-4 gap-y-2 @5xl:order-2 @5xl:basis-auto">{years && <YearSlider id={id} />}{actions}</div>}
+        <div className="relative order-2 flex items-center gap-2 @5xl:order-3">
           <button type="button" onClick={copyLink} className={iconBtn} aria-label={`Copy link to ${title ?? 'this view'}`} title="Copy link to this view">
             {copied ? <Check size={15} /> : <Link2 size={15} />}
           </button>
