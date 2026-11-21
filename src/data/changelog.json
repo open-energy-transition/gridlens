@@ -1,5 +1,11 @@
 [
   {
+    "date": "21 Nov 2026",
+    "tag": "added",
+    "title": "DIgSILENT PowerFactory projects worldwide",
+    "description": "A country-by-country search of all 199 countries for documented DIgSILENT PowerFactory use, each finding checked by an independent local-model validator. PowerFactory projects grew from 6 to 590 across 123 countries: grid operators' planning and grid-code studies, grid-connection studies by consultancies and developers, and university research. DIgSILENT and its regional offices are not listed as users; personal profiles, job adverts and vague or unnamed organizations were left out."
+  },
+  {
     "date": "18 Nov 2026",
     "tag": "added",
     "title": "PLEXOS projects from users' and Energy Exemplar's own pages",
