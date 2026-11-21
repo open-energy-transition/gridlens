@@ -1,6 +1,12 @@
 [
   {
     "date": "21 Nov 2026",
+    "tag": "added",
+    "title": "Antares projects from a worldwide search",
+    "description": "A country-by-country search and a deep dive into adequacy and market studies by ENTSO-E, TSOs, regulators and development banks add Antares projects such as ENTSO-E's Mid-term Adequacy Forecasts and TYNDP regional plans, the Pentalateral Energy Forum adequacy assessments, CRE's Celtic interconnector analysis and World Bank interconnection studies. RTE, which develops Antares, is not listed as a user."
+  },
+  {
+    "date": "21 Nov 2026",
     "tag": "reclassified",
     "title": "Corrected source links for 426 project records",
     "description": "A bug in the deep-dive search attached some quotes to the wrong page of the same website. Every affected PLEXOS, PyPSA and PowSyBl record now links to the page that contains its quote (checked word for word against the stored page text). Two records whose quote could not be found on any fetched page are no longer published, and 31 study dates taken from the wrongly linked pages were removed until they are re-dated."
