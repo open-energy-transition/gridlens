@@ -104,7 +104,9 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
     window.addEventListener('keydown', onKey);
-    panel.current?.querySelector<HTMLElement>('select, input')?.focus();
+    panel.current?.querySelector<HTMLElement>('select, input, button[aria-haspopup]')?.focus({ preventScroll: true });
+    // On laptops the panel can reach below the screen: bring all of it into view.
+    panel.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
 
@@ -147,7 +149,7 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
                 ref={panel}
                 role="dialog"
                 aria-label={`Filters for ${title ?? 'this page'}`}
-                className="fixed inset-x-0 bottom-0 z-40 max-h-[85vh] overflow-y-auto rounded-t-2xl border border-ink-800 bg-ink-950 p-4 pb-6 shadow-2xl md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:top-full md:mt-2 md:w-[34rem] md:rounded-xl"
+                className="fixed inset-x-0 bottom-0 z-40 max-h-[85vh] overflow-y-auto rounded-t-2xl border border-ink-800 bg-ink-950 p-4 pb-6 shadow-2xl md:absolute md:inset-x-auto md:bottom-auto md:right-0 md:top-full md:mt-2 md:max-h-[calc(100vh-6rem)] md:w-[34rem] md:rounded-xl"
               >
                 <div className="mb-3 flex items-center justify-between">
                   <div>

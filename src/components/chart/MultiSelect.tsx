@@ -8,8 +8,6 @@ export default function MultiSelect({ label, value, options, display, onChange }
 }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
-  // Open towards the side with room: fields in the right column open leftwards.
-  const [alignRight, setAlignRight] = useState(false);
   const box = useRef<HTMLDivElement>(null);
   const chosen = valuesOf(value);
   const searchable = options.length > 8;
@@ -33,16 +31,17 @@ export default function MultiSelect({ label, value, options, display, onChange }
 
   const summary = chosen.length === 0 ? 'All' : chosen.length <= 2 ? chosen.map(display).join(', ') : `${display(chosen[0])} +${chosen.length - 1}`;
 
+  // Open, the list takes the full width of the panel and sits in the flow, so the panel scrolls instead of cutting it off.
   return (
-    <div ref={box} className="relative flex flex-col gap-1 text-xs font-medium text-ink-400">
+    <div ref={box} className={`flex flex-col gap-1 text-xs font-medium text-ink-400 ${open ? 'col-span-2' : ''}`}>
       <span id={`${label}-label`}>{label}</span>
-      <button type="button" aria-haspopup="listbox" aria-expanded={open} aria-labelledby={`${label}-label`} onClick={() => { setAlignRight((box.current?.getBoundingClientRect().left ?? 0) > window.innerWidth / 2); setOpen((o) => !o); }}
+      <button type="button" aria-haspopup="listbox" aria-expanded={open} aria-labelledby={`${label}-label`} onClick={() => setOpen((o) => !o)}
         className={`flex w-full items-center justify-between gap-2 rounded-lg border bg-ink-900 px-2.5 py-2 text-left text-sm outline-none focus:border-brand-500 ${chosen.length ? 'border-brand-500/60 text-ink-100' : 'border-ink-800 text-ink-200'}`}>
         <span className="truncate">{summary}</span>
         <ChevronDown size={14} className="shrink-0 text-ink-500" />
       </button>
       {open && (
-        <div className={`absolute top-full z-50 mt-1 w-[min(18rem,calc(100vw-2rem))] min-w-full rounded-lg border border-ink-700 bg-ink-950 p-1.5 shadow-2xl ${alignRight ? 'right-0' : 'left-0'}`}>
+        <div className="rounded-lg border border-ink-700 bg-ink-900/60 p-1.5">
           {searchable && (
             <span className="relative mb-1 block">
               <Search size={13} className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-ink-500" />
@@ -50,7 +49,7 @@ export default function MultiSelect({ label, value, options, display, onChange }
                 className="w-full rounded-md border border-ink-800 bg-ink-900 py-1.5 pl-7 pr-2 text-sm font-normal text-ink-200 outline-none focus:border-brand-500" />
             </span>
           )}
-          <ul role="listbox" aria-multiselectable="true" aria-label={label} className="max-h-60 overflow-y-auto">
+          <ul role="listbox" aria-multiselectable="true" aria-label={label} className="max-h-56 overflow-y-auto overscroll-contain">
             {list.map((o) => {
               const on = chosen.includes(o);
               return (
