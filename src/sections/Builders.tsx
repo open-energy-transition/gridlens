@@ -5,6 +5,7 @@ import Segmented from '../components/chart/Segmented';
 import { Link, slug } from '../lib/router';
 import { isOpenSource, TOOLS, toolInfo } from '../lib/tools';
 import { useChart } from '../lib/chartFilters';
+import { matcher, single } from '../lib/multi';
 import { DEFAULT_FILTERS } from '../types';
 import ChartCard from '../components/chart/ChartCard';
 import EmptyState from '../components/common/EmptyState';
@@ -114,8 +115,8 @@ export default function Builders() {
   const months = windowMonths(filters.period);
   const [metric, setMetric] = useState<Metric>('prs');
   const tools = OPEN_TOOLS.filter((t) =>
-    (filters.toolName === 'All' || filters.toolName === t) &&
-    (filters.toolCategory === 'All' || toolInfo(t)!.categories.includes(filters.toolCategory)) &&
+    matcher(filters.toolName)(t) &&
+    (filters.toolCategory === 'All' || toolInfo(t)!.categories.some(matcher(filters.toolCategory))) &&
     filters.license !== 'proprietary');
   const key = tools.join();
   const orgs = useMemo(() => contributorsInWindow(tools, months, CONTRIBUTORS, metric), [key, months, metric]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -133,12 +134,12 @@ export default function Builders() {
       choices={CHOICES}
       actions={<MetricSwitch value={metric} onChange={setMetric} />}
     >
-      {(['country', 'sector', 'orgType'] as const).some((k) => filters[k] !== DEFAULT_FILTERS[k]) && (
-        <p className="mb-4 text-xs text-ink-500">Code contributions are not tied to a country, sector or type of organization, so those filters don’t change this ranking.</p>
+      {(['country', 'sector', 'orgType', 'decision', 'impact'] as const).some((k) => filters[k] !== DEFAULT_FILTERS[k]) && (
+        <p className="mb-4 text-xs text-ink-500">Code contributions are not tied to a country, sector, type of organization, grid decision or impact, so those filters don’t change this ranking.</p>
       )}
       {tools.length === 0 ? (
         <EmptyState title="No open-source tool matches these filters"
-          message={filters.toolName !== 'All' && !isOpenSource(filters.toolName) ? `${filters.toolName} is proprietary: its code and contributors are not public.` : 'Change the tool or category filter.'} />
+          message={single(filters.toolName) && !isOpenSource(single(filters.toolName)!) ? `${single(filters.toolName)} is proprietary: its code and contributors are not public.` : 'Change the tool or category filter.'} />
       ) : (
         <>
           <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">

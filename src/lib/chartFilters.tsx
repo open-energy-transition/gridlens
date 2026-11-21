@@ -6,6 +6,7 @@ import { splitCategories, TOOL_CATEGORIES } from './toolCategories';
 import { orgGroup, ORG_GROUPS } from './orgTypes';
 import { activeCount, mergeFilterSearch, searchToFilters } from './filterParams';
 import { useRoute } from './router';
+import { decisionOf, DECISION_TYPES } from './insights';
 
 /** Choices offered in every chart's filter panel. */
 export interface FilterOptions {
@@ -15,6 +16,7 @@ export interface FilterOptions {
   evidenceStrengths: string[];
   orgTypes: string[];
   sourceGroups: string[];
+  decisions: string[];
 }
 
 interface FilterState {
@@ -36,6 +38,7 @@ function optionsFor(catalogue: CatalogueRecord[]): FilterOptions {
     evidenceStrengths: uniqSorted(catalogue, 'evidence_strength'),
     orgTypes: ORG_GROUPS.map((g) => g.id).filter((id) => groups.has(id)),
     sourceGroups: ['industry', 'academic'].filter((g) => catalogue.some((r) => r.source_group === g)),
+    decisions: DECISION_TYPES.filter((d) => catalogue.some((r) => decisionOf(r) === d)),
   };
 }
 

@@ -10,7 +10,7 @@ import ToolLogo from '../components/common/ToolLogo';
 
 /** Which tools are used for which grid decision: a heat matrix of projects per tool and purpose. */
 export default function PurposeMatrix() {
-  const { records } = useChart('purpose');
+  const { records } = useChart('purpose', ['decision']);
   const [mode, setMode] = useState('count');
   // Hovered cell: its row and column are highlighted, everything else dims slightly.
   const [at, setAt] = useState<{ r: number; c: number } | null>(null);
@@ -26,7 +26,8 @@ export default function PurposeMatrix() {
       years
       title="Which tool for which decision"
       description="Projects per tool and kind of grid decision. Hover a column for what it covers."
-      fields={['country', 'period', 'sector', 'license', 'orgType', 'evidenceStrength', 'search']}
+      ignore={['decision']}
+      fields={['country', 'period', 'impact', 'sector', 'license', 'orgType', 'evidenceStrength', 'search']}
       actions={<Segmented label="Show" value={mode} onChange={setMode} options={[{ id: 'count', label: 'Projects' }, { id: 'share', label: '% of tool' }]} />}
     >
       {m.rows.length === 0 ? (

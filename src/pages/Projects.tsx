@@ -18,7 +18,7 @@ export default function Projects() {
         <ChartCard
           id="projects"
           years
-          title={`${records.length.toLocaleString('en')} projects`}
+          title={`${records.length.toLocaleString('en')} project${records.length === 1 ? '' : 's'}`}
           actions={
             <button type="button" onClick={() => downloadCsv('gridlens_projects.csv', records)} aria-label="Download these projects as CSV"
               className="flex h-9 items-center gap-1.5 rounded-full bg-ink-50 px-3.5 text-xs font-medium text-ink-950 hover:bg-white">

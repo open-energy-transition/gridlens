@@ -210,3 +210,31 @@ describe('study period', () => {
     expect(applyFilters([recent, old, undated], { ...EMPTY_FILTERS, period: '5', undated: 'include' }, 2026)).toEqual([recent, undated]);
   });
 });
+
+describe('grid decision and impact filters', () => {
+  const operator = record({ project_id: 'A', decision_type: 'Transmission & Network Planning' });
+  const research = record({
+    project_id: 'B', decision_type: '', institution_category: 'academic_research',
+    organizations: [{ name: 'Uni', role: 'research_user', institution_category: 'academic_research', country_label: 'Brazil' }],
+  });
+
+  it('keep projects of one decision type; an empty type counts as not specified', () => {
+    expect(applyFilters([operator, research], { ...EMPTY_FILTERS, decision: 'Transmission & Network Planning' })).toEqual([operator]);
+    expect(applyFilters([operator, research], { ...EMPTY_FILTERS, decision: 'Other / General Modeling' })).toEqual([research]);
+  });
+
+  it('keep projects of one impact level', () => {
+    expect(applyFilters([operator, research], { ...EMPTY_FILTERS, impact: 'high' })).toEqual([operator]);
+    expect(applyFilters([operator, research], { ...EMPTY_FILTERS, impact: 'low' })).toEqual([research]);
+  });
+});
+
+describe('several values in one filter', () => {
+  it('keep projects in any chosen country or tool', () => {
+    const es = record({ project_id: 'E', country_label: 'Spain', tool_name: 'PyPSA' });
+    const fr = record({ project_id: 'F', country_label: 'France', tool_name: 'PLEXOS' });
+    const de = record({ project_id: 'D', country_label: 'Germany', tool_name: 'PyPSA' });
+    expect(applyFilters([es, fr, de], { ...EMPTY_FILTERS, country: 'Spain|France' })).toEqual([es, fr]);
+    expect(applyFilters([es, fr, de], { ...EMPTY_FILTERS, toolName: 'PLEXOS|PyPSA', country: 'Germany|France' })).toEqual([fr, de]);
+  });
+});

@@ -3,6 +3,9 @@ import { splitCategories } from './toolCategories';
 import { orgGroup, sectorOf } from './orgTypes';
 import { toolInfo } from './tools';
 import { coversCountry } from './regions';
+import { decisionOf } from './insights';
+import { projectImpact } from './impact';
+import { matcher, valuesOf } from './multi';
 
 export function safe(value: unknown): string {
   if (value === null || value === undefined) return '';
@@ -29,20 +32,26 @@ export function periodStart(period: string, thisYear = new Date().getFullYear())
 export function applyFilters(records: CatalogueRecord[], filters: Filters, thisYear = new Date().getFullYear()): CatalogueRecord[] {
   const search = filters.search.trim().toLowerCase();
   const since = filters.period === 'All' ? null : periodStart(filters.period, thisYear);
+  // Multi-value filters ("Spain|France"): a record passes when it matches any chosen value.
+  const countries = valuesOf(filters.country);
+  const [orgType, decision, impact, tool, category, evidence] =
+    [filters.orgType, filters.decision, filters.impact, filters.toolName, filters.toolCategory, filters.evidenceStrength].map(matcher);
   return records.filter((r) => {
     // Undated studies are left out of a period (we cannot say they are recent) unless the reader includes them.
     if (since !== null && (r.year ? r.year < since : filters.undated !== 'include')) return false;
-    if (filters.country !== 'All' && coversCountry(r, filters.country) === null) return false;
-    if (filters.orgType !== 'All' && !r.organizations.some((o) => orgGroup(o) === filters.orgType)) return false;
+    if (countries.length && !countries.some((c) => coversCountry(r, c) !== null)) return false;
+    if (!r.organizations.some((o) => orgType(orgGroup(o)))) return false;
     if (filters.sector !== 'All' && !r.organizations.some((o) => sectorOf(o) === filters.sector)) return false;
     if (filters.sourceGroup !== 'All' && r.source_group !== filters.sourceGroup) return false;
+    if (!decision(decisionOf(r))) return false;
+    if (!impact(projectImpact(r))) return false;
     if (search) {
       const haystack = [...Object.values(r).map(safe), ...r.organizations.map((o) => o.name)].join(' | ').toLowerCase();
       if (!haystack.includes(search)) return false;
     }
-    if (filters.toolName !== 'All' && safe(r.tool_name) !== filters.toolName) return false;
-    if (filters.toolCategory !== 'All' && !splitCategories(r.tool_category).includes(filters.toolCategory)) return false;
-    if (filters.evidenceStrength !== 'All' && safe(r.evidence_strength) !== filters.evidenceStrength) return false;
+    if (!tool(safe(r.tool_name))) return false;
+    if (filters.toolCategory !== 'All' && !splitCategories(r.tool_category).some(category)) return false;
+    if (!evidence(safe(r.evidence_strength))) return false;
     if (filters.license !== 'All' && toolInfo(r.tool_name)?.license !== filters.license) return false;
     return true;
   });

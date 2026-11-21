@@ -30,7 +30,7 @@ export default function Momentum() {
       ignore={['period', 'undated']}
       title="Projects per year"
       description="Projects per year of the study. A rising open-source share means new studies increasingly use tools anyone can inspect and reuse."
-      fields={['country', 'toolName', 'sector', 'orgType', 'toolCategory', 'evidenceStrength', 'search']}
+      fields={['country', 'toolName', 'decision', 'impact', 'sector', 'orgType', 'toolCategory', 'evidenceStrength', 'search']}
     >
       {dated === 0 ? (
         <EmptyState title="No dated projects for these filters" />

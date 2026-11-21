@@ -1,4 +1,6 @@
 import type { CatalogueRecord } from '../types';
+import { decisionOf } from './insights';
+import { projectImpact } from './impact';
 
 const ALL_COLUMNS: (keyof CatalogueRecord)[] = [
   'project_title',
@@ -14,8 +16,10 @@ const ALL_COLUMNS: (keyof CatalogueRecord)[] = [
   'tool_category',
   'use_case',
   'summary',
+  'decision_type',
   'evidence_strength',
   'source_type',
+  'source_group',
   'source_title',
   'source_date',
   'source_link',
@@ -43,8 +47,9 @@ function escapeCsvCell(value: unknown): string {
 }
 
 export function toCsv(records: CatalogueRecord[], columns: (keyof CatalogueRecord)[] = ALL_COLUMNS): string {
-  const header = columns.join(',');
-  const rows = records.map((r) => columns.map((c) => escapeCsvCell(r[c])).join(','));
+  // Plus the computed project impact (high / medium / low), as on the site.
+  const header = [...columns, 'impact'].join(',');
+  const rows = records.map((r) => [...columns.map((c) => escapeCsvCell(c === 'decision_type' ? decisionOf(r) : r[c])), projectImpact(r)].join(','));
   return [header, ...rows].join('\n');
 }
 

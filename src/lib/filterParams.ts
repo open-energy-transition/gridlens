@@ -13,6 +13,8 @@ const PARAM: Record<keyof Filters, string> = {
   license: 'license',
   evidenceStrength: 'evidence',
   sourceGroup: 'source',
+  decision: 'decision',
+  impact: 'impact',
   search: 'q',
 };
 
