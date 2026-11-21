@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
-import { AVAILABLE_METRICS, contributorsInWindow, CONTRIBUTORS, METRICS, WINDOWS, windowLabel, type ContributorOrg, type Metric } from '../lib/contributors';
+import { AVAILABLE_METRICS, contributorsInWindow, CONTRIBUTORS, METRICS, type ContributorOrg, type Metric } from '../lib/contributors';
 import Segmented from '../components/chart/Segmented';
 import { Link, slug } from '../lib/router';
 import { isOpenSource, TOOLS, toolInfo } from '../lib/tools';
@@ -9,7 +9,6 @@ import { DEFAULT_FILTERS } from '../types';
 import ChartCard from '../components/chart/ChartCard';
 import EmptyState from '../components/common/EmptyState';
 import ToolLogo from '../components/common/ToolLogo';
-import StepSlider from '../components/chart/StepSlider';
 
 const OPEN_TOOLS = TOOLS.filter((t) => t.license === 'open_source' && CONTRIBUTORS.tools[t.name]).map((t) => t.name);
 const SHOWN = 12;
@@ -30,9 +29,9 @@ export function ContributionCaveat() {
   );
 }
 
-/** Slider over the contribution window: 3 months to 10 years. */
-export function WindowSlider({ months, onChange }: { months: number; onChange: (m: number) => void }) {
-  return <StepSlider steps={WINDOWS} value={months} onChange={onChange} label={windowLabel} />;
+/** The contribution window follows the shared study-year slider: the last N years, or all (as far back as GitHub goes). */
+export function windowMonths(period: string): number {
+  return period === 'All' ? 12 * 50 : 12 * Number(period);
 }
 
 /** Organizations ranked by pull requests merged in the window; each name links to the organization. */
@@ -107,12 +106,12 @@ export function MetricSwitch({ value, onChange }: { value: Metric; onChange: (m:
 
 /**
  * Who builds the open-source tools: organizations ranked by their people's merged pull requests, commits, reviews
- * or issues in each tool's GitHub organizations over a window the reader picks (default 12 months). The tool, tool-category and
+ * or issues in each tool's GitHub organizations over the period of the shared study-year slider. The tool, tool-category and
  * licence filters apply; others (country, sector…) say nothing about who writes the code.
  */
 export default function Builders() {
   const { filters } = useChart('builders');
-  const [months, setMonths] = useState(12);
+  const months = windowMonths(filters.period);
   const [metric, setMetric] = useState<Metric>('prs');
   const tools = OPEN_TOOLS.filter((t) =>
     (filters.toolName === 'All' || filters.toolName === t) &&
@@ -128,12 +127,14 @@ export default function Builders() {
       description={<>Organizations whose people contribute most to each tool’s code.
         People count for the organization in the “Company” field of their public GitHub profile (e.g. <span className="text-ink-300">@open-energy-transition</span>);{' '}
         <Link href="/about#contributions" className="text-ink-300 underline decoration-ink-700 underline-offset-2 hover:text-ink-50">how to be counted</Link>.</>}
-      fields={['toolName', 'toolCategory', 'license']}
+      fields={['period', 'toolName', 'toolCategory', 'license']}
+      years
+      undatedNote={false}
       choices={CHOICES}
-      actions={<><MetricSwitch value={metric} onChange={setMetric} /><WindowSlider months={months} onChange={setMonths} /></>}
+      actions={<MetricSwitch value={metric} onChange={setMetric} />}
     >
-      {(['country', 'sector', 'orgType', 'period'] as const).some((k) => filters[k] !== DEFAULT_FILTERS[k]) && (
-        <p className="mb-4 text-xs text-ink-500">Code contributions are not tied to a country, sector or study year, so those filters don’t change this ranking.</p>
+      {(['country', 'sector', 'orgType'] as const).some((k) => filters[k] !== DEFAULT_FILTERS[k]) && (
+        <p className="mb-4 text-xs text-ink-500">Code contributions are not tied to a country, sector or type of organization, so those filters don’t change this ranking.</p>
       )}
       {tools.length === 0 ? (
         <EmptyState title="No open-source tool matches these filters"

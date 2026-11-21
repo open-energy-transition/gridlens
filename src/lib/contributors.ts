@@ -89,10 +89,3 @@ export function contributorsInWindow(tools: string[], months: number, source = C
   }
   return [...byName.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
-
-/** Window lengths offered by the slider, in months. */
-export const WINDOWS = [3, 6, 12, 24, 36, 60, 120];
-
-export function windowLabel(months: number): string {
-  return months < 12 ? `${months} months` : months === 12 ? '12 months' : `${months / 12} years`;
-}

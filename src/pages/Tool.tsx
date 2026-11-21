@@ -1,6 +1,9 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import { ArrowUpRight } from 'lucide-react';
 import { useChart } from '../lib/chartFilters';
+import type { Filters } from '../types';
+import { dateKey } from '../lib/dates';
+import { filtersToSearch } from '../lib/filterParams';
 import { decisionOf, DECISION_INFO, OTHER_DECISION, organizationDirectory, projectsPerYear, serviceProviders } from '../lib/insights';
 import { CONTRIBUTORS, contributorsInWindow, type Metric } from '../lib/contributors';
 import { TOOLS, toolInfo, isOpenSource } from '../lib/tools';
@@ -13,37 +16,72 @@ import { Link, slug } from '../lib/router';
 import HorizontalBarChart from '../components/charts/HorizontalBarChart';
 import WorldMap from '../components/charts/WorldMap';
 import YearBars from '../components/charts/YearBars';
-import ChartCard, { ALL_FIELDS } from '../components/chart/ChartCard';
+import ChartCard from '../components/chart/ChartCard';
 import LicenseBadge from '../components/common/LicenseBadge';
 import ToolLogo from '../components/common/ToolLogo';
 import EmptyState from '../components/common/EmptyState';
 import { ProjectRow } from '../sections/GridDecisions';
-import { ContributionCaveat, ContributionSource, ContributorBars, MetricSwitch, WindowSlider } from '../sections/Builders';
+import { ContributionCaveat, ContributionSource, ContributorBars, MetricSwitch, windowMonths } from '../sections/Builders';
 import { ProviderList } from '../sections/Providers';
 
 const THIS_YEAR = new Date().getFullYear();
 
-function Panel({ id, title, note, children, className = '' }: { id?: string; title: string; note?: ReactNode; children: ReactNode; className?: string }) {
+type Key = keyof Filters;
+// A tool page is always about its tool: the tool and licence filters do not apply to it.
+const TOOL_IGNORE: Key[] = ['toolName', 'license'];
+
+/** The shared filters applied to this tool's projects, for one section (with `ignore` for filters it sets itself). */
+function useToolRecords(id: string, name: string, ignore: Key[] = []) {
+  const chart = useChart(id, [...TOOL_IGNORE, ...ignore]);
+  const records = useMemo(() => chart.records.filter((r) => r.tool_name === name), [chart.records, name]);
+  return { ...chart, records };
+}
+
+/** One section of the tool page: a card with its own filter button (filters are shared with the rest of the site). */
+function Section({ id, name, title, note, fields, years = true, ignore = [], actions, className = '', children }: {
+  id: string; name: string; title: string; note?: ReactNode; fields: Key[]; years?: boolean; ignore?: Key[]; actions?: ReactNode; className?: string; children: ReactNode;
+}) {
   return (
-    <section id={id} className={`scroll-mt-20 rounded-2xl border border-ink-800/80 bg-ink-900/40 p-4 sm:p-6 ${className}`}>
-      <h2 className="font-display mb-1 text-xl text-ink-50">{title}</h2>
-      {note && <p className="mb-4 text-sm text-ink-400">{note}</p>}
-      {children}
+    <section id={id} className={`scroll-mt-20 ${className}`}>
+      <ChartCard id={id} title={title} description={note} fields={fields} years={years} ignore={[...TOOL_IGNORE, ...ignore]} actions={actions}
+        scope={(r) => r.tool_name === name}>
+        {children}
+      </ChartCard>
     </section>
   );
 }
 
-/** Everything known about one tool: who uses it for what and where, who builds it, who offers services. */
-function ToolProfile({ name }: { name: string }) {
-  const info = toolInfo(name)!;
-  const open = isOpenSource(name);
-  const color = open ? OPEN_SOURCE : PROPRIETARY;
-  const { records: filtered, catalogue, filters, setFilters } = useChart('tool', ['toolName', 'license']);
-  const records = useMemo(() => filtered.filter((r) => r.tool_name === name), [filtered, name]);
-  const total = useMemo(() => catalogue.filter((r) => r.tool_name === name).length, [catalogue, name]);
+const WHO: Key[] = ['country', 'period', 'sector', 'orgType', 'evidenceStrength', 'search'];
 
+function Headline({ name }: { name: string }) {
+  const info = toolInfo(name)!;
+  const { records, catalogue } = useToolRecords('tool', name);
+  const total = useMemo(() => catalogue.filter((r) => r.tool_name === name).length, [catalogue, name]);
   const orgs = useMemo(() => organizationDirectory(records).filter((o) => o.name !== info.vendor), [records, info.vendor]);
-  const gridOperators = orgs.filter((o) => o.group === 'grid_operator').length;
+  const countries = new Set(records.flatMap((r) => r.countries)).size;
+  return (
+    <ChartCard id="tool" plain years fields={WHO} ignore={TOOL_IGNORE} scope={(r) => r.tool_name === name}
+      description={records.length === total ? `All ${total.toLocaleString('en')} documented projects.` : `${records.length.toLocaleString('en')} of ${total.toLocaleString('en')} documented projects match the filters.`}>
+      <dl className="grid grid-cols-2 gap-6 border-y border-ink-800/80 py-6 sm:grid-cols-4">
+        {[
+          [records.length, 'projects'],
+          [orgs.length, 'organizations use it'],
+          [orgs.filter((o) => o.group === 'grid_operator').length, 'of them grid or system operators', 'Transmission and distribution system operators, ISOs and RTOs.'],
+          [countries, 'countries'],
+        ].map(([v, l, t]) => (
+          <div key={l as string} title={t as string | undefined}>
+            <dd className="font-display tabular text-4xl text-ink-50 sm:text-5xl">{v}</dd>
+            <dt className="mt-1 text-sm text-ink-400">{l}</dt>
+          </div>
+        ))}
+      </dl>
+    </ChartCard>
+  );
+}
+
+function WhereSection({ name }: { name: string }) {
+  // The map keeps every country visible so another one can be picked; the country filter only marks it.
+  const { records, filters, setFilters } = useToolRecords('tool-map', name, ['country']);
   const countries = useMemo(() => {
     const m = new Map<string, number>();
     for (const r of records) for (const c of r.countries) m.set(c, (m.get(c) ?? 0) + 1);
@@ -54,6 +92,21 @@ function ToolProfile({ name }: { name: string }) {
     for (const [c, n] of countries) m.set(toAtlasName(c), (m.get(toAtlasName(c)) ?? 0) + n);
     return m;
   }, [countries]);
+  return (
+    <Section name={name} id="tool-map" title="Where it is used" className="lg:col-span-2" ignore={['country']}
+      note="Projects per country; regional and global studies count in every country they cover. Click a country to filter."
+      fields={['period', 'sector', 'orgType', 'evidenceStrength', 'search']}>
+      {records.length ? (
+        <WorldMap valueByCountry={atlas} maxValue={Math.max(1, ...atlas.values())}
+          selected={filters.country === 'All' ? undefined : toAtlasName(filters.country)}
+          onSelect={(n) => { const c = [...countries.keys()].find((k) => toAtlasName(k) === n) ?? n; setFilters({ ...filters, country: filters.country === c ? 'All' : c }); }} />
+      ) : <EmptyState />}
+    </Section>
+  );
+}
+
+function UsedForSection({ name, color }: { name: string; color: string }) {
+  const { records } = useToolRecords('tool-purpose', name);
   const decisions = useMemo(() => {
     const m = new Map<string, number>();
     for (const r of records) m.set(decisionOf(r), (m.get(decisionOf(r)) ?? 0) + 1);
@@ -63,19 +116,114 @@ function ToolProfile({ name }: { name: string }) {
     const rows = [...m].map(([d, c]) => ({ name: DECISION_INFO[d]?.short ?? d, count: c })).sort((a, b) => b.count - a.count);
     return other ? [...rows, { name: DECISION_INFO[OTHER_DECISION].short, count: other }] : rows;
   }, [records]);
+  return (
+    <Section name={name} id="tool-purpose" title="Used for" note="Projects per kind of grid decision; “Not specified” where the source names none."
+      fields={['country', 'period', 'sector', 'orgType', 'evidenceStrength']}>
+      {decisions.length
+        ? <HorizontalBarChart data={decisions} colorOf={(n) => (n === DECISION_INFO[OTHER_DECISION].short ? UNKNOWN : color)} unit="projects" />
+        : <EmptyState />}
+    </Section>
+  );
+}
+
+function PerYearSection({ name, color }: { name: string; color: string }) {
+  // A timeline: the study-year filter does not apply.
+  const { records } = useToolRecords('tool-years', name, ['period', 'undated']);
+  const undated = records.filter((r) => !r.year).length;
+  return (
+    <Section name={name} id="tool-years" title="Projects per year" years={false} ignore={['period', 'undated']}
+      note={`Projects with a known year, ${THIS_YEAR - 14}–${THIS_YEAR}. ${THIS_YEAR} is still in progress.`}
+      fields={['country', 'sector', 'orgType', 'evidenceStrength']}>
+      <YearBars years={projectsPerYear(records, THIS_YEAR - 14, THIS_YEAR)} split={false} color={color} />
+      {undated > 0 && <p className="mt-3 text-xs text-ink-500">{undated.toLocaleString('en')} of {records.length.toLocaleString('en')} projects have an unknown year and are not shown.</p>}
+    </Section>
+  );
+}
+
+function UsersSection({ name }: { name: string }) {
+  const info = toolInfo(name)!;
+  const { records } = useToolRecords('tool-users', name);
+  const orgs = useMemo(() => organizationDirectory(records).filter((o) => o.name !== info.vendor), [records, info.vendor]);
+  return (
+    <Section name={name} id="tool-users" title="Top users" note="Organizations with the most projects using this tool."
+      fields={['country', 'period', 'sector', 'orgType']}>
+      {orgs.length ? (
+        <>
+          <ul className="divide-y divide-ink-800/80">
+            {orgs.slice(0, 10).map((o) => (
+              <li key={o.name} className="-mx-2 flex items-baseline justify-between gap-4 rounded-lg px-2 py-2.5 text-sm transition-colors hover:bg-ink-800/40">
+                <span className="min-w-0">
+                  <span className="text-ink-100">{o.name}</span>
+                  <span className="ml-2 text-xs text-ink-500">{orgGroupLabel(o.group)}</span>
+                </span>
+                <span className="tabular shrink-0 text-ink-400">{o.projects}</span>
+              </li>
+            ))}
+          </ul>
+          <Link href={`/organizations?tool=${encodeURIComponent(name)}`} className="mt-3 inline-block text-sm text-brand-300 hover:text-brand-200">All {orgs.length} organizations</Link>
+        </>
+      ) : <EmptyState />}
+    </Section>
+  );
+}
+
+function DecisionsSection({ name }: { name: string }) {
+  const { records, filters } = useToolRecords('tool-decisions', name);
   const notable = useMemo(
     () => records
       .filter((r) => projectImpact(r) === 'high')
-      .sort((a, b) => Number(decisionOf(a) === OTHER_DECISION) - Number(decisionOf(b) === OTHER_DECISION) || (b.year ?? 0) - (a.year ?? 0))
+      .sort((a, b) => Number(decisionOf(a) === OTHER_DECISION) - Number(decisionOf(b) === OTHER_DECISION) || dateKey(b.date, b.year).localeCompare(dateKey(a.date, a.year)))
       .slice(0, 5),
     [records],
   );
-  const providers = useMemo(() => serviceProviders(records), [records]);
-  const [months, setMonths] = useState(12);
+  return (
+    <Section name={name} id="tool-decisions" title="Real grid decisions" note="Latest projects in which a grid operator, utility, regulator or ministry used or commissioned the tool."
+      fields={['country', 'period', 'sector', 'search']}>
+      {notable.length ? <ul className="-my-4 divide-y divide-ink-800/80">{notable.map((r) => <ProjectRow key={r.project_id} r={r} />)}</ul> : <EmptyState title="None documented for these filters" />}
+      <Link href={`/projects${filtersToSearch({ ...filters, toolName: name })}`} className="mt-3 inline-block text-sm text-brand-300 hover:text-brand-200">All {name} projects</Link>
+    </Section>
+  );
+}
+
+function BuildersSection({ name }: { name: string }) {
+  const { filters } = useChart('tool-builders', TOOL_IGNORE);
   const [metric, setMetric] = useState<Metric>('prs');
-  const builders = useMemo(() => contributorsInWindow([name], months, CONTRIBUTORS, metric), [name, months, metric]);
+  const builders = useMemo(() => contributorsInWindow([name], windowMonths(filters.period), CONTRIBUTORS, metric), [name, filters.period, metric]);
+  return (
+    <section id="builders" className="scroll-mt-20">
+      <ChartCard id="tool-builders" title={`Who builds ${name}`} fields={['period']} years undatedNote={false} ignore={TOOL_IGNORE}
+        description="Organizations whose people contribute most to the tool’s code in the chosen period, by the “Company” on their GitHub profile."
+        actions={<MetricSwitch value={metric} onChange={setMetric} />}>
+        <ContributorBars orgs={builders} metric={metric} />
+        <ContributionSource tools={[name]} />
+        <ContributionCaveat />
+      </ChartCard>
+    </section>
+  );
+}
+
+function ProvidersSection({ name }: { name: string }) {
+  const info = toolInfo(name)!;
+  const { records } = useToolRecords('tool-providers', name);
+  const providers = useMemo(() => serviceProviders(records), [records]);
+  return (
+    <Section name={name} id="tool-providers" title={`Companies offering ${name} services`}
+      note={`Consultancies with documented ${name} projects${isOpenSource(name) ? '' : `; ${info.vendor} itself is not listed`}.`}
+      fields={['country', 'period']}>
+      <ProviderList list={providers} />
+    </Section>
+  );
+}
+
+/** Everything known about one tool: who uses it for what and where, who builds it, who offers services. Each section has its own filters. */
+function ToolProfile({ name }: { name: string }) {
+  const info = toolInfo(name)!;
+  const open = isOpenSource(name);
+  const color = open ? OPEN_SOURCE : PROPRIETARY;
+  const { catalogue } = useChart('tool', TOOL_IGNORE);
+  const all = useMemo(() => catalogue.filter((r) => r.tool_name === name), [catalogue, name]);
   const gh = CONTRIBUTORS.tools[name];
-  const categories = [...new Set(records.flatMap((r) => splitCategories(r.tool_category)))].filter((c) => c !== 'unspecified' && c !== 'other');
+  const categories = [...new Set(all.flatMap((r) => splitCategories(r.tool_category)))].filter((c) => c !== 'unspecified' && c !== 'other');
 
   return (
     <div>
@@ -105,75 +253,16 @@ function ToolProfile({ name }: { name: string }) {
         </div>
       </header>
 
-      <ChartCard id="tool" plain years ignore={['toolName', 'license']} fields={ALL_FIELDS.filter((f) => f !== 'toolName' && f !== 'license')}
-        description={records.length === total ? `${total === 1 ? 'One documented project' : `All ${total} documented projects`}. Filter by country, period, sector or type of organization.` : `${records.length} of ${total} projects match the filters.`}>
-        <dl className="grid grid-cols-2 gap-6 border-y border-ink-800/80 py-6 sm:grid-cols-4">
-          {[
-            [records.length, 'projects'],
-            [orgs.length, 'organizations use it'],
-            [gridOperators, 'of them grid or system operators', 'Transmission and distribution system operators, ISOs and RTOs.'],
-            [countries.size, 'countries'],
-          ].map(([v, l, t]) => (
-            <div key={l as string} title={t as string | undefined}>
-              <dd className="font-display tabular text-4xl text-ink-50 sm:text-5xl">{v}</dd>
-              <dt className="mt-1 text-sm text-ink-400">{l}</dt>
-            </div>
-          ))}
-        </dl>
-
-        {records.length === 0 ? (
-          <div className="mt-8"><EmptyState /></div>
-        ) : (
-          <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <Panel title="Where it is used" note="Projects per country; regional and global studies count in every country they cover." className="lg:col-span-2">
-              <WorldMap valueByCountry={atlas} maxValue={Math.max(1, ...atlas.values())}
-                selected={filters.country === 'All' ? undefined : toAtlasName(filters.country)}
-                onSelect={(n) => { const c = [...countries.keys()].find((k) => toAtlasName(k) === n) ?? n; setFilters({ ...filters, country: filters.country === c ? 'All' : c }); }} />
-            </Panel>
-            <Panel title="Used for" note="Projects per kind of grid decision; “Not specified” where the source names none.">
-              {decisions.length ? <HorizontalBarChart data={decisions} colorOf={(n) => (n === DECISION_INFO[OTHER_DECISION].short ? UNKNOWN : color)} unit="projects" /> : <p className="text-sm text-ink-500">No decision stated in the sources yet.</p>}
-            </Panel>
-            <Panel title="Projects per year" note={`Projects with a known year, ${THIS_YEAR - 14}–${THIS_YEAR}. ${THIS_YEAR} is still in progress.`}>
-              <YearBars years={projectsPerYear(records, THIS_YEAR - 14, THIS_YEAR)} split={false} color={color} />
-            </Panel>
-            <Panel title="Top users" note="Organizations with the most projects using this tool.">
-              <ul className="divide-y divide-ink-800/80">
-                {orgs.slice(0, 10).map((o) => (
-                  <li key={o.name} className="-mx-2 flex items-baseline justify-between gap-4 rounded-lg px-2 py-2.5 text-sm transition-colors hover:bg-ink-800/40">
-                    <span className="min-w-0">
-                      <span className="text-ink-100">{o.name}</span>
-                      <span className="ml-2 text-xs text-ink-500">{orgGroupLabel(o.group)}</span>
-                    </span>
-                    <span className="tabular shrink-0 text-ink-400">{o.projects}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link href={`/organizations?tool=${encodeURIComponent(name)}`} className="mt-3 inline-block text-sm text-brand-300 hover:text-brand-200">All {orgs.length} organizations</Link>
-            </Panel>
-            <Panel title="Real grid decisions" note="Latest projects in which a grid operator, utility, regulator or ministry used or commissioned the tool.">
-              {notable.length ? <ul className="-my-4 divide-y divide-ink-800/80">{notable.map((r) => <ProjectRow key={r.project_id} r={r} />)}</ul> : <p className="text-sm text-ink-500">None documented yet.</p>}
-              <Link href={`/projects?projects.tool=${encodeURIComponent(name)}`} className="mt-3 inline-block text-sm text-brand-300 hover:text-brand-200">All {total} projects</Link>
-            </Panel>
-          </div>
-        )}
-      </ChartCard>
-
-      {gh && (
-        <div className="mt-6">
-          <Panel id="builders" title={`Who builds ${name}`}
-            note="Organizations whose people contribute most to the tool’s code in the chosen period, by the “Company” on their GitHub profile.">
-            <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2"><MetricSwitch value={metric} onChange={setMetric} /><WindowSlider months={months} onChange={setMonths} /></div>
-            <ContributorBars orgs={builders} metric={metric} />
-            <ContributionSource tools={[name]} />
-            <ContributionCaveat />
-          </Panel>
-        </div>
-      )}
-      <div className="mt-6">
-        <Panel title={`Companies offering ${name} services`} note={`Consultancies with documented ${name} projects${open ? '' : `; ${info.vendor} itself is not listed`}.`}>
-          <ProviderList list={providers} />
-        </Panel>
+      <Headline name={name} />
+      <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <WhereSection name={name} />
+        <UsedForSection name={name} color={color} />
+        <PerYearSection name={name} color={color} />
+        <UsersSection name={name} />
+        <DecisionsSection name={name} />
       </div>
+      {gh && <div className="mt-6"><BuildersSection name={name} /></div>}
+      <div className="mt-6"><ProvidersSection name={name} /></div>
     </div>
   );
 }

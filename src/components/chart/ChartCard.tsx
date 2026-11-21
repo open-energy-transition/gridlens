@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Check, Link2, Search, SlidersHorizontal, X } from 'lucide-react';
 import type { Filters } from '../../types';
-import { DEFAULT_FILTERS } from '../../types';
+import { DEFAULT_FILTERS, type CatalogueRecord } from '../../types';
 import YearSlider, { UndatedNote } from './YearSlider';
 import { useChart, type FilterOptions } from '../../lib/chartFilters';
 import { activeCount, filtersToSearch } from '../../lib/filterParams';
@@ -58,8 +58,12 @@ function Select({ label, value, options, display, onChange }: {
  * Card for one chart: title, a filter button (popover on desktop, bottom sheet on phones) for the filters
  * every chart shares, the active ones as removable chips, and a button that copies a link to this view.
  */
-export default function ChartCard({ id, title, description, fields = ALL_FIELDS, actions, plain = false, ignore = [], choices, years = false, children }: {
+export default function ChartCard({ id, title, description, fields = ALL_FIELDS, actions, plain = false, ignore = [], choices, years = false, undatedNote = true, scope, children }: {
   id: string;
+  /** Records this card is about (e.g. one tool's projects), for the unknown-year count. */
+  scope?: (r: CatalogueRecord) => boolean;
+  /** With `years`: show the tick box for projects with an unknown year (off where years do not apply to the data). */
+  undatedNote?: boolean;
   /** Show the study-year slider (shared by every chart) and how many undated projects it leaves out. */
   years?: boolean;
   /** Filters this view sets itself (a tool page's tool): not counted, not offered. */
@@ -81,7 +85,10 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const panel = useRef<HTMLDivElement>(null);
-  const active = fields.filter((k) => !ignore.includes(k) && filters[k].trim() !== DEFAULT_FILTERS[k]);
+  // Filters set away from their defaults (the badge on the Filters button).
+  const changed = fields.filter((k) => !ignore.includes(k) && filters[k].trim() !== DEFAULT_FILTERS[k]).length;
+  // The study period is always shown as a chip (also the default), so readers see which years they are looking at.
+  const active = fields.filter((k) => !ignore.includes(k) && (filters[k].trim() !== DEFAULT_FILTERS[k] || (k === 'period' && years)));
 
   useEffect(() => {
     if (!open) return;
@@ -117,11 +124,11 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
           <button type="button" onClick={copyLink} className={iconBtn} aria-label={`Copy link to ${title ?? 'this view'}`} title="Copy link to this view">
             {copied ? <Check size={15} /> : <Link2 size={15} />}
           </button>
-          {fields.length > 0 && <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="Filters" className={`${iconBtn} ${active.length ? 'border-brand-500/70 text-brand-200' : ''}`}>
+          {fields.length > 0 && <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="Filters" className={`${iconBtn} ${changed ? 'border-brand-500/70 text-brand-200' : ''}`}>
             <SlidersHorizontal size={15} />
             <span className="hidden sm:inline">Filters</span>
             {/* Always takes its space, so neighbouring controls (the year slider) never shift when a filter is set. */}
-            <span className={`min-w-5 rounded-full bg-brand-500/20 px-1.5 text-center tabular-nums ${active.length ? '' : 'invisible'}`}>{active.length || 0}</span>
+            <span className={`min-w-5 rounded-full bg-brand-500/20 px-1.5 text-center tabular-nums ${changed ? '' : 'invisible hidden sm:inline-block'}`}>{changed || 0}</span>
           </button>}
           {open && (
             <>
@@ -158,7 +165,7 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
                     <Select key={k} label={FIELDS[k].label} value={filters[k]} options={FIELDS[k].options(options)} display={FIELDS[k].display} onChange={(v) => set(k, v)} />
                   ))}
                 </div>
-                {fields.includes('period') && <UndatedNote id={id} ignore={ignore} className="mt-3" />}
+                {fields.includes('period') && undatedNote && <UndatedNote id={id} ignore={ignore} scope={scope} className="mt-3" />}
                 <div className="sticky -bottom-6 -mx-4 mt-4 flex justify-end gap-2 border-t border-ink-800 bg-ink-950 px-4 pb-1 pt-3 md:static md:mx-0 md:border-0 md:p-0">
                   {activeCount(filters) > 0 && (
                     <button type="button" onClick={() => setFilters({ ...DEFAULT_FILTERS, ...Object.fromEntries(ignore.map((k) => [k, filters[k]])) })} className="rounded-full border border-ink-700 px-4 py-2 text-sm text-ink-300 hover:text-ink-100">Clear all</button>
@@ -172,7 +179,9 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
       </div>
       {active.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-1.5">
-          {active.map((k) => (
+          {active.map((k) => filters[k] === DEFAULT_FILTERS[k] ? (
+            <span key={k} className="flex max-w-full items-center rounded-full border border-ink-800 px-2.5 py-1 text-xs text-ink-400">{chipText(k, filters[k])}</span>
+          ) : (
             <button
               key={k}
               type="button"
@@ -186,7 +195,7 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
           ))}
         </div>
       )}
-      {years && <UndatedNote id={id} ignore={ignore} />}
+      {years && undatedNote && <UndatedNote id={id} ignore={ignore} scope={scope} />}
       {children}
     </div>
   );
