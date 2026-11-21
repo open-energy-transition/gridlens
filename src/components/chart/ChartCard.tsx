@@ -149,17 +149,18 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
   }
 
   const set = (k: FilterKey, v: string) => setFilters({ ...filters, [k]: v });
-  const iconBtn = 'flex h-9 items-center gap-1.5 rounded-full border border-ink-700/80 px-3 text-xs font-medium text-ink-300 transition-colors hover:border-ink-500 hover:text-ink-50';
+  const iconBtn = 'flex h-9 items-center gap-1.5 rounded-full border border-ink-700/80 px-2.5 text-xs font-medium text-ink-300 transition-colors hover:border-ink-500 hover:text-ink-50';
 
   return (
     <div ref={card} className={`@container ${plain ? '' : 'rounded-2xl border border-ink-800/80 bg-ink-900/40 p-4 sm:p-6'} ${className}`}>
-      <div className="mb-4 flex flex-wrap items-start gap-3">
-        <div className="order-1 min-w-0 flex-1 basis-48">
+      {/* Title left and the four buttons (copy link, image, data, filters) top right in every card; chart controls below. */}
+      <div className="mb-4 flex flex-col gap-3">
+        <div className="flex items-start gap-3">
+        <div className="min-w-0 flex-1">
           {title && <h3 className="font-display text-xl font-medium text-ink-50">{title}</h3>}
           {description && <p className="mt-1 max-w-2xl text-sm leading-relaxed text-ink-400">{description}</p>}
         </div>
-        {(actions || years) && <div data-noexport className="order-3 flex basis-full flex-wrap items-center gap-x-4 gap-y-2 @5xl:order-2 @5xl:basis-auto">{years && <YearSlider id={id} />}{actions}</div>}
-        <div data-noexport className="relative order-2 flex items-center gap-2 @5xl:order-3">
+        <div data-noexport className="relative flex shrink-0 items-center gap-1.5 sm:gap-2">
           <button type="button" onClick={copyLink} className={iconBtn} aria-label={`Copy link to ${title ?? 'this view'}`} title="Copy link to this view">
             {copied ? <Check size={15} /> : <Link2 size={15} />}
           </button>
@@ -171,9 +172,9 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
           </button>
           {fields.length > 0 && <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="Filters" className={`${iconBtn} ${changed ? 'border-brand-500/70 text-brand-200' : ''}`}>
             <SlidersHorizontal size={15} />
-            <span className="hidden sm:inline">Filters</span>
+            <span className="hidden @xl:inline">Filters</span>
             {/* Always takes its space, so neighbouring controls (the year slider) never shift when a filter is set. */}
-            <span className={`min-w-5 rounded-full bg-brand-500/20 px-1.5 text-center tabular-nums ${changed ? '' : 'invisible hidden sm:inline-block'}`}>{changed || 0}</span>
+            <span className={`min-w-5 rounded-full bg-brand-500/20 px-1.5 text-center tabular-nums ${changed ? '' : 'invisible hidden @xl:inline-block'}`}>{changed || 0}</span>
           </button>}
           {open && (
             <>
@@ -223,6 +224,8 @@ export default function ChartCard({ id, title, description, fields = ALL_FIELDS,
             </>
           )}
         </div>
+        </div>
+        {(actions || years) && <div data-noexport className="flex flex-wrap items-center gap-x-4 gap-y-2">{years && <YearSlider id={id} />}{actions}</div>}
       </div>
       {active.length > 0 && (
         <div className="mb-3 flex flex-wrap gap-1.5">
