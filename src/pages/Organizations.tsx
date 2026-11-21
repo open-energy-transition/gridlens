@@ -31,6 +31,15 @@ export default function Organizations({ catalogue }: { catalogue: CatalogueRecor
     window.history.replaceState(null, '', `${window.location.pathname}${s ? `?${s}` : ''}`);
   }
 
+  function pickGroup(id: string) { setGroup(id); setParam('type', id); setLimit(PAGE); }
+  // Organizations per type, for the tool and search chosen (so the numbers match what a click shows).
+  const count = new Map<string, number>();
+  for (const o of all) {
+    if ((tool !== 'All' && !o.tools.includes(tool)) || (q && !`${o.name} ${o.countries.join(' ')}`.toLowerCase().includes(q.toLowerCase()))) continue;
+    count.set(o.group, (count.get(o.group) ?? 0) + 1);
+    count.set('All', (count.get('All') ?? 0) + 1);
+  }
+  const select = 'h-10 w-full min-w-0 rounded-full border border-ink-700 bg-ink-900/60 px-3 text-sm text-ink-100 outline-none focus:border-brand-500 sm:w-auto';
   const chip = (active: boolean) =>
     `shrink-0 rounded-full border px-3 py-1.5 text-sm transition-colors ${active ? 'border-ink-50 bg-ink-50 text-ink-950' : 'border-ink-700 text-ink-300 hover:border-ink-500'}`;
 
@@ -42,23 +51,31 @@ export default function Organizations({ catalogue }: { catalogue: CatalogueRecor
         or by consultancies to find companies that deliver modelling studies.
       </p>
 
-      <div className="mt-8 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none]">
-        <button type="button" className={chip(group === 'All')} onClick={() => { setGroup('All'); setParam('type', 'All'); setLimit(PAGE); }}>All</button>
-        {groups.map((g) => (
-          <button key={g.id} type="button" className={chip(group === g.id)} onClick={() => { setGroup(g.id); setParam('type', g.id); setLimit(PAGE); }}>{g.label}</button>
+      {/* Types: every chip visible on wider screens (they wrap); on phones a select, like the tool filter. */}
+      <div className="mt-8 hidden flex-wrap gap-2 sm:flex" role="group" aria-label="Type of organization">
+        {[{ id: 'All', label: 'All' }, ...groups].map((g) => (
+          <button key={g.id} type="button" aria-pressed={group === g.id} className={chip(group === g.id)} onClick={() => pickGroup(g.id)}>
+            {g.label} <span className={`tabular ml-1 ${group === g.id ? 'text-ink-600' : 'text-ink-500'}`}>{(count.get(g.id) ?? 0).toLocaleString('en')}</span>
+          </button>
         ))}
       </div>
-      <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-        <label className="relative flex-1">
+      <div className="mt-8 grid grid-cols-2 gap-2 sm:mt-3 sm:flex sm:gap-3">
+        <label className="relative col-span-2 sm:flex-1">
           <span className="sr-only">Search organizations</span>
           <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-500" />
           <input type="search" value={q} onChange={(e) => { setQ(e.target.value); setLimit(PAGE); }} placeholder="Search by name or country"
             className="h-10 w-full rounded-full border border-ink-700 bg-ink-900/60 pl-9 pr-4 text-sm text-ink-100 outline-none placeholder:text-ink-500 focus:border-brand-500" />
         </label>
+        <label className="sm:hidden">
+          <span className="sr-only">Type of organization</span>
+          <select value={group} onChange={(e) => pickGroup(e.target.value)} className={select}>
+            {[{ id: 'All', label: 'All types' }, ...groups].map((g) => <option key={g.id} value={g.id}>{g.label} ({(count.get(g.id) ?? 0).toLocaleString('en')})</option>)}
+          </select>
+        </label>
         <label className="flex items-center gap-2 text-sm text-ink-400">
-          Tool
-          <select value={tool} onChange={(e) => { setTool(e.target.value); setParam('tool', e.target.value); setLimit(PAGE); }}
-            className="h-10 rounded-full border border-ink-700 bg-ink-900/60 px-3 text-sm text-ink-100 outline-none focus:border-brand-500">
+          <span className="hidden sm:inline">Tool</span>
+          <span className="sr-only sm:hidden">Tool</span>
+          <select value={tool} onChange={(e) => { setTool(e.target.value); setParam('tool', e.target.value); setLimit(PAGE); }} className={select}>
             <option value="All">All tools</option>
             {TOOLS.map((t) => <option key={t.name} value={t.name}>{t.name}</option>)}
           </select>
