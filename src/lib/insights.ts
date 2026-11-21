@@ -30,7 +30,7 @@ export const DECISION_INFO: Record<string, { short: string; description: string 
   'Forecasting & Scenario Analysis': { short: 'Forecasts & scenarios', description: 'Demand and supply forecasts, and long-term scenarios.' },
   'Independent & Commissioned Studies': { short: 'Commissioned studies', description: 'Studies by consultancies, usually for a grid operator, regulator or ministry, without a narrower stated purpose.' },
   'Academic & Research Studies': { short: 'Research', description: 'Studies by universities and research institutes.' },
-  'Other / General Modeling': { short: 'General', description: 'The source does not name a specific decision.' },
+  'Other / General Modeling': { short: 'Not specified', description: 'The source names the tool but not the decision it informed, so the project cannot be classified.' },
 };
 
 export function decisionOf(r: CatalogueRecord): string {

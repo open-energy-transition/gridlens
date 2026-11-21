@@ -1,9 +1,11 @@
 import { useMemo, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
-import { contributorsInWindow, CONTRIBUTORS, WINDOWS, windowLabel, type ContributorOrg } from '../lib/contributors';
+import { AVAILABLE_METRICS, contributorsInWindow, CONTRIBUTORS, METRICS, type ContributorOrg, type Metric } from '../lib/contributors';
+import Segmented from '../components/chart/Segmented';
 import { Link, slug } from '../lib/router';
 import { isOpenSource, TOOLS, toolInfo } from '../lib/tools';
 import { useChart } from '../lib/chartFilters';
+import { DEFAULT_FILTERS } from '../types';
 import ChartCard from '../components/chart/ChartCard';
 import EmptyState from '../components/common/EmptyState';
 import ToolLogo from '../components/common/ToolLogo';
@@ -20,36 +22,25 @@ const CHOICES = {
 export function ContributionCaveat() {
   return (
     <p className="mt-5 border-l-2 border-ink-700 pl-3 text-xs leading-relaxed text-ink-500">
-      A hint, not a verdict. Merged pull requests count only one kind of work, in these GitHub organizations, and only for
-      people who name an employer on their profile. Reviews, issues, documentation, teaching, funding and the many upstream
-      and downstream projects these tools depend on are not counted. Every contribution to open source is valuable.
+      A hint, not a verdict. These counts cover only these GitHub organizations, and only people who name an organization
+      on their GitHub profile. Documentation, teaching, user support, funding and the many upstream and downstream projects
+      these tools depend on are not counted. Every contribution to open source is valuable.
     </p>
   );
 }
 
-/** Slider over the contribution window: 3 months to 10 years. */
-export function WindowSlider({ months, onChange }: { months: number; onChange: (m: number) => void }) {
-  const i = Math.max(0, WINDOWS.indexOf(months));
-  return (
-    <label className="flex min-w-0 flex-1 basis-64 items-center gap-3 text-xs text-ink-400 sm:min-w-72">
-      <span className="shrink-0">Last</span>
-      <input
-        type="range" min={0} max={WINDOWS.length - 1} step={1} value={i}
-        onChange={(e) => onChange(WINDOWS[Number(e.target.value)])}
-        aria-valuetext={windowLabel(months)}
-        className="h-1.5 min-w-0 flex-1 cursor-pointer appearance-none rounded-full bg-ink-800 accent-brand-500"
-      />
-      <span className="tabular w-20 shrink-0 text-sm text-ink-100">{windowLabel(months)}</span>
-    </label>
-  );
+/** The contribution window follows the shared study-year slider: the last N years, or all (as far back as GitHub goes). */
+export function windowMonths(period: string): number {
+  return period === 'All' ? 12 * 50 : 12 * Number(period);
 }
 
 /** Organizations ranked by pull requests merged in the window; each name links to the organization. */
-export function ContributorBars({ orgs, showTools, limit = SHOWN }: { orgs: ContributorOrg[]; showTools?: boolean; limit?: number }) {
+export function ContributorBars({ orgs, showTools, limit = SHOWN, metric = 'prs' }: { orgs: ContributorOrg[]; showTools?: boolean; limit?: number; metric?: Metric }) {
+  const unit = METRICS.find((m) => m.id === metric)!.unit;
   const [all, setAll] = useState(false);
   if (orgs.length === 0) return <EmptyState title="No contributions from named organizations in this period" message="Widen the time window." />;
   const shown = all ? orgs : orgs.slice(0, limit);
-  const max = Math.max(1, ...orgs.map((o) => o.prs));
+  const max = Math.max(1, ...orgs.map((o) => o.count));
   return (
     <>
       <ol className="group/list space-y-3 sm:space-y-1">
@@ -72,10 +63,10 @@ export function ContributorBars({ orgs, showTools, limit = SHOWN }: { orgs: Cont
               </span>
             </span>
             <span className="tabular whitespace-nowrap text-right text-xs text-ink-400 sm:order-last sm:w-44 self-start sm:self-center">
-              <span className="text-sm text-ink-100">{o.prs.toLocaleString('en')}</span> <span className="sm:hidden">PRs</span><span className="hidden sm:inline">merged PRs · {o.people} {o.people === 1 ? 'person' : 'people'}</span>
+              <span className="text-sm text-ink-100">{o.count.toLocaleString('en')}</span> <span className="hidden sm:inline">{unit} · {o.people} {o.people === 1 ? 'person' : 'people'}</span>
             </span>
             <div className="col-span-2 h-1.5 rounded-sm bg-ink-800/60 sm:col-span-1 sm:h-[18px]" aria-hidden="true">
-              <div className="h-full rounded-sm bg-gradient-to-r from-brand-600 to-brand-400 transition-[width] duration-500" style={{ width: `${Math.max(1.5, (100 * o.prs) / max)}%` }} />
+              <div className="h-full rounded-sm bg-gradient-to-r from-brand-600 to-brand-400 transition-[width] duration-500" style={{ width: `${Math.max(1.5, (100 * o.count) / max)}%` }} />
             </div>
           </li>
         ))}
@@ -89,47 +80,61 @@ export function ContributorBars({ orgs, showTools, limit = SHOWN }: { orgs: Cont
   );
 }
 
-/** Where the counted pull requests come from, and when the data was fetched. */
+/** Where the counts come from, how people are attributed to organizations, and when the data was fetched. */
 export function ContributionSource({ tools }: { tools: string[] }) {
   const orgs = tools.flatMap((t) => CONTRIBUTORS.tools[t]?.githubOrgs ?? []);
   const repos = tools.reduce((n, t) => n + (CONTRIBUTORS.tools[t]?.repositories ?? 0), 0);
+  const people = tools.reduce((n, t) => n + (CONTRIBUTORS.tools[t]?.contributors ?? 0), 0);
+  const named = tools.reduce((n, t) => n + (CONTRIBUTORS.tools[t]?.affiliated ?? 0), 0);
   return (
-    <p className="mt-3 text-xs text-ink-500">
-      Pull requests merged into {repos} repositories of{' '}
+    <p className="mt-3 text-xs leading-relaxed text-ink-500">
+      From {repos} repositories of{' '}
       {orgs.map((o, i) => (
         <span key={o}>{i > 0 && (i === orgs.length - 1 ? ' and ' : ', ')}<a className="text-ink-300 hover:text-ink-100" href={`https://github.com/${o}`} target="_blank" rel="noreferrer">github.com/{o}</a></span>
       ))}
-      , by the organization on each author’s public GitHub profile. Updated {CONTRIBUTORS.generated}.
+      . {named} of {people} contributors name an organization on their GitHub profile; GridLens counts them for it.
+      Updated {CONTRIBUTORS.generated}.
     </p>
   );
 }
 
+/** Which kind of contribution to rank by. */
+export function MetricSwitch({ value, onChange }: { value: Metric; onChange: (m: Metric) => void }) {
+  if (AVAILABLE_METRICS.length < 2) return null;
+  return <Segmented label="Count" value={value} onChange={(v) => onChange(v as Metric)} options={AVAILABLE_METRICS.map((m) => ({ id: m.id, label: m.label }))} />;
+}
+
 /**
- * Who builds the open-source tools: organizations ranked by their people's pull requests merged into each
- * tool's GitHub organizations over a window the reader picks (default 12 months). The tool, tool-category and
+ * Who builds the open-source tools: organizations ranked by their people's merged pull requests, commits, reviews
+ * or issues in each tool's GitHub organizations over the period of the shared study-year slider. The tool, tool-category and
  * licence filters apply; others (country, sector…) say nothing about who writes the code.
  */
 export default function Builders() {
   const { filters } = useChart('builders');
-  const [months, setMonths] = useState(12);
+  const months = windowMonths(filters.period);
+  const [metric, setMetric] = useState<Metric>('prs');
   const tools = OPEN_TOOLS.filter((t) =>
     (filters.toolName === 'All' || filters.toolName === t) &&
     (filters.toolCategory === 'All' || toolInfo(t)!.categories.includes(filters.toolCategory)) &&
     filters.license !== 'proprietary');
   const key = tools.join();
-  const orgs = useMemo(() => contributorsInWindow(tools, months), [key, months]); // eslint-disable-line react-hooks/exhaustive-deps
+  const orgs = useMemo(() => contributorsInWindow(tools, months, CONTRIBUTORS, metric), [key, months, metric]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <ChartCard
       id="builders"
       title="Who builds the open-source tools"
-      description="Organizations whose people had the most pull requests merged into each tool’s code. Working with them also supports the tools everyone uses."
-      fields={['toolName', 'toolCategory', 'license']}
+      description={<>Organizations whose people contribute most to each tool’s code.
+        People count for the organization in the “Company” field of their public GitHub profile (e.g. <span className="text-ink-300">@open-energy-transition</span>);{' '}
+        <Link href="/about#contributions" className="text-ink-300 underline decoration-ink-700 underline-offset-2 hover:text-ink-50">how to be counted</Link>.</>}
+      fields={['period', 'toolName', 'toolCategory', 'license']}
+      years
+      undatedNote={false}
       choices={CHOICES}
-      actions={<WindowSlider months={months} onChange={setMonths} />}
+      actions={<MetricSwitch value={metric} onChange={setMetric} />}
     >
-      {(['country', 'sector', 'orgType', 'period'] as const).some((k) => filters[k] !== 'All') && (
-        <p className="mb-4 text-xs text-ink-500">Code contributions are not tied to a country, sector or study year, so those filters don’t change this ranking.</p>
+      {(['country', 'sector', 'orgType'] as const).some((k) => filters[k] !== DEFAULT_FILTERS[k]) && (
+        <p className="mb-4 text-xs text-ink-500">Code contributions are not tied to a country, sector or type of organization, so those filters don’t change this ranking.</p>
       )}
       {tools.length === 0 ? (
         <EmptyState title="No open-source tool matches these filters"
@@ -143,7 +148,7 @@ export default function Builders() {
               </Link>
             ))}
           </div>
-          <ContributorBars orgs={orgs} showTools={tools.length > 1} />
+          <ContributorBars orgs={orgs} showTools={tools.length > 1} metric={metric} />
           <ContributionSource tools={tools} />
         </>
       )}

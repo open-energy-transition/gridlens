@@ -85,11 +85,13 @@ export default function Geographic() {
     return { valueByCountry: source, mapValueByAtlasName: atlasSource, maxValue: max, rows: rowList, multiCountryCount: mcCount, globalCount: gCount, atlasTools, atlasLabel };
   }, [records, metric]);
 
+  const unplaced = records.filter((r) => !r.countries.length && r.geo_scope !== 'global').length;
   const pick = (country: string) => setFilters({ ...filters, country: filters.country === country ? 'All' : country });
 
   return (
     <ChartCard
       id="map"
+      years
       title="Where the tools are used"
       description="Hover a country for the tools used there; click it to filter every chart to that country. Regional and global studies are counted below the map."
       actions={
@@ -109,8 +111,10 @@ export default function Geographic() {
         </div>
         <MapLegend maxValue={maxValue} unitLabel={metric === 'records' ? 'Projects' : 'Tools'} />
       </div>
-      {multiCountryCount + globalCount > 0 && (
-        <p className="mt-3 text-xs text-ink-500">Plus {multiCountryCount} multi-country and {globalCount} global projects.</p>
+      {multiCountryCount + globalCount + unplaced > 0 && (
+        <p className="mt-3 text-xs text-ink-500">
+          Plus {multiCountryCount} multi-country and {globalCount} global projects{unplaced > 0 && <>, and {unplaced} whose sources name no country</>}.
+        </p>
       )}
       <h3 className="mb-3 mt-6 text-xs uppercase tracking-[0.14em] text-ink-500">Top countries</h3>
       <ol className="grid grid-cols-1 gap-x-8 sm:grid-cols-2 lg:grid-cols-3">

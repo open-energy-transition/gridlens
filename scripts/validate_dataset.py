@@ -189,6 +189,10 @@ def main() -> int:
         if sy is not None and not (isinstance(sy, int) and 1980 <= sy <= 2049):
             errors.append(f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): study_year must be a year (1980-2049)")
 
+        sd = row.get("study_date")
+        if sd is not None and not (isinstance(sd, str) and re.fullmatch(r"(19[89]\d|20[0-4]\d)(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\d|3[01]))?)?", sd)):
+            errors.append(f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): study_date must be YYYY, YYYY-MM or YYYY-MM-DD")
+
         sr = row.get("study_region")
         if sr is not None and not isinstance(sr, str):
             errors.append(f"catalogue.jsonl line {lineno} (id={row.get('id','?')}): study_region must be a string")

@@ -51,7 +51,7 @@ APP_SCHEMA = [
     "source_title", "source_date", "source_link", "exact_snippet_or_quote",
     "why_it_supports_the_claim", "notes", "dataset_origin",
     "decision_type", "decision_basis",
-    "project_id", "project_title", "organizations", "countries", "geo_scope", "region_label", "sources", "year",
+    "project_id", "project_title", "organizations", "countries", "geo_scope", "region_label", "sources", "year", "date",
 ]
 
 # The dashboard tracks only the tools listed in src/data/tools.json; rows for
@@ -332,6 +332,7 @@ def project_record(rows):
         sources=list(sources.values()),
         year=project_year(rows),
     )
+    rec["date"] = project_date(rows, rec["year"])
     return rec
 
 
@@ -340,10 +341,11 @@ THIS_YEAR = datetime.date.today().year
 
 
 def project_year(rows):
-    """Year of the study: study_year if set, else the latest year in a source date or a source URL path
+    """Year of the study: study_year or study_date if set, else the latest year in a source date or a source URL path
     (".../2024/05/..."), else the first year in the title ("IGCEP 2024-34" -> 2024). Years after this
     year are plan horizons, not study dates, and are ignored. None when the sources do not say."""
     explicit = [int(r["study_year"]) for r in rows if r.get("study_year")]
+    explicit += [int(normalize_date(r["study_date"])[:4]) for r in rows if normalize_date(r.get("study_date"))]
     if explicit:
         return max(explicit)
     dated = [int(y) for r in rows for y in YEAR.findall(r.get("source_date") or "")]
@@ -353,6 +355,37 @@ def project_year(rows):
         return max(dated)
     titled = [int(y) for r in rows for y in YEAR.findall(r.get("project_title") or "") if int(y) <= THIS_YEAR]
     return min(titled) if titled else None
+
+
+MONTH_NAMES = {m: i + 1 for i, m in enumerate(("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"))}
+
+
+def normalize_date(text):
+    """A date as precise as written: "2024-03-12", "2024-03" or "2024"; None when there is no usable date.
+    Reads ISO dates, day/month/year ("12/3/2024"), "March 2024" / "12 March 2024", and a bare year."""
+    t = (text or "").strip().lower()
+    if m := re.match(r"^(\d{4})-(\d{2})(?:-(\d{2}))?", t):
+        y, mo, d = m.groups()
+        return f"{y}-{mo}-{d}" if d else f"{y}-{mo}"
+    if m := re.match(r"^(\d{1,2})[/.](\d{1,2})[/.](\d{4})$", t):
+        d, mo, y = m.groups()
+        return f"{y}-{int(mo):02d}-{int(d):02d}" if 1 <= int(mo) <= 12 and 1 <= int(d) <= 31 else y
+    if m := re.match(r"^(?:(\d{1,2})\s+)?([a-z]{3})[a-z]*\.?,?\s+(\d{4})$", t):
+        d, mon, y = m.groups()
+        if mon in MONTH_NAMES:
+            return f"{y}-{MONTH_NAMES[mon]:02d}" + (f"-{int(d):02d}" if d else "")
+    if m := re.fullmatch(r"(19[89]\d|20[0-4]\d)", t):
+        return m.group(1)
+    return None
+
+
+def project_date(rows, year):
+    """The most precise date the sources give for the project's year: study_date if set, else source dates."""
+    if not year:
+        return None
+    dates = [normalize_date(r.get("study_date")) for r in rows] + [normalize_date(r.get("source_date")) for r in rows]
+    dates = [d for d in dates if d and d[:4] == str(year)]
+    return max(dates, key=lambda d: (len(d), d)) if dates else str(year)
 
 
 def csv_row(rec):

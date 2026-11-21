@@ -8,10 +8,10 @@ const source = {
   generated: '2026-11-19',
   tools: {
     A: tool([
-      { name: 'OET', url: 'https://oet', people: [{ '2026-10': 5, '2020-01': 50 }, { '2019-05': 9 }] },
-      { name: 'unaffiliated', url: '', people: [{ '2026-11': 7 }] },
+      { name: 'OET', url: 'https://oet', people: [{ prs: { '2026-10': 5, '2020-01': 50 }, reviews: { '2026-09': 3 } }, { prs: { '2019-05': 9 } }] },
+      { name: 'unaffiliated', url: '', people: [{ prs: { '2026-11': 7 } }] },
     ]),
-    B: tool([{ name: 'OET', url: '', people: [{ '2026-01': 2 }] }, { name: 'Uni', url: '', people: [{ '2025-12': 4 }] }]),
+    B: tool([{ name: 'OET', url: '', people: [{ prs: { '2026-01': 2 } }] }, { name: 'Uni', url: '', people: [{ prs: { '2025-12': 4 } }] }]),
   },
 };
 
@@ -22,14 +22,18 @@ describe('contribution window', () => {
   });
 
   it('counts only pull requests and people active in the window, without the unaffiliated', () => {
-    expect(contributorsInWindow(['A'], 12, source)).toEqual([{ name: 'OET', url: 'https://oet', prs: 5, people: 1, tools: ['A'] }]);
+    expect(contributorsInWindow(['A'], 12, source)).toEqual([{ name: 'OET', url: 'https://oet', count: 5, people: 1, tools: ['A'] }]);
   });
 
   it('adds an organization up across tools and ranks by pull requests', () => {
-    expect(contributorsInWindow(['A', 'B'], 12, source).map((o) => [o.name, o.prs, o.tools])).toEqual([
+    expect(contributorsInWindow(['A', 'B'], 12, source).map((o) => [o.name, o.count, o.tools])).toEqual([
       ['OET', 7, ['A', 'B']],
       ['Uni', 4, ['B']],
     ]);
-    expect(contributorsInWindow(['A'], 120, source)[0].prs).toBe(64);
+    expect(contributorsInWindow(['A'], 120, source)[0].count).toBe(64);
+  });
+
+  it('counts the chosen kind of contribution', () => {
+    expect(contributorsInWindow(['A'], 12, source, 'reviews')).toEqual([{ name: 'OET', url: 'https://oet', count: 3, people: 1, tools: ['A'] }]);
   });
 });

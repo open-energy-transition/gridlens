@@ -51,3 +51,6 @@ export function mapColorFor(value: number, max: number): string {
   const idx = bucketIndexFor(value, max);
   return idx === -1 ? MAP_NO_DATA : MAP_SCALE[idx];
 }
+
+/** Missing or unclassifiable data (unknown decision, year…): a quiet neutral, never a category colour. */
+export const UNKNOWN = '#3b4058';

@@ -205,4 +205,8 @@ describe('study period', () => {
     expect(applyFilters(all, { ...EMPTY_FILTERS, period: '20' }, 2026)).toEqual([recent, edge, old]);
     expect(applyFilters(all, EMPTY_FILTERS, 2026)).toEqual(all);
   });
+
+  it('counts undated studies in a period only when the reader includes them', () => {
+    expect(applyFilters([recent, old, undated], { ...EMPTY_FILTERS, period: '5', undated: 'include' }, 2026)).toEqual([recent, undated]);
+  });
 });

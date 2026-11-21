@@ -30,6 +30,8 @@ export interface CatalogueRecord {
   sources: ProjectSource[];
   /** Year of the study, when the sources date it. */
   year?: number | null;
+  /** Date of the study as precise as the sources give it: "2024", "2024-03" or "2024-03-12". */
+  date?: string | null;
 }
 
 export interface ProjectOrg {
@@ -55,8 +57,10 @@ export interface Filters {
   toolCategory: string;
   orgType: string;
   sector: string;
-  /** Only studies from the last N years ('5', '10', '20'), or 'All'. */
+  /** Only studies from the last N years ('1' … '20'), or 'All'. */
   period: string;
+  /** With a period: 'include' also counts projects whose year is unknown; 'exclude' leaves them out. */
+  undated: string;
   license: string;
   evidenceStrength: string;
   sourceGroup: string;
@@ -70,9 +74,12 @@ export const EMPTY_FILTERS: Filters = {
   orgType: 'All',
   sector: 'All',
   period: 'All',
+  undated: 'exclude',
   license: 'All',
   evidenceStrength: 'All',
   sourceGroup: 'All',
   search: '',
 };
 
+/** What a reader sees first: the last five years. URLs and "Clear all" are relative to this. */
+export const DEFAULT_FILTERS: Filters = { ...EMPTY_FILTERS, period: '5' };

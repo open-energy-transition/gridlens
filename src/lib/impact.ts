@@ -1,3 +1,4 @@
+import { dateKey } from './dates';
 import type { CatalogueRecord } from '../types';
 import { orgGroup } from './orgTypes';
 import { coversCountry, SCOPE_ORDER } from './regions';
@@ -55,5 +56,5 @@ export function rankProjects(records: CatalogueRecord[], country?: string): Cata
       (r.summary.trim() ? 0 : 1)
     );
   };
-  return [...records].sort((a, b) => score(a) - score(b) || (b.year ?? 0) - (a.year ?? 0));
+  return [...records].sort((a, b) => score(a) - score(b) || dateKey(b.date, b.year).localeCompare(dateKey(a.date, a.year)));
 }

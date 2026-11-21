@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useChart } from '../lib/chartFilters';
-import { DECISION_INFO, purposeMatrix } from '../lib/insights';
+import { DECISION_INFO, OTHER_DECISION, purposeMatrix } from '../lib/insights';
 import { Link, navigate, slug } from '../lib/router';
 import { isOpenSource } from '../lib/tools';
 import ChartCard from '../components/chart/ChartCard';
@@ -14,11 +14,16 @@ export default function PurposeMatrix() {
   const [mode, setMode] = useState('count');
   // Hovered cell: its row and column are highlighted, everything else dims slightly.
   const [at, setAt] = useState<{ r: number; c: number } | null>(null);
-  const m = useMemo(() => purposeMatrix(records), [records]);
+  // The last column holds projects whose source names no decision: shown, in a neutral colour, so the gap is visible.
+  const m = useMemo(() => purposeMatrix(records, true), [records]);
+  const na = m.decisions.indexOf(OTHER_DECISION);
+  const max = Math.max(1, ...m.rows.flatMap((r) => r.counts.filter((_, j) => j !== na)));
+  const naMax = Math.max(1, ...m.rows.map((r) => (na >= 0 ? r.counts[na] : 0)));
 
   return (
     <ChartCard
       id="purpose"
+      years
       title="Which tool for which decision"
       description="Projects per tool and kind of grid decision. Hover a column for what it covers."
       fields={['country', 'period', 'sector', 'license', 'orgType', 'evidenceStrength', 'search']}
@@ -33,7 +38,7 @@ export default function PurposeMatrix() {
               <tr>
                 <th className="sticky left-0 z-10 bg-[#0c0f1b] pb-2 text-left align-bottom text-xs font-normal text-ink-500">Tool</th>
                 {m.decisions.map((d, ci) => (
-                  <th key={d} scope="col" className={`group relative w-[10%] px-1 pb-2 align-bottom text-xs font-medium leading-tight transition-colors ${at?.c === ci ? 'text-ink-50' : 'text-ink-300'}`}>
+                  <th key={d} scope="col" className={`group relative w-[10%] px-1 pb-2 align-bottom text-xs font-medium leading-tight transition-colors ${at?.c === ci ? 'text-ink-50' : ci === na ? 'italic text-ink-500' : 'text-ink-300'}`}>
                     <span tabIndex={0} className="cursor-help underline decoration-ink-600 decoration-dotted underline-offset-4 outline-none group-hover:text-ink-50 focus:text-ink-50">
                       {DECISION_INFO[d]?.short ?? d}
                     </span>
@@ -55,7 +60,8 @@ export default function PurposeMatrix() {
                   </th>
                   {row.counts.map((c, j) => {
                     const share = row.total ? c / row.total : 0;
-                    const strength = mode === 'share' ? share : Math.sqrt(c / m.max);
+                    const unknown = j === na;
+                    const strength = mode === 'share' ? share : Math.sqrt(c / (unknown ? naMax : max));
                     const label = mode === 'share' ? (c ? `${Math.round(share * 100)}%` : '') : c || '';
                     return (
                       <td key={j} onMouseEnter={() => setAt({ r: ri, c: j })} onClick={() => navigate(`/tools/${slug(row.tool)}${window.location.search}`)}
@@ -63,8 +69,8 @@ export default function PurposeMatrix() {
                         className={`tabular h-9 cursor-pointer rounded-[3px] text-center text-xs transition-[opacity,box-shadow] duration-150 ${
                           at && at.r !== ri && at.c !== j ? 'opacity-40' : ''} ${at?.r === ri && at?.c === j ? 'shadow-[0_0_0_2px_#f4efe6]' : ''}`}
                         style={{
-                          background: c ? `rgba(242, 112, 63, ${0.1 + 0.8 * strength})` : 'rgba(31, 34, 52, 0.5)',
-                          color: strength > 0.45 ? '#080a13' : '#cdcad3',
+                          background: !c ? 'rgba(31, 34, 52, 0.5)' : unknown ? `rgba(125, 134, 168, ${0.12 + 0.45 * strength})` : `rgba(242, 112, 63, ${0.1 + 0.8 * strength})`,
+                          color: !unknown && strength > 0.45 ? '#080a13' : '#cdcad3',
                         }}>
                         {label}
                       </td>
@@ -85,7 +91,7 @@ export default function PurposeMatrix() {
       </p>
       <p className="mt-1 text-xs text-ink-500">
         <span className="sm:hidden">Swipe the table sideways for more decisions. </span>
-        {mode === 'share' ? 'Percentages add up to 100% per tool. ' : ''}Projects without a stated decision are left out. Open-source tools are named in ember.
+        {mode === 'share' ? 'Percentages add up to 100% per tool. ' : ''}“Not specified” counts projects whose source names the tool but not the decision. Open-source tools are named in ember.
       </p>
     </ChartCard>
   );

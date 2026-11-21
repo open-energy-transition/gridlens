@@ -116,6 +116,11 @@
       "maximum": 2049,
       "description": "Year of the study or decision when the source dates it; otherwise the app takes the year from source_date, the source URL or the title."
     },
+    "study_date": {
+      "type": "string",
+      "pattern": "^(19[89]\\d|20[0-4]\\d)(-(0[1-9]|1[0-2])(-(0[1-9]|[12]\\d|3[01]))?)?$",
+      "description": "Date of the study as precise as the source gives it: YYYY, YYYY-MM or YYYY-MM-DD (publication or completion, not a page-update date). Takes precedence over study_year."
+    },
     "study_region": {
       "type": "string",
       "description": "Region a multi-country or global study covers, e.g. 'European Union', 'Europe', 'Global'. Shown instead of a country; filtering by a country in that region includes the study."
