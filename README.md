@@ -6,11 +6,13 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![AI-agent ready](https://img.shields.io/badge/AI%20agent-ready-blueviolet.svg)](AGENTS.md)
 
-*See who's using which energy models, where, and for what grid decisions.*
+*Which tools model the grid, who uses them, and for which decisions.*
 
-GridLens tracks real-world adoption of energy system modelling tools
-(PLEXOS, PyPSA, and dozens more) by institutions worldwide — 509 records
-and counting, each with a role, a grid decision, and an evidence source.
+Live at **[gridlens.org](https://gridlens.org)**. GridLens collects public
+evidence of which energy system models grid operators, utilities,
+regulators, consultancies and researchers use, from PLEXOS to PyPSA:
+thousands of documented projects for the tools in `src/data/tools.json`,
+each with the organizations, countries, grid decision and a source.
 Built and maintained by [Open Energy Transition](https://openenergytransition.org/).
 Fully client-side: no backend, no database, no paid APIs, no API keys —
 everything runs in the browser against a static dataset.
@@ -31,15 +33,14 @@ clone it and start contributing immediately**:
 - **`AGENTS.md`** is the single entry point for an AI agent: repo map,
   commands, both contribution workflows (data + app), and the
   non-negotiables (evidence standards, no backend, changelog discipline).
-- **`data/DATA_SCHEMA.md`** documents every column, every enum value, and
-  which of the two raw CSVs a new finding goes into.
+- **`data/DATA_SCHEMA.md`** documents every field and enum value of
+  `data/raw/catalogue.jsonl`, the one file a new finding goes into.
 - **`research/RESEARCH_PLAYBOOK.md`** distills the actual search techniques
-  that found 419 organizations in this dataset's original research pass —
-  not generic advice, but what specifically worked (development-bank
+  behind the dataset — not generic advice, but what specifically worked (development-bank
   procurement APIs, non-English source search, stale-negative re-checking,
   and why).
 - **`scripts/validate_dataset.py`** + **`scripts/sync_dataset.py`** turn a
-  raw CSV edit into a working app update deterministically — no manual
+  catalogue edit into a working app update deterministically — no manual
   pandas wrangling required.
 
 See **`CONTRIBUTING.md`** for the concrete how-to, whichever kind of
@@ -55,8 +56,8 @@ npm run dev          # http://localhost:5173
 ```bash
 npm run build          # type-check (tsc -b) + production build into dist/
 npm run test            # vitest, pure-logic regression tests
-npm run validate-data   # check data/raw/*.csv before syncing
-npm run sync-data       # regenerate data/catalogue_merged.csv + src/data/catalogue.json
+npm run validate-data   # check data/raw/catalogue.jsonl before syncing
+npm run sync-data       # validate, then regenerate data/catalogue_merged.csv + src/data/catalogue.json
 ```
 
 Requirements: Node.js — version pinned in `.nvmrc` (`nvm use`), tested with
@@ -68,20 +69,22 @@ Vercel, Netlify, or any static host — it's a zero-backend static app).
 
 ## What's inside the app
 
-- **Overview** — top-N tools by record count, plus a "What's changed" feed
-  of recent dataset additions/removals/reclassifications.
-- **Geographic Analysis** — a zoomable/pannable world choropleth (sqrt color
-  scale so low-count countries stay visible, not just the highest-count
-  one), with a numerically-labeled legend and a top-15 country ranking.
-- **Tools & Categories** — tool-category and evidence-strength breakdowns.
-- **Institutions** — top institutions by record count.
-- **Top Users by Tool** — an independent tool selector (defaults to PLEXOS)
-  showing the biggest institutional/country users of that specific tool.
-- **Records & Export** — a sortable, filterable, column-configurable table
-  with a client-side CSV export.
-- **Changelog** — the full history of dataset content changes (new/
-  removed/reclassified organizations), separate from app-feature changes.
-- **About** — purpose, methodology, data sources, GitHub link.
+- **Overview** — most adopted tools, which tool for which grid decision,
+  projects per year, a world map, notable grid decisions and who builds
+  the open-source tools, plus the latest dataset changes.
+- **Tool pages** (`/tools/<tool>`) — where a tool is used, for what, by
+  whom, its real grid decisions, its code contributors and service
+  providers.
+- **Organizations** — every organization with its type, tools, countries
+  and latest project; searchable and sortable.
+- **Projects & data** — the full table with configurable columns; its
+  download button exports the filtered projects as CSV.
+- **About** — methodology and sources, plus Changelog, Contact and Legal.
+
+Filters (country, years, tool, sector, grid decision, impact…) are shared
+by every chart and kept in the URL together with each chart's own
+settings, so any view can be shared as a link. Every chart has copy link,
+download image (PNG) and download data (CSV) buttons.
 
 ## Repository layout
 
@@ -93,14 +96,19 @@ DEPLOYMENT.md                  How to publish a build (GitHub Pages / Vercel / N
 .nvmrc                         Pinned Node version
 
 data/
+  AGENTS.md                      entry point for data agents
   raw/catalogue.jsonl            The entire dataset, one JSON object per line — edit to add any finding
   raw/incoming/                   Staging dir for parallel research batches (see merge_batches.py)
   schema.json                     machine-checkable field contract (required fields, enums)
   catalogue_merged.csv            generated, do not hand-edit
   DATA_SCHEMA.md                  field reference + evidence standards
+  contributor_orgs.json           GitHub company names mapped to organizations (code contributions)
 
 research/
+  AGENTS.md                       entry point for research agents
   RESEARCH_PLAYBOOK.md            proven search techniques + taxonomy discipline + parallel-agent workflow
+  MULTI_TOOL_SEARCH_PROMPT.md     prompt for searching several tools at once (+ multi_tool_search_checklist.csv)
+  prompts/                        prompts for the multi-tool search batches
   world_country_checklist.csv     per-country coverage tracker
   known_institutions.csv          generated context export for research agents (npm run export-known-institutions)
   history/                        point-in-time reports from the original research build
@@ -110,20 +118,23 @@ scripts/
   sync_dataset.py                  regenerates the merged dataset + the app's bundled JSON
   merge_batches.py                 merges parallel research batches into catalogue.jsonl
   export_known_institutions.py     exports research/known_institutions.csv
+  fetch_contributors.py            refreshes src/data/contributors.json (code contributions per organization, from GitHub)
 
 src/                              React + TypeScript app (Vite + Tailwind v4)
   data/catalogue.json              generated, what the app actually imports
   data/changelog.json              dataset-change feed shown in the app
-  types.ts, App.tsx, lib/, components/, sections/
+  data/tools.json                  the tracked tools (vendor, licence, categories, last search)
+  types.ts, App.tsx, lib/, components/, sections/, pages/
 ```
 
 ## Tech stack
 
 React 19 + TypeScript + Vite + Tailwind v4 + Recharts + `react-simple-maps`
-(world choropleth, TopoJSON fetched at runtime from the free `world-atlas`
-CDN package) + `lucide-react`. No state-management library, no router
-(the active page is a single `useState`) — deliberately minimal given the
-app's scope.
+(world map from Natural Earth via `world-atlas`, served from `public/geo/`)
++ `lucide-react` + `html-to-image` (chart PNG export, loaded on click).
+No state-management library; a small router in `src/lib/router.tsx` gives
+every page a real path, and the build writes one `index.html` per page so
+GitHub Pages serves each with status 200.
 
 ## License
 
