@@ -2,6 +2,12 @@
   {
     "date": "22 Nov 2026",
     "tag": "added",
+    "title": "Sienna projects from a worldwide search",
+    "description": "A country-by-country search and a deep dive add Sienna projects: the US National Transmission Planning Study, utility and university studies, and production cost models built with government and grid bodies in Belize and Honduras. NREL (now National Laboratory of the Rockies), which develops Sienna, is not listed as a user."
+  },
+  {
+    "date": "22 Nov 2026",
+    "tag": "added",
     "title": "TIMES projects from a worldwide search",
     "description": "A country-by-country search and a deep dive into national TIMES models, energy agencies and research institutes add about 400 TIMES projects in 86 countries, from national net-zero pathways and energy plans to regional and city models. IEA-ETSAP, which maintains TIMES, is not listed as a user."
   },
