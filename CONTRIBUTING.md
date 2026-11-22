@@ -61,6 +61,20 @@ long-term usage — see `AGENTS.md`'s "Weekly automated research" section),
 have it open a PR scoped to one research wave's findings rather than
 pushing to main or mixing dataset and app changes in one PR.
 
+## How issues become changes
+
+1. Anyone can open an issue with one of the forms (improvement or bug,
+   data correction, new project or organization).
+2. A maintainer reviews it and either asks for more information
+   (`needs-info`), declines it, or approves it with a short task
+   description.
+3. Approved issues may be drafted as a pull request by an AI agent run by
+   the maintainers. The agent works only from the approved task; if the
+   issue is edited after approval, it stops until a maintainer approves
+   again.
+4. A maintainer reviews every pull request before it is merged; nothing is
+   merged automatically.
+
 ## Code of conduct
 
 Be straightforward and evidence-based, same standard the dataset itself is

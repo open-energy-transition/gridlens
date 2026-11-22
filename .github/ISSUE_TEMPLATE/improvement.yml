@@ -1,0 +1,36 @@
+name: Improvement or bug
+description: Something on the website is wrong, unclear or missing
+labels: ["ui"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve GridLens. A maintainer reviews every issue; approved issues may be drafted as a pull request by an AI agent and are always reviewed by a person before they are merged.
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind
+      options:
+        - Bug (something is broken)
+        - Improvement (something could be clearer or better)
+        - New feature
+    validations:
+      required: true
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Link to the page or view (use "Copy link" on the chart if it is about one chart).
+      placeholder: https://gridlens.org/tools/pypsa
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens, and what should happen instead
+      description: For a bug, include your device and browser, and the steps to see it.
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it matters
+      description: Who it helps, and how.
