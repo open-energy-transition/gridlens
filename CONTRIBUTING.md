@@ -9,8 +9,8 @@ This is the contribution type we expect most of — both from human
 contributors and from scheduled LLM research agents.
 
 **Quick start:**
-1. Read `data/DATA_SCHEMA.md` — which CSV to edit, column meanings, enum
-   values.
+1. Read `data/DATA_SCHEMA.md` — field meanings, enum values and evidence
+   standards.
 2. Read `research/RESEARCH_PLAYBOOK.md` — proven search techniques and
    evidence standards, so you're not starting from zero.
 3. Append one JSON line to `data/raw/catalogue.jsonl` for the new
