@@ -14,12 +14,11 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# Build and deploy are separate jobs, as in GitHub's Pages template: the deploy job
+# starts after the artifact is registered, and re-running only the deploy job reuses it.
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
 
@@ -36,5 +35,12 @@ jobs:
         with:
           path: dist
 
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
       - id: deployment
         uses: actions/deploy-pages@v4
