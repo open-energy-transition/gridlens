@@ -8,7 +8,7 @@ const TOOLS: { name: string }[] = JSON.parse(fs.readFileSync('src/data/tools.jso
 const slug = (n: string) => n.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
 
 const PAGE_NAMES: Record<string, string> = {
-  '/': "GridLens — who uses which energy models, where, for which grid decisions",
+  '/': "GridLens — which tools model the grid, who uses them, and for which decisions",
   '/organizations': 'Organizations · GridLens',
   '/projects': 'Projects & data · GridLens',
   '/about': 'About & methodology · GridLens',
