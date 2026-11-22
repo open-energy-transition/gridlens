@@ -23,10 +23,13 @@ export const SECTIONS = [
   { id: 'builders', label: 'Who builds open source' },
 ] as const;
 
-/** URL-safe tool name: "PSS/E" → "pss-e", "DIgSILENT PowerFactory" → "digsilent-powerfactory". */
+/** URL-safe tool name: "PSS/E" → "pss-e". */
 export function slug(name: string): string {
   return name.toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
+
+/** Tool pages that moved when a tool was renamed; old links keep working. */
+const RENAMED_SLUGS: Record<string, string> = { 'digsilent-powerfactory': 'powerfactory' };
 
 export interface Route {
   page: PagePath;
@@ -38,7 +41,7 @@ export interface Route {
 export function parsePath(pathname: string): Route {
   const p = pathname.replace(/\/+$/, '') || '/';
   const tool = p.match(/^\/tools\/([^/]+)$/);
-  if (tool) return { page: '/tools', tool: decodeURIComponent(tool[1]) };
+  if (tool) return { page: '/tools', tool: RENAMED_SLUGS[tool[1]] ?? decodeURIComponent(tool[1]) };
   return PAGES.some((pg) => pg.path === p) ? { page: p as PagePath } : { page: '/' };
 }
 

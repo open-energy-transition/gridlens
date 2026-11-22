@@ -31,7 +31,7 @@ export const TOOL_CATEGORIES: CategoryInfo[] = [
     label: 'Power flow & dynamics',
     description:
       'Models the physics of the network: load flow, N-1 contingency, short-circuit, stability and RMS/EMT dynamics, as in grid-connection and transmission or distribution network studies.',
-    examples: 'PSS/E, DIgSILENT PowerFactory, PSCAD',
+    examples: 'PSS/E, PowerFactory, PSCAD',
   },
   {
     id: 'other',
