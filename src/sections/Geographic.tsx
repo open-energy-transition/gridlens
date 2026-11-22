@@ -97,7 +97,7 @@ export default function Geographic() {
       data={() => [...valueByCountry].sort((a, b) => b[1] - a[1]).map(([country, n]) => ({ country, [metric === 'records' ? 'projects' : 'distinct_tools']: n }))}
       years
       title="Where the tools are used"
-      description="Hover a country for the tools used there; click countries to filter every chart to them. Regional and global studies are counted below the map."
+      description="Regional and global studies are listed below the map."
       actions={
         <Segmented
           label="Metric"

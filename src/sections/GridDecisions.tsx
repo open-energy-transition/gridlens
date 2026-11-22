@@ -99,7 +99,7 @@ export default function GridDecisions() {
       id="decisions"
       years
       title="Grid decisions"
-      description="What the tools are actually used to decide, with the most consequential examples first: projects in which a grid operator, utility, regulator or ministry used or commissioned the modelling."
+      description="Used or commissioned by a grid operator, utility, regulator or ministry; most consequential first."
     >
       {all.length === 0 ? (
         <EmptyState />

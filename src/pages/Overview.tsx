@@ -93,11 +93,11 @@ export default function Overview({ catalogue }: { catalogue: CatalogueRecord[] }
       <header className="max-w-4xl">
         <p className="mb-5 text-xs uppercase tracking-[0.18em] text-ink-400">An open record of energy-model use</p>
         <h1 className="font-display text-[2.6rem] leading-[1.05] text-ink-50 sm:text-6xl">
-          Who models the grid, <span className="text-glow italic">with which tools</span>, for which decisions.
+          <span className="text-glow italic">Which tools</span> model the grid, where, and for which decisions.
         </h1>
         <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ink-300">
-          GridLens collects public evidence of how grid operators, utilities, regulators, consultancies and
-          researchers use energy system models, from PLEXOS to PyPSA, so you can see what is trusted where.
+          GridLens collects public evidence of which energy system models grid operators, utilities, regulators,
+          consultancies and researchers use, from PLEXOS to PyPSA.
         </p>
         <dl className="mt-10 grid grid-cols-2 gap-x-8 gap-y-6 sm:flex sm:flex-wrap sm:gap-x-12">
           {[

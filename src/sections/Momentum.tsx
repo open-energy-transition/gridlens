@@ -31,7 +31,6 @@ export default function Momentum() {
       data={() => [...years.map((y) => ({ year: y.year, open_source: y.open, proprietary: y.proprietary })), { year: 'unknown', open_source: records.filter((r) => !r.year && isOpenSource(r.tool_name)).length, proprietary: records.filter((r) => !r.year && !isOpenSource(r.tool_name)).length }]}
       ignore={['period', 'undated']}
       title="Projects per year"
-      description="Projects per year of the study. A rising open-source share means new studies increasingly use tools anyone can inspect and reuse."
       fields={['country', 'toolName', 'decision', 'impact', 'sector', 'orgType', 'toolCategory', 'evidenceStrength', 'search']}
     >
       {dated === 0 ? (

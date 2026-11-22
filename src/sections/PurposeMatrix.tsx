@@ -27,7 +27,6 @@ export default function PurposeMatrix() {
       data={() => m.rows.map((r) => ({ tool: r.tool, projects: r.total, ...Object.fromEntries(m.decisions.map((d, j) => [DECISION_INFO[d]?.short ?? d, r.counts[j]])) }))}
       years
       title="Which tool for which decision"
-      description="Projects per tool and kind of grid decision. Hover a column for what it covers."
       ignore={['decision']}
       fields={['country', 'period', 'impact', 'sector', 'license', 'orgType', 'evidenceStrength', 'search']}
       actions={<Segmented label="Show" value={mode} onChange={setMode} options={[{ id: 'count', label: 'Projects' }, { id: 'share', label: '% of tool' }]} />}

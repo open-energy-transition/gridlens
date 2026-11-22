@@ -130,8 +130,7 @@ export default function Builders() {
       id="builders"
       data={() => orgs.map((o) => ({ organization: o.name, [metric]: o.count, people: o.people, tools: o.tools.join('; '), url: o.url }))}
       title="Who builds the open-source tools"
-      description={<>Organizations whose people contribute most to each tool’s code.
-        People count for the organization in the “Company” field of their public GitHub profile (e.g. <span className="text-ink-300">@open-energy-transition</span>);{' '}
+      description={<>Contributors by the company on their GitHub profile;{' '}
         <Link href="/about#contributions" className="text-ink-300 underline decoration-ink-700 underline-offset-2 hover:text-ink-50">how to be counted</Link>.</>}
       fields={['period', 'toolName', 'toolCategory', 'license']}
       years
