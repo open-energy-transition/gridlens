@@ -2,7 +2,7 @@ import { useEffect, useState, type AnchorHTMLAttributes, type MouseEvent } from 
 
 /** Pages of the site. The overview is the one-pager; the rest hold detail and reference material. */
 export const PAGES = [
-  { path: '/', label: 'Overview', title: 'GridLens — who uses which energy models, where, for which grid decisions' },
+  { path: '/', label: 'Overview', title: 'GridLens — which tools model the grid, who uses them, and for which decisions' },
   { path: '/organizations', label: 'Organizations', title: 'Organizations · GridLens' },
   { path: '/projects', label: 'Projects & data', title: 'Projects & data · GridLens' },
   { path: '/about', label: 'Methodology', title: 'About & methodology · GridLens' },

@@ -65,7 +65,7 @@ function Headline({ name }: { name: string }) {
   const countries = new Set(records.flatMap((r) => r.countries)).size;
   return (
     <ChartCard id="tool" plain years fields={WHO} ignore={TOOL_IGNORE} scope={(r) => r.tool_name === name}
-      description={records.length === total ? `All ${total.toLocaleString('en')} documented projects.` : `${records.length.toLocaleString('en')} of ${total.toLocaleString('en')} documented projects match the filters.`}>
+      description={records.length === total ? undefined : `${records.length.toLocaleString('en')} of ${total.toLocaleString('en')} projects match the filters.`}>
       <dl className="grid grid-cols-2 gap-6 border-y border-ink-800/80 py-6 sm:grid-cols-4">
         {[
           [records.length, 'projects'],
@@ -98,7 +98,7 @@ function WhereSection({ name }: { name: string }) {
   }, [countries]);
   return (
     <Section name={name} id="tool-map" title="Where it is used" data={() => [...countries].sort((a, b) => b[1] - a[1]).map(([country, projects]) => ({ country, projects }))} className="lg:col-span-2" ignore={['country']}
-      note="Projects per country; regional and global studies count in every country they cover. Click countries to filter."
+      note="Regional studies count in every country they cover."
       fields={['period', 'decision', 'impact', 'sector', 'orgType', 'evidenceStrength', 'search']}>
       {records.length ? (
         <WorldMap valueByCountry={atlas} maxValue={Math.max(1, ...atlas.values())}
@@ -119,7 +119,7 @@ function UsedForSection({ name, color }: { name: string; color: string }) {
   // Projects whose source names no decision are counted below the bars, not as a bar that would dwarf the others.
   const unspecified = records.filter((r) => decisionOf(r) === OTHER_DECISION).length;
   return (
-    <Section name={name} id="tool-purpose" title="Used for" data={() => [...decisions.map((d) => ({ decision: d.name, projects: d.count })), { decision: 'Not specified', projects: unspecified }]} note="Projects per kind of grid decision, where the source names one."
+    <Section name={name} id="tool-purpose" title="Used for" data={() => [...decisions.map((d) => ({ decision: d.name, projects: d.count })), { decision: 'Not specified', projects: unspecified }]}
       ignore={['decision']} fields={['country', 'period', 'impact', 'sector', 'orgType', 'evidenceStrength']}>
       {decisions.length
         ? <HorizontalBarChart data={decisions} colorOf={() => color} unit="projects" />
@@ -135,7 +135,7 @@ function PerYearSection({ name, color }: { name: string; color: string }) {
   const undated = records.filter((r) => !r.year).length;
   return (
     <Section name={name} id="tool-years" title="Projects per year" data={() => [...projectsPerYear(records, THIS_YEAR - 14, THIS_YEAR).map((y) => ({ year: y.year, projects: y.open + y.proprietary })), { year: 'unknown', projects: undated }]} years={false} ignore={['period', 'undated']}
-      note={`Projects with a known year, ${THIS_YEAR - 14}–${THIS_YEAR}. ${THIS_YEAR} is still in progress.`}
+      note={`${THIS_YEAR} is still in progress.`}
       fields={['country', 'decision', 'impact', 'sector', 'orgType', 'evidenceStrength']}>
       <YearBars years={projectsPerYear(records, THIS_YEAR - 14, THIS_YEAR)} split={false} color={color} />
       <CoverageBar known={records.length - undated} unknown={undated} knownLabel="projects with a known year" unknownLabel="with an unknown year, not shown" />
@@ -148,7 +148,7 @@ function UsersSection({ name }: { name: string }) {
   const { records } = useToolRecords('tool-users', name);
   const orgs = useMemo(() => organizationDirectory(records).filter((o) => o.name !== info.vendor), [records, info.vendor]);
   return (
-    <Section name={name} id="tool-users" title="Top users" data={() => orgs.map((o) => ({ organization: o.name, type: orgGroupLabel(o.group), projects: o.projects, countries: o.countries.join('; ') }))} note="Organizations with the most projects using this tool."
+    <Section name={name} id="tool-users" title="Top users" data={() => orgs.map((o) => ({ organization: o.name, type: orgGroupLabel(o.group), projects: o.projects, countries: o.countries.join('; ') }))}
       fields={['country', 'period', 'decision', 'impact', 'sector', 'orgType']}>
       {orgs.length ? (
         <>
@@ -180,7 +180,7 @@ function DecisionsSection({ name }: { name: string }) {
     [records],
   );
   return (
-    <Section name={name} id="tool-decisions" title="Real grid decisions" note="Latest projects in which a grid operator, utility, regulator or ministry used or commissioned the tool."
+    <Section name={name} id="tool-decisions" title="Real grid decisions" note="Used or commissioned by a grid operator, utility, regulator or ministry."
       fields={['country', 'period', 'decision', 'sector', 'search']}>
       {notable.length ? <ul className="-my-4 divide-y divide-ink-800/80">{notable.map((r) => <ProjectRow key={r.project_id} r={r} />)}</ul> : <EmptyState title="None documented for these filters" />}
       <Link href={`/projects${filtersToSearch({ ...filters, toolName: name })}`} className="mt-3 inline-block text-sm text-brand-300 hover:text-brand-200">All {name} projects</Link>
@@ -196,7 +196,7 @@ function BuildersSection({ name }: { name: string }) {
   return (
     <section id="builders" className="scroll-mt-20">
       <ChartCard id="tool-builders" className="h-full" data={() => builders.map((o) => ({ organization: o.name, [metric]: o.count, people: o.people, url: o.url }))} title={`Who builds ${name}`} fields={['period']} years undatedNote={false} ignore={TOOL_IGNORE}
-        description="Organizations whose people contribute most to the tool’s code in the chosen period, by the “Company” on their GitHub profile."
+        description="Contributors by the company on their GitHub profile."
         actions={<MetricSwitch value={metric} onChange={setMetric} />}>
         <ContributorBars orgs={builders} metric={metric} id="tool_builders" />
         <ContributionSource tools={[name]} />
@@ -212,7 +212,7 @@ function ProvidersSection({ name, wide }: { name: string; wide: boolean }) {
   const providers = useMemo(() => serviceProviders(records), [records]);
   return (
     <Section name={name} id="tool-providers" className={wide ? 'lg:col-span-2' : ''} title={`Companies offering ${name} services`}
-      note={`Consultancies with documented ${name} projects${isOpenSource(name) ? '' : `; ${info.vendor} itself is not listed`}.`}
+      note={isOpenSource(name) ? undefined : `${info.vendor} itself isn’t listed.`}
       fields={['country', 'period']}>
       <ProviderList list={providers} id="tool_providers" />
     </Section>

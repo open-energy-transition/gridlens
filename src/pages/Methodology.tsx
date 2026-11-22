@@ -52,8 +52,7 @@ export default function Methodology({ catalogue }: { catalogue: CatalogueRecord[
             <p>
               Funders, grid operators and researchers keep asking the same question: <em>who actually uses which energy system
               model, where, and for which grid decision?</em> The answers are scattered across annual reports, regulatory
-              filings, case studies, conference papers and job posts. GridLens brings that evidence into one place, so you can
-              see which tools are trusted for real decisions, and by whom.
+              filings, case studies, conference papers and job posts. GridLens brings that evidence into one place.
             </p>
             <p>
               GridLens is built and maintained by <a className="text-brand-300 hover:text-brand-200" href="https://openenergytransition.org/" target="_blank" rel="noreferrer">Open Energy Transition</a>,

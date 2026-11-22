@@ -30,7 +30,7 @@ export default function AdoptionRanking() {
       data={() => data.map((d) => ({ tool: d.name, licence: isOpenSource(d.name) ? 'open source' : 'proprietary', organizations: d.count }))}
       years
       title="Most adopted tools"
-      description="Organizations with documented use of each tool. An organization counts once per tool, however many projects it ran."
+      description="Organizations per tool, each counted once."
       actions={
         <>
           <Segmented label="Sector" value={filters.sector} onChange={(v) => setFilters({ ...filters, sector: v })}
