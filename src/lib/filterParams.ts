@@ -36,7 +36,7 @@ function read(params: URLSearchParams, prefix = ''): Filters {
   const filters = { ...DEFAULT_FILTERS };
   for (const key of KEYS) {
     const value = params.get(prefix + PARAM[key]);
-    if (value) filters[key] = value;
+    if (value) filters[key] = key === 'toolName' ? value.replace('DIgSILENT PowerFactory', 'PowerFactory') : value;
   }
   return filters;
 }

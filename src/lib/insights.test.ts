@@ -79,6 +79,7 @@ describe('routes', () => {
   it('slugs tool names', () => {
     expect(slug('PSS/E')).toBe('pss-e');
     expect(slug('DIgSILENT PowerFactory')).toBe('digsilent-powerfactory');
+    expect(parsePath('/tools/digsilent-powerfactory')).toEqual({ page: '/tools', tool: 'powerfactory' });
   });
 
   it('parses pages and tool profiles', () => {

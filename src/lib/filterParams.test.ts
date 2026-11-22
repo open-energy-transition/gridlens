@@ -41,4 +41,8 @@ describe('shared filters in the URL', () => {
     const f = { ...DEFAULT_FILTERS, country: 'Spain|France', toolName: 'PyPSA|PLEXOS' };
     expect(searchToFilters(filtersToSearch(f))).toEqual(f);
   });
+
+  it('reads links made before a tool was renamed', () => {
+    expect(searchToFilters('?tool=PyPSA|DIgSILENT+PowerFactory').toolName).toBe('PyPSA|PowerFactory');
+  });
 });

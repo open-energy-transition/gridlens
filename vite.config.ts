@@ -16,6 +16,8 @@ const PAGE_NAMES: Record<string, string> = {
   '/about/contact': 'Contact · GridLens',
   '/about/legal': 'Legal & privacy · GridLens',
   ...Object.fromEntries(TOOLS.map((t) => [`/tools/${slug(t.name)}`, `${t.name} · GridLens`])),
+  // Old address of a renamed tool (router.tsx RENAMED_SLUGS), still served with status 200.
+  '/tools/digsilent-powerfactory': 'PowerFactory · GridLens',
 }
 
 // Each page gets its own index.html, so it is served with status 200.

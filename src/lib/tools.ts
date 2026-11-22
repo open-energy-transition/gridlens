@@ -15,7 +15,7 @@ export interface ToolInfo {
 }
 
 /** Logo file in public/logos/, when we have a usable one (tool ecosystem for open source, vendor otherwise). */
-const LOGOS = new Set(['antares', 'balmorel', 'bid3', 'digsilent-powerfactory', 'plexos', 'promod', 'pscad', 'powsybl', 'pss-e', 'pypsa', 'sddp', 'sienna', 'times']);
+const LOGOS = new Set(['antares', 'balmorel', 'bid3', 'plexos', 'promod', 'pscad', 'powerfactory', 'powsybl', 'pss-e', 'pypsa', 'sddp', 'sienna', 'times']);
 
 export function logoOf(slug: string): string | undefined {
   return LOGOS.has(slug) ? `/logos/${slug}.png` : undefined;
