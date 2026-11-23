@@ -38,7 +38,7 @@ export default function PurposeMatrix() {
           <table className="w-full min-w-[720px] border-separate border-spacing-[3px] text-sm" onMouseLeave={() => setAt(null)}>
             <thead>
               <tr>
-                <th className="sticky left-0 z-10 bg-[#0c0f1b] pb-2 text-left align-bottom text-xs font-normal text-ink-500">Tool</th>
+                <th className="sticky left-0 z-10 bg-[#0c0f1b] pb-2 text-left align-bottom text-xs font-normal text-ink-500">{mode === 'share' ? '% of each tool’s projects' : 'Number of projects'}</th>
                 {m.decisions.map((d, ci) => (
                   <th key={d} scope="col" className={`group relative w-[10%] px-1 pb-2 align-bottom text-xs font-medium leading-tight transition-colors ${at?.c === ci ? 'text-ink-50' : ci === na ? 'italic text-ink-500' : 'text-ink-300'}`}>
                     <span tabIndex={0} className="cursor-help underline decoration-ink-600 decoration-dotted underline-offset-4 outline-none group-hover:text-ink-50 focus:text-ink-50">

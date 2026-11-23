@@ -122,7 +122,7 @@ function UsedForSection({ name, color }: { name: string; color: string }) {
     <Section name={name} id="tool-purpose" title="Used for" data={() => [...decisions.map((d) => ({ decision: d.name, projects: d.count })), { decision: 'Not specified', projects: unspecified }]}
       ignore={['decision']} fields={['country', 'period', 'impact', 'sector', 'orgType', 'evidenceStrength']}>
       {decisions.length
-        ? <HorizontalBarChart data={decisions} colorOf={() => color} unit="projects" />
+        ? <HorizontalBarChart data={decisions} colorOf={() => color} label="Grid decision" unit="projects" />
         : <EmptyState title="No decision named in these projects’ sources" />}
       <CoverageBar known={records.length - unspecified} unknown={unspecified} knownLabel="projects with a named decision" unknownLabel="decision not specified, not shown" />
     </Section>

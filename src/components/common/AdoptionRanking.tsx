@@ -44,7 +44,7 @@ export default function AdoptionRanking() {
       {data.length === 0 ? (
         <EmptyState />
       ) : (
-        <HorizontalBarChart ranked data={data} unit="organizations" icon={(n) => <ToolLogo name={n} size={20} />} hrefOf={(n) => `/tools/${slug(n)}`}
+        <HorizontalBarChart ranked data={data} label="Tool" unit="organizations using it" icon={(n) => <ToolLogo name={n} size={20} />} hrefOf={(n) => `/tools/${slug(n)}`}
           colorOf={(n) => (isOpenSource(n) ? OPEN_SOURCE : PROPRIETARY)} />
       )}
     </ChartCard>

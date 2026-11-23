@@ -90,7 +90,7 @@ export default function GridDecisions() {
   const tab = (id: string, label: string, n: number) => (
     <button key={id} type="button" role="tab" aria-selected={id === 'All' ? !chosen.length : chosen.includes(id)} onClick={() => pick(id)}
       className={`shrink-0 rounded-full px-3 py-1.5 text-sm transition-colors ${(id === 'All' ? !chosen.length : chosen.includes(id)) ? 'bg-ink-50 text-ink-950' : 'text-ink-400 hover:bg-ink-800/70 hover:text-ink-100'}`}>
-      {label} <span className="tabular ml-1 text-xs text-ink-600">{n}</span>
+      {label} <span className="tabular ml-1 text-xs text-ink-600">{n.toLocaleString('en')}{id === 'All' ? ' projects' : ''}</span>
     </button>
   );
 
