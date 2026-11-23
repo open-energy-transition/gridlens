@@ -67,11 +67,16 @@ def get(path, retries=6):
                 continue
             return data
         except urllib.error.HTTPError as e:
-            if e.code in (403, 429, 502) and attempt < retries - 1:
+            if e.code in (403, 429, 500, 502, 503, 504) and attempt < retries - 1:  # rate limit or a GitHub hiccup
                 time.sleep(60)
                 continue
             if e.code in (404, 409, 422):  # missing, empty or too large to list
                 return None
+            raise
+        except (urllib.error.URLError, TimeoutError):  # network timeout: try again
+            if attempt < retries - 1:
+                time.sleep(60)
+                continue
             raise
     return None
 
