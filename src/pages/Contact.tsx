@@ -5,7 +5,7 @@ import AboutTabs from './AboutTabs';
 const REPO = 'https://github.com/open-energy-transition/gridlens';
 
 const WAYS = [
-  { title: 'Suggest a project or correction', text: 'Know of a study that is missing, or an entry that is wrong? Open an issue with a link to a public source; it will be checked and added.', href: SUGGEST_URL, label: 'Open an issue' },
+  { title: 'Suggest an edit', text: 'An entry that is wrong, a missing project, or a tool that belongs among the most used ones? Pick a form on GitHub and add a public source; a maintainer checks every suggestion.', href: SUGGEST_URL, label: 'Suggest on GitHub' },
   { title: 'Use or improve the code', text: 'GridLens is open source. The data, the research scripts and this website are on GitHub; contributions are welcome.', href: REPO, label: 'GitHub repository' },
   { title: 'Talk to the team', text: 'For partnerships, funding questions or anything else, write to Open Energy Transition.', href: 'mailto:info@openenergytransition.org', label: 'info@openenergytransition.org' },
 ];

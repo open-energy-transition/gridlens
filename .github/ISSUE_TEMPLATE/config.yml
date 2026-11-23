@@ -1,8 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Report a security issue
-    url: https://github.com/open-energy-transition/gridlens/security/advisories/new
-    about: Please report vulnerabilities privately, not in a public issue (see SECURITY.md).
   - name: Partnerships, funding and other questions
     url: https://gridlens.org/about/contact
     about: Contact Open Energy Transition.

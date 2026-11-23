@@ -68,6 +68,12 @@ export default function Methodology({ catalogue }: { catalogue: CatalogueRecord[
               delivering one as a consultant. Training courses, software resale and passing mentions are not counted.
             </p>
             <p>
+              The list is deliberately short: GridLens follows the most widely used tools for grid decisions, up to about
+              30, not every energy model. A tool is added when public sources show grid operators, utilities, regulators or
+              ministries in several countries using it; you can <a className="text-brand-300 hover:text-brand-200"
+              href="https://github.com/open-energy-transition/gridlens/issues/new?template=suggest_tool.yml" target="_blank" rel="noreferrer">suggest one</a>.
+            </p>
+            <p>
               Today the catalogue holds {catalogue.length.toLocaleString('en')} projects in {countries} countries.
             </p>
           </Block>

@@ -1,0 +1,35 @@
+name: Suggest a tool
+description: A modelling tool that belongs among the most used for grid decisions
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        GridLens follows a focused set of the most widely used tools for grid decisions (up to about 30), not every energy model. A tool is added when public sources show it is used by grid operators, utilities, regulators or ministries in several countries.
+  - type: input
+    id: tool
+    attributes:
+      label: Tool
+    validations:
+      required: true
+  - type: input
+    id: website
+    attributes:
+      label: Website or code repository
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Who uses it
+      description: Public links showing grid operators, utilities, regulators or ministries using the tool, ideally from different countries.
+    validations:
+      required: true
+  - type: dropdown
+    id: affiliation
+    attributes:
+      label: Your relation to the tool
+      options:
+        - None
+        - I use it
+        - I work for its vendor or developer

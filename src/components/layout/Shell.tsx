@@ -6,7 +6,7 @@ import ToolLogo from '../common/ToolLogo';
 import GitHubIcon from '../common/GitHubIcon';
 
 const REPO = 'https://github.com/open-energy-transition/gridlens';
-export const SUGGEST_URL = `${REPO}/issues/new?title=Suggest%20a%20project%20or%20correction`;
+export const SUGGEST_URL = `${REPO}/issues/new/choose`;
 
 function useCurrentSection(enabled: boolean) {
   const [current, setCurrent] = useState<string>(SECTIONS[0].id);
@@ -128,7 +128,7 @@ export default function Shell({ route, children }: { route: Route; children: Rea
               rel="noreferrer"
               className="hidden rounded-full border border-ink-700 px-3.5 py-1.5 text-sm text-ink-200 transition-colors hover:border-brand-500/70 hover:text-ink-50 sm:block"
             >
-              Suggest a project
+              Suggest an edit
             </a>
             <a href={REPO} target="_blank" rel="noreferrer" aria-label="GridLens on GitHub"
               className="flex h-9 w-9 items-center justify-center rounded-full text-ink-400 hover:bg-ink-900 hover:text-ink-100">
@@ -166,7 +166,7 @@ export default function Shell({ route, children }: { route: Route; children: Rea
               ))}
             </ul>
             <a href={SUGGEST_URL} target="_blank" rel="noreferrer" className="mt-6 block rounded-full border border-ink-700 px-4 py-2.5 text-center text-ink-200">
-              Suggest a project or correction
+              Suggest an edit
             </a>
           </nav>
         </div>
