@@ -11,7 +11,7 @@
   {"name": "TIMES", "vendor": "IEA-ETSAP", "license": "open_source", "licenseName": "GPL-3.0 (runs on commercial GAMS)", "url": "https://github.com/etsap-TIMES/TIMES_model", "last_searched": "2026-11-22", "github_orgs": ["etsap-TIMES"], "categories": ["capacity_expansion"]},
   {"name": "INTEGRAL", "vendor": "FGH", "license": "proprietary", "url": "https://www.fgh-ma.de/en/products/integral", "categories": ["other"]},
   {"name": "Sienna", "vendor": "NREL", "license": "open_source", "licenseName": "BSD-3-Clause", "url": "https://www.nrel.gov/analysis/sienna.html", "last_searched": "2026-11-22", "github_orgs": ["Sienna-Platform"], "categories": ["capacity_expansion", "production_cost", "power_flow_dynamics"]},
-  {"name": "Balmorel", "vendor": "Balmorel community", "license": "open_source", "licenseName": "ISC", "url": "https://github.com/balmorelcommunity/Balmorel", "github_orgs": ["balmorelcommunity"], "categories": ["capacity_expansion", "production_cost"]},
+  {"name": "Balmorel", "vendor": "Balmorel community", "license": "open_source", "licenseName": "ISC", "url": "https://github.com/balmorelcommunity/Balmorel", "last_searched": "2026-11-23", "github_orgs": ["balmorelcommunity"], "categories": ["capacity_expansion", "production_cost"]},
   {"name": "Antares", "vendor": "RTE", "license": "open_source", "licenseName": "MPL-2.0", "url": "https://antares-simulator.org", "last_searched": "2026-11-21", "github_orgs": ["AntaresSimulatorTeam"], "categories": ["capacity_expansion", "production_cost"]},
   {"name": "PowSyBl", "vendor": "LF Energy (started by RTE)", "license": "open_source", "licenseName": "MPL-2.0", "url": "https://www.powsybl.org", "last_searched": "2026-11-21", "github_orgs": ["powsybl"], "categories": ["power_flow_dynamics"]}
 ]
