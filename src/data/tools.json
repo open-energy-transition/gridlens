@@ -7,7 +7,7 @@
   {"name": "PSS/E", "vendor": "Siemens", "license": "proprietary", "url": "https://www.siemens.com/pss-e", "last_searched": "2026-11-08", "categories": ["power_flow_dynamics"]},
   {"name": "PowerFactory", "vendor": "DIgSILENT", "license": "proprietary", "url": "https://www.digsilent.de/en/powerfactory.html", "last_searched": "2026-11-21", "categories": ["power_flow_dynamics"]},
   {"name": "PSCAD", "vendor": "Manitoba Hydro International", "license": "proprietary", "url": "https://www.pscad.com", "categories": ["power_flow_dynamics"]},
-  {"name": "LEAP", "vendor": "Stockholm Environment Institute", "license": "proprietary", "url": "https://leap.sei.org", "categories": ["capacity_expansion"]},
+  {"name": "LEAP", "vendor": "Stockholm Environment Institute", "license": "proprietary", "url": "https://leap.sei.org", "last_searched": "2026-11-24", "categories": ["capacity_expansion"]},
   {"name": "TIMES", "vendor": "IEA-ETSAP", "license": "open_source", "licenseName": "GPL-3.0 (runs on commercial GAMS)", "url": "https://github.com/etsap-TIMES/TIMES_model", "last_searched": "2026-11-22", "github_orgs": ["etsap-TIMES"], "categories": ["capacity_expansion"]},
   {"name": "INTEGRAL", "vendor": "FGH", "license": "proprietary", "url": "https://www.fgh-ma.de/en/products/integral", "categories": ["other"]},
   {"name": "Sienna", "vendor": "NREL", "license": "open_source", "licenseName": "BSD-3-Clause", "url": "https://www.nrel.gov/analysis/sienna.html", "last_searched": "2026-11-22", "github_orgs": ["Sienna-Platform"], "categories": ["capacity_expansion", "production_cost", "power_flow_dynamics"]},
