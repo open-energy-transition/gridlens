@@ -25,7 +25,7 @@ export default function YearBars({ years, split = true, color = OPEN_SOURCE }: {
             <button key={y.year} type="button" onMouseEnter={() => setHover(i)} onFocus={() => setHover(i)} onClick={() => setHover(i)}
               aria-label={`${y.year}: ${n} projects, ${y.open} open source`}
               className={`flex h-full flex-1 flex-col justify-end outline-none transition-opacity duration-150 ${hover !== null && hover !== i ? 'opacity-35' : ''}`}>
-              <span className="tabular mb-1 hidden text-center text-[10px] text-ink-500 sm:block">{n || ''}</span>
+              <span className={`tabular mb-1 text-center text-[10px] text-ink-500 ${n === max ? 'block' : 'hidden sm:block'}`}>{n || ''}</span>
               <span className="flex flex-col overflow-hidden rounded-t-sm" style={{ height: `${(100 * n) / max}%` }}>
                 {split ? (
                   <>

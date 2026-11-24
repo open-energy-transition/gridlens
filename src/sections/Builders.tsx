@@ -67,7 +67,7 @@ export function ContributorBars({ orgs, showTools, limit = SHOWN, metric = 'prs'
               </span>
             </span>
             <span className="tabular whitespace-nowrap text-right text-xs text-ink-400 sm:order-last sm:w-44 self-start sm:self-center">
-              <span className="text-sm text-ink-100">{o.count.toLocaleString('en')}</span> <span className="hidden sm:inline">{unit} · {o.people} {o.people === 1 ? 'person' : 'people'}</span>
+              <span className="text-sm text-ink-100">{o.count.toLocaleString('en')}</span> {unit}<span className="hidden sm:inline"> · {o.people} {o.people === 1 ? 'person' : 'people'}</span>
             </span>
             <div className="col-span-2 h-1.5 rounded-sm bg-ink-800/60 sm:col-span-1 sm:h-[18px]" aria-hidden="true">
               <div className="h-full rounded-sm bg-gradient-to-r from-brand-600 to-brand-400 transition-[width] duration-500" style={{ width: `${Math.max(1.5, (100 * o.count) / max)}%` }} />

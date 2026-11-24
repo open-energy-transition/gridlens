@@ -11,8 +11,10 @@ interface HorizontalBarChartProps {
   colorOf?: (name: string) => string;
   /** Optional in-app link per row (the whole row is clickable), e.g. the tool's profile. */
   hrefOf?: (name: string) => string | undefined;
-  /** Unit after the count, for the row tooltip ("organizations"). */
+  /** What the numbers count ("organizations"): shown above the numbers and in each row's tooltip. */
   unit?: string;
+  /** Heading above the names ("Tool"). */
+  label?: string;
   /** Show rank numbers. */
   ranked?: boolean;
   /** Optional element before each name, e.g. a logo. */
@@ -23,10 +25,16 @@ interface HorizontalBarChartProps {
  * Ranked bars. On wide screens the name sits left of the bar, as in a leaderboard;
  * on phones the name is above its bar so long names are never cut off.
  */
-export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorOf, hrefOf, unit = '', ranked = false, icon }: HorizontalBarChartProps) {
+export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorOf, hrefOf, unit = '', label = '', ranked = false, icon }: HorizontalBarChartProps) {
   const fill = colorFor(colorIndex);
   const max = Math.max(1, ...data.map((d) => d.count));
   return (
+    <>
+    {unit && (
+      <p className="mb-1 flex justify-between px-2 text-xs text-ink-500" aria-hidden="true">
+        <span className={ranked ? 'pl-7' : ''}>{label}</span><span>{unit[0].toUpperCase() + unit.slice(1)}</span>
+      </p>
+    )}
     <ol className="group/list space-y-2 sm:space-y-0.5">
       {data.map((d, i) => {
         const href = hrefOf?.(d.name);
@@ -52,5 +60,6 @@ export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorO
         );
       })}
     </ol>
+    </>
   );
 }
