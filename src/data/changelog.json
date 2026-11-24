@@ -2,6 +2,12 @@
   {
     "date": "24 Nov 2026",
     "tag": "added",
+    "title": "PSCAD projects from a worldwide search",
+    "description": "A country-by-country search and a deep dive add PSCAD projects worldwide: electromagnetic transient studies by grid operators such as Energinet, TenneT, ONS, NESO and PSE, utilities, engineering consultancies and universities, often for HVDC links, wind and solar grid connection and grid-code compliance. Manitoba Hydro International, which develops PSCAD, and its local resellers are not listed as users."
+  },
+  {
+    "date": "24 Nov 2026",
+    "tag": "added",
     "title": "LEAP projects from a worldwide search",
     "description": "A country-by-country search and a deep dive add about 500 LEAP projects in 153 countries, mostly national energy plans and climate pledges (NDCs) by governments and ministries in Africa, Asia, Latin America, the Caribbean and the Pacific, with regional bodies such as UN ESCAP and APERC. The Stockholm Environment Institute, which develops LEAP, is not listed as a user."
   },
