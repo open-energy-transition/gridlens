@@ -1,5 +1,11 @@
 [
   {
+    "date": "25 Nov 2026",
+    "tag": "removed",
+    "title": "INTEGRAL no longer tracked",
+    "description": "A worldwide country-by-country search and a deep dive found almost no public evidence of who uses FGH's INTEGRAL, so GridLens no longer tracks it. Its one TransnetBW entry stays in the raw dataset."
+  },
+  {
     "date": "24 Nov 2026",
     "tag": "added",
     "title": "PSCAD projects from a worldwide search",
