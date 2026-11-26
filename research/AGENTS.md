@@ -16,7 +16,10 @@ summary.
    file for every tool) — see `../data/AGENTS.md`.
 4. Update this folder's `world_country_checklist.csv` with the country's
    new status.
-5. `npm run sync-data`, add a changelog entry, `npm run build`, commit.
+5. `npm run sync-data`, `npm run audit-data`, add a changelog entry, `npm run build`, commit.
+
+Using an LLM to read or classify sources at scale? Read the playbook's "Checking evidence at scale" first:
+every claim needs a verbatim quote that `scripts/check_evidence.py` can find again on the page.
 
 ## Running more than one agent at once
 

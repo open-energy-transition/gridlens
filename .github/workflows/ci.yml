@@ -27,6 +27,12 @@ jobs:
           git diff --exit-code -- data/catalogue_merged.csv src/data/catalogue.json || \
             (echo "::error::data/raw/*.csv changed but the generated files weren't re-synced and committed. Run 'npm run sync-data' and commit the result." && exit 1)
 
+      - name: Audit dataset
+        run: python3 scripts/audit_dataset.py --strict
+
+      - name: Test Python scripts
+        run: python3 -m unittest discover -s scripts -p 'test_*.py'
+
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc

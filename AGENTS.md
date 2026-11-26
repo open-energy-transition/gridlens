@@ -54,6 +54,8 @@ scripts/
   merge_batches.py                Merges parallel research batches from data/raw/incoming/ into catalogue.jsonl (id-collision + duplicate checking)
   fetch_contributors.py           Refreshes src/data/contributors.json: merged pull requests, commits, reviews and issues per organization and month in each open-source tool's GitHub organizations (names/links in data/contributor_orgs.json)
   export_known_institutions.py    Writes research/known_institutions.csv (not committed) -- give this to research agents as context to avoid re-finding/duplicating known orgs
+  check_evidence.py               Re-checks sources: quotes still on the page, dead links (+ archive.org copies), date evidence for undated rows
+  audit_dataset.py                Audits the published data for recurring errors (CI fails on vendors-as-users, out-of-scope categories, future years, placeholder titles)
 
 src/                              The React + TypeScript app (Vite + Tailwind v4)
   data/catalogue.json             What the app imports — generated, never hand-edit
@@ -87,10 +89,12 @@ npm run validate-data     # check data/raw/catalogue.jsonl against data/schema.j
 npm run sync-data         # validate, then regenerate catalogue_merged.csv + src/data/catalogue.json
 npm run merge-batches     # merge parallel research batches from data/raw/incoming/ into catalogue.jsonl
 npm run export-known-institutions  # regenerate research/known_institutions.csv for research-agent context
+npm run audit-data       # audit the published data; see RESEARCH_PLAYBOOK.md "Checking evidence at scale"
+npm run test-scripts     # unit tests for the Python scripts
 ```
 Node version is pinned in `.nvmrc`. CI (`.github/workflows/ci.yml`) runs
 validate-data → sync-data (failing if that produces an uncommitted diff) →
-test → build → lint on every push/PR — all must pass.
+audit-data → Python script tests → test → build → lint on every push/PR — all must pass.
 
 ## Workflow: contributing a dataset change
 
