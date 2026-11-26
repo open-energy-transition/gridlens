@@ -1,6 +1,12 @@
 [
   {
     "date": "26 Nov 2026",
+    "tag": "reclassified",
+    "title": "New decision categories",
+    "description": "Every project is now sorted by the decision its modelling informed, in nine categories: long-term pathways, generation and storage, grid planning, adequacy, operations, markets and prices, connection and stability, policy and regulation, and not specified. Each project was read and classified again from its title, use case and source quote; who made a study (a university, a consultancy) is no longer a category. Projects without a stated purpose fell from 51% to 24%."
+  },
+  {
+    "date": "26 Nov 2026",
     "tag": "added",
     "title": "Calliope projects from a worldwide search",
     "description": "A country-by-country search and a deep dive add Calliope projects: national and regional energy system studies by universities, research institutes and energy agencies, mostly in Europe. TU Delft, where Calliope is developed, is not listed as a user."
