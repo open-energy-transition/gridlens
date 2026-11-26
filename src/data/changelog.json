@@ -2,6 +2,12 @@
   {
     "date": "26 Nov 2026",
     "tag": "added",
+    "title": "Calliope projects from a worldwide search",
+    "description": "A country-by-country search and a deep dive add Calliope projects: national and regional energy system studies by universities, research institutes and energy agencies, mostly in Europe. TU Delft, where Calliope is developed, is not listed as a user."
+  },
+  {
+    "date": "26 Nov 2026",
+    "tag": "added",
     "title": "pandapower projects from a worldwide search",
     "description": "A country-by-country search and a deep dive add pandapower projects worldwide: distribution and transmission grid studies by grid operators, utilities, consultancies and universities, mostly in Europe. The University of Kassel and Fraunhofer IEE, which develop pandapower, are not listed as users."
   },

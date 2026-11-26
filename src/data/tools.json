@@ -15,7 +15,7 @@
   {"name": "PowSyBl", "vendor": "LF Energy (started by RTE)", "license": "open_source", "licenseName": "MPL-2.0", "url": "https://www.powsybl.org", "last_searched": "2026-11-21", "github_orgs": ["powsybl"], "categories": ["power_flow_dynamics"]},
   {"name": "OSeMOSYS", "vendor": "OSeMOSYS community (KTH)", "license": "open_source", "licenseName": "Apache-2.0", "url": "https://osemosys.org", "last_searched": "2026-11-26", "github_orgs": ["OSeMOSYS"], "categories": ["capacity_expansion"]},
   {"name": "pandapower", "vendor": "Fraunhofer IEE and University of Kassel", "license": "open_source", "licenseName": "BSD-3-Clause", "url": "https://www.pandapower.org", "last_searched": "2026-11-26", "github_orgs": ["e2nIEE"], "categories": ["power_flow_dynamics"]},
-  {"name": "Calliope", "vendor": "Calliope project", "license": "open_source", "licenseName": "Apache-2.0", "url": "https://www.callio.pe", "github_orgs": ["calliope-project"], "categories": ["capacity_expansion", "production_cost"]},
+  {"name": "Calliope", "vendor": "Calliope project", "license": "open_source", "licenseName": "Apache-2.0", "url": "https://www.callio.pe", "last_searched": "2026-11-26", "github_orgs": ["calliope-project"], "categories": ["capacity_expansion", "production_cost"]},
   {"name": "SERVM", "vendor": "PowerGEM (formerly Astrapé Consulting)", "license": "proprietary", "url": "https://power-gem.com/software", "categories": ["production_cost", "capacity_expansion"]},
   {"name": "OpenDSS", "vendor": "EPRI", "license": "open_source", "licenseName": "BSD-3-Clause", "url": "https://opendss.epri.com/", "categories": ["power_flow_dynamics"]}
 ]
