@@ -140,6 +140,40 @@ risk (interleaved writes, lost updates). Instead:
 5. Then the normal pipeline: `npm run validate-data && npm run sync-data`,
    changelog entry, `npm run build`, commit.
 
+## Checking evidence at scale (any LLM)
+
+What made findings from both a small local model and a large hosted one trustworthy: scripts collect the
+evidence, the model only judges short excerpts, and a script checks the model's answer.
+
+- **Every claim carries a verbatim quote, and a script finds it again on the page.**
+  `python3 scripts/check_evidence.py quotes` re-fetches sources and reports quotes no longer on the page and
+  evidence that never names the tool. A rewritten title is never evidence: check before renaming titles.
+- **Search cheaply before searching deeply.** Per country, three plain searches first; run the full search
+  only when a hit names both the tool and the country. This skipped 40-60% of the countries for some tools
+  without losing findings in a replay of earlier waves.
+- **Readers make the same mistakes; give them these rules.** Not users: the tool's vendor, resellers and
+  distributors, funders, data providers, and organizations whose system others modelled (`subject_of_study`,
+  shown but not counted). One canonical name per organization ("Government of Kenya", not four spellings), and
+  never merge organizations across countries. Match ambiguous tool names case-sensitively (LEAP, TIMES; "SDDP"
+  in lower case is usually the algorithm, not PSR's tool).
+- **Dates.** `python3 scripts/check_evidence.py dates` collects Crossref dates, page and PDF metadata and text
+  excerpts for undated rows. Count a date only with the passage that states it (cover date, "Published ...",
+  journal citation, dated news about the study). Never count founding, "since", copyright, "last updated",
+  scenario-target or software-release years. The same page date on many pages of one site is a migration date.
+  Metadata counts only on the study's own page; dates after today are project starts, not studies.
+- **Batches for parallel readers.** JSONL keyed by `tool|project_id`, about 35 lines per read, one output line
+  per input line written in parts, and a short script at the end checking every key appears exactly once.
+- **Links.** `python3 scripts/check_evidence.py links --apply` finds dead source links and writes their
+  archive.org copy to `archive_url` (the site links to it). 401/403/429 are bot walls, not dead links. Replace
+  links to pirate mirrors (sci-hub) with the doi.org link.
+- **Audit before a PR.** `npm run audit-data -- --out research/audit` lists vendors as users, categories
+  outside a tool's scope, future years and placeholder titles (CI fails on these), plus evidence that never
+  names the tool, projects mixing studies in different countries, and grid operators and regulators with a
+  single project: the best targets for the next search.
+- **Free services have limits.** Keyless OpenAlex allows about 100 searches a day: stop on a 429 with a long
+  Retry-After instead of retrying for hours. Run long jobs unbuffered (`python -u`) and cache answers as they
+  come, so a timeout loses nothing.
+
 ## What "done" looks like for a research wave
 
 Every country in `research/world_country_checklist.csv` has been searched

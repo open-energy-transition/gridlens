@@ -1,6 +1,12 @@
 [
   {
     "date": "26 Nov 2026",
+    "tag": "reclassified",
+    "title": "Six more placeholder titles replaced",
+    "description": "Six recently published projects whose title was a web address, file name or \"Untitled\" now have a title describing the study, e.g. \"IPTO technical guideline for connecting electricity storage modules\"."
+  },
+  {
+    "date": "26 Nov 2026",
     "tag": "coverage",
     "title": "101 more grid operator and regulator projects, organization websites, archived copies of dead links",
     "description": "Grid operators and regulators with a single documented project were searched again on their own sites and in their planning reports, grid codes and tenders: 101 more documented uses (e.g. NYISO and IESO with PSS/E, ESO Bulgaria with Antares, TransnetBW with BID3, Kahramaa with PLEXOS, CND Honduras with SDDP), each with the quoted passage. 1,690 organizations now link to their website. Every source link was checked; 176 that no longer work now open an archived copy (archive.org)."

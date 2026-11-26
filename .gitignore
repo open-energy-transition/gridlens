@@ -4,3 +4,5 @@ dist/
 *.local
 .DS_Store
 research/known_institutions.csv
+research/evidence_*.jsonl
+research/audit/

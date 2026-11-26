@@ -15,7 +15,9 @@
     "validate-data": "python3 scripts/validate_dataset.py",
     "sync-data": "python3 scripts/validate_dataset.py && python3 scripts/sync_dataset.py",
     "merge-batches": "python3 scripts/merge_batches.py",
-    "export-known-institutions": "python3 scripts/export_known_institutions.py"
+    "export-known-institutions": "python3 scripts/export_known_institutions.py",
+    "audit-data": "python3 scripts/audit_dataset.py --strict",
+    "test-scripts": "python3 -m unittest discover -s scripts -p 'test_*.py'"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",
