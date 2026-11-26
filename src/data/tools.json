@@ -4,7 +4,7 @@
   {"name": "SDDP", "vendor": "PSR", "license": "proprietary", "url": "https://www.psr-inc.com/en/software/sddp/", "last_searched": "2026-11-15", "categories": ["capacity_expansion", "production_cost"]},
   {"name": "Bid3", "vendor": "AFRY", "license": "proprietary", "url": "https://afry.com/en/service/bid3-power-market-modelling", "last_searched": "2026-11-13", "categories": ["production_cost"]},
   {"name": "PROMOD", "vendor": "Hitachi Energy", "license": "proprietary", "url": "https://www.hitachienergy.com/products-and-solutions/energy-portfolio-management/enterprise/promod", "last_searched": "2026-11-15", "categories": ["production_cost"]},
-  {"name": "PSS/E", "vendor": "Siemens", "license": "proprietary", "url": "https://www.siemens.com/pss-e", "last_searched": "2026-11-08", "categories": ["power_flow_dynamics"]},
+  {"name": "PSS/E", "vendor": "Siemens", "license": "proprietary", "url": "https://www.siemens.com/pss-e", "last_searched": "2026-11-26", "categories": ["power_flow_dynamics"]},
   {"name": "PowerFactory", "vendor": "DIgSILENT", "license": "proprietary", "url": "https://www.digsilent.de/en/powerfactory.html", "last_searched": "2026-11-21", "categories": ["power_flow_dynamics"]},
   {"name": "PSCAD", "vendor": "Manitoba Hydro International", "license": "proprietary", "url": "https://www.pscad.com", "last_searched": "2026-11-24", "categories": ["power_flow_dynamics"]},
   {"name": "LEAP", "vendor": "Stockholm Environment Institute", "license": "proprietary", "url": "https://leap.sei.org", "last_searched": "2026-11-24", "categories": ["capacity_expansion"]},
