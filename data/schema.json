@@ -59,18 +59,18 @@
     "decision_type": {
       "type": "string",
       "enum": [
-        "", "Capacity & Resource Planning", "Unit Commitment & Dispatch",
-        "Market Operations & Price Formation", "Transmission & Network Planning",
-        "Renewable Integration & Decarbonization", "Forecasting & Scenario Analysis",
-        "Policy & Regulatory Analysis", "Academic & Research Studies",
-        "Independent & Commissioned Studies", "Other / General Modeling"
+        "", "Long-term Pathways & Climate Targets", "Generation & Storage Investment",
+        "Transmission & Distribution Planning", "Resource Adequacy & Security of Supply",
+        "System Operation & Flexibility", "Markets & Prices",
+        "Grid Connection & Stability", "Policy & Regulation",
+        "Not specified"
       ],
-      "description": "Leave blank if you don't have specific evidence of the decision purpose -- scripts/sync_dataset.py will infer one from institution_category and mark decision_basis='inferred' automatically. Fill it in directly (with real evidence in use_case/exact_snippet_or_quote) when you do, and the sync script will respect it as decision_basis='documented'."
+      "description": "The decision the project's modelling informed (see data/DATA_SCHEMA.md). Set it with decision_basis when you review a row; left blank, scripts/sync_dataset.py applies keyword rules to use_case."
     },
     "decision_basis": {
       "type": "string",
       "enum": ["", "documented", "inferred"],
-      "description": "Leave blank -- scripts/sync_dataset.py sets this automatically based on whether decision_type was filled in directly (documented) or inferred by the script (inferred). Don't hand-set this to 'documented' unless decision_type is backed by real evidence."
+      "description": "documented: the title, use case, summary or quote states the purpose; inferred: it follows only from context. Required when decision_type is set."
     },
     "evidence_strength": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
     "source_type": { "type": "string" },

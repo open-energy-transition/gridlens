@@ -5,32 +5,42 @@ import { isOpenSource, TOOLS } from './tools';
 
 /** Grid decision types in display order; the catch-all comes last. */
 export const DECISION_TYPES = [
-  'Capacity & Resource Planning',
-  'Transmission & Network Planning',
-  'Market Operations & Price Formation',
-  'Unit Commitment & Dispatch',
-  'Renewable Integration & Decarbonization',
-  'Policy & Regulatory Analysis',
-  'Forecasting & Scenario Analysis',
-  'Independent & Commissioned Studies',
-  'Academic & Research Studies',
-  'Other / General Modeling',
+  'Long-term Pathways & Climate Targets',
+  'Generation & Storage Investment',
+  'Transmission & Distribution Planning',
+  'Resource Adequacy & Security of Supply',
+  'System Operation & Flexibility',
+  'Markets & Prices',
+  'Grid Connection & Stability',
+  'Policy & Regulation',
+  'Not specified',
 ];
 
-export const OTHER_DECISION = 'Other / General Modeling';
+export const OTHER_DECISION = 'Not specified';
 
 /** Plain-language name and meaning of each grid decision type. */
 export const DECISION_INFO: Record<string, { short: string; description: string }> = {
-  'Capacity & Resource Planning': { short: 'Capacity planning', description: 'Which power plants and storage to build, and whether there will be enough supply in the long run.' },
-  'Transmission & Network Planning': { short: 'Grid planning', description: 'Where to expand the grid, build interconnectors, and connect new plants.' },
-  'Market Operations & Price Formation': { short: 'Markets & prices', description: 'How wholesale markets clear, what prices result, and how markets should be designed.' },
-  'Unit Commitment & Dispatch': { short: 'Operations', description: 'Which plants run hour by hour, and how the system is operated day to day.' },
-  'Renewable Integration & Decarbonization': { short: 'Renewables & net zero', description: 'How to integrate wind and solar, and pathways to a decarbonized system.' },
-  'Policy & Regulatory Analysis': { short: 'Policy & regulation', description: 'Energy policy, regulatory reviews and national energy plans.' },
-  'Forecasting & Scenario Analysis': { short: 'Forecasts & scenarios', description: 'Demand and supply forecasts, and long-term scenarios.' },
-  'Independent & Commissioned Studies': { short: 'Commissioned studies', description: 'Studies by consultancies, usually for a grid operator, regulator or ministry, without a narrower stated purpose.' },
-  'Academic & Research Studies': { short: 'Research', description: 'Studies by universities and research institutes.' },
-  'Other / General Modeling': { short: 'Not specified', description: 'The source names the tool but not the decision it informed, so the project cannot be classified.' },
+  'Long-term Pathways & Climate Targets': { short: 'Long-term pathways', description: 'Scenarios for the energy system over decades: net-zero and decarbonization pathways, climate pledges (NDCs), national energy plans and outlooks.' },
+  'Generation & Storage Investment': { short: 'Generation & storage', description: 'Which power plants and storage to build, where and when: capacity expansion, integrated resource plans, least-cost generation plans.' },
+  'Transmission & Distribution Planning': { short: 'Grid planning', description: 'Where to expand or reinforce the grid: transmission lines, interconnectors, network development plans, distribution grids and hosting capacity.' },
+  'Resource Adequacy & Security of Supply': { short: 'Adequacy', description: 'Whether there will be enough supply: loss-of-load risk, capacity credit, reserve margins and security-of-supply assessments.' },
+  'System Operation & Flexibility': { short: 'Operations', description: 'How the system runs hour by hour: dispatch, unit commitment, hydro-thermal scheduling, reserves and the flexibility to integrate wind and solar.' },
+  'Markets & Prices': { short: 'Markets & prices', description: 'Wholesale markets and prices: price forecasts, market simulation, market design and the market value of assets.' },
+  'Grid Connection & Stability': { short: 'Connection & stability', description: 'Connecting plants and keeping the grid stable: connection studies, dynamic and electromagnetic transient (EMT) simulation, protection and grid-code compliance.' },
+  'Policy & Regulation': { short: 'Policy & regulation', description: 'Assessing a policy or regulatory decision: subsidies, carbon prices, tariffs and network charges, regulatory reviews.' },
+  'Not specified': { short: 'Not specified', description: 'The source names the tool but not the decision it informed, so the project cannot be classified.' },
+};
+
+/** Decision types before November 2026, for links shared earlier. */
+export const LEGACY_DECISIONS: Record<string, string> = {
+  'Capacity & Resource Planning': 'Generation & Storage Investment',
+  'Transmission & Network Planning': 'Transmission & Distribution Planning',
+  'Market Operations & Price Formation': 'Markets & Prices',
+  'Unit Commitment & Dispatch': 'System Operation & Flexibility',
+  'Renewable Integration & Decarbonization': 'Long-term Pathways & Climate Targets',
+  'Policy & Regulatory Analysis': 'Policy & Regulation',
+  'Forecasting & Scenario Analysis': 'Long-term Pathways & Climate Targets',
+  'Other / General Modeling': 'Not specified',
 };
 
 export function decisionOf(r: CatalogueRecord): string {

@@ -28,7 +28,7 @@ function record(overrides: Partial<CatalogueRecord> = {}): CatalogueRecord {
     why_it_supports_the_claim: '',
     notes: '',
     dataset_origin: 'esm_usage_catalog',
-    decision_type: 'Unit Commitment & Dispatch',
+    decision_type: 'System Operation & Flexibility',
     decision_basis: 'documented',
     project_id: overrides.project_id ?? 'P1',
     project_title: 'Test Project',
@@ -212,15 +212,15 @@ describe('study period', () => {
 });
 
 describe('grid decision and impact filters', () => {
-  const operator = record({ project_id: 'A', decision_type: 'Transmission & Network Planning' });
+  const operator = record({ project_id: 'A', decision_type: 'Transmission & Distribution Planning' });
   const research = record({
     project_id: 'B', decision_type: '', institution_category: 'academic_research',
     organizations: [{ name: 'Uni', role: 'research_user', institution_category: 'academic_research', country_label: 'Brazil' }],
   });
 
   it('keep projects of one decision type; an empty type counts as not specified', () => {
-    expect(applyFilters([operator, research], { ...EMPTY_FILTERS, decision: 'Transmission & Network Planning' })).toEqual([operator]);
-    expect(applyFilters([operator, research], { ...EMPTY_FILTERS, decision: 'Other / General Modeling' })).toEqual([research]);
+    expect(applyFilters([operator, research], { ...EMPTY_FILTERS, decision: 'Transmission & Distribution Planning' })).toEqual([operator]);
+    expect(applyFilters([operator, research], { ...EMPTY_FILTERS, decision: 'Not specified' })).toEqual([research]);
   });
 
   it('keep projects of one impact level', () => {

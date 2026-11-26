@@ -1,5 +1,6 @@
 import type { Filters } from '../types';
 import { DEFAULT_FILTERS } from '../types';
+import { LEGACY_DECISIONS } from './insights';
 
 /** URL query keys for each filter, e.g. ?country=Spain&tool=PyPSA. */
 const PARAM: Record<keyof Filters, string> = {
@@ -36,7 +37,10 @@ function read(params: URLSearchParams, prefix = ''): Filters {
   const filters = { ...DEFAULT_FILTERS };
   for (const key of KEYS) {
     const value = params.get(prefix + PARAM[key]);
-    if (value) filters[key] = key === 'toolName' ? value.replace('DIgSILENT PowerFactory', 'PowerFactory') : value;
+    if (!value) continue;
+    if (key === 'toolName') filters[key] = value.replace('DIgSILENT PowerFactory', 'PowerFactory');
+    else if (key === 'decision') filters[key] = LEGACY_DECISIONS[value] ?? value;
+    else filters[key] = value;
   }
   return filters;
 }

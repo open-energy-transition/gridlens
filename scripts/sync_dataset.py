@@ -95,54 +95,45 @@ def source_group(row) -> str:
 # Keep this honest distinction visible in the UI -- don't present
 # "inferred" the same way as "documented".
 
+# Keyword rules for rows without a decision_type; first match wins, in the tie-break order of
+# data/DATA_SCHEMA.md. Reviewed rows carry decision_type and decision_basis from the evidence.
 DECISION_TYPE_TEXT_RULES = [
-    ("Transmission & Network Planning", [
-        "transmission", "network planning", "interconnection", "distribution planning", "grid planning",
-        "grid-code", "grid code", "grid connection", "connection stud", "powerfactory", "pss/e", "pss e",
-        "rms ", "electromagnetic transient", " emt ", "emt stud", "compliance modelling", "dynamic model",
+    ("Grid Connection & Stability", [
+        "electromagnetic transient", " emt ", "emt stud", "emt model", "stability", "grid-code", "grid code",
+        "connection stud", "grid connection", "compliance", "protection", "short circuit", "short-circuit",
+        "harmonic", "dynamic model", "rms ", "sub-synchronous", "subsynchronous",
     ]),
-    ("Market Operations & Price Formation", [
-        "market simulation", "price formation", "spot price", "auction", "tariff", "market operations",
-        "pld formation", "price discovery", "market price", "market modelling", "market/system modelling",
-        "electricity market", "market simulator",
+    ("Resource Adequacy & Security of Supply", [
+        "resource adequacy", "adequacy", "loss of load", "loss-of-load", "lole", "elcc", "capacity credit",
+        "reserve margin", "security of supply", "reliability assessment",
     ]),
-    ("Capacity & Resource Planning", [
-        "capacity expansion", "resource adequacy", "integrated resource plan", " irp ", "long-term planning",
-        "investment planning", "generation planning", "capacity planning", "infrastructure planning",
-        "generation expansion", "expansion planning", "least-cost", "prospectiva",
-        "energy outlook", "energy planning", "supply-demand", "igcep", "prodesen",
+    ("Transmission & Distribution Planning", [
+        "transmission", "network planning", "interconnect", "distribution planning", "distribution grid",
+        "distribution network", "grid planning", "grid expansion", "network development", "hosting capacity",
+        "grid reinforcement", "load flow", "power flow",
     ]),
-    ("Unit Commitment & Dispatch", [
-        "unit commitment", "dispatch", "operation planning", "operational planning", "scheduling", "pmo",
-        "day-ahead", "production cost",
+    ("Generation & Storage Investment", [
+        "capacity expansion", "integrated resource plan", " irp", "generation expansion", "expansion planning",
+        "investment planning", "generation planning", "capacity planning", "least-cost", "least cost",
+        "storage sizing", "prodesen", "igcep",
     ]),
-    ("Renewable Integration & Decarbonization", [
-        "renewable integration", "decarbon", "net zero", "net-zero", "climate neutral",
-        "variable renewable", "energy transition", "carbon-free", "cfe", "renewable optimisation",
-        "renewable optimization", "phase-out", "100% renewable", "clean-electricity", "clean electricity",
+    ("Long-term Pathways & Climate Targets", [
+        "net zero", "net-zero", "decarbon", "climate neutral", "carbon neutral", "pathway", "ndc",
+        "nationally determined", "energy transition", "long-term scenario", "energy outlook", "energy plan",
+        "100% renewable", "emission reduction", "low-carbon", "low carbon",
     ]),
-    ("Forecasting & Scenario Analysis", [
-        "forecast", "scenario generation", "demand forecasting",
+    ("Markets & Prices", [
+        "price", "market simulation", "market design", "market modelling", "market modeling", "electricity market",
+        "auction", "bidding", "trading", "revenue",
     ]),
-    ("Policy & Regulatory Analysis", ["regulat", "policy", "ministry"]),
-    ("Independent & Commissioned Studies", ["consultant", "consulting", "commissioned", "licens", "procurement"]),
-    ("Academic & Research Studies", ["research", "academic", "thesis", "university"]),
+    ("System Operation & Flexibility", [
+        "unit commitment", "dispatch", "scheduling", "operation planning", "operational planning", "day-ahead",
+        "production cost", "flexibility", "curtailment", "balancing", "reserves", "hydro-thermal",
+    ]),
+    ("Policy & Regulation", ["regulat", "policy", "tariff", "subsid", "carbon tax", "carbon price"]),
 ]
 
-DECISION_TYPE_CATEGORY_RULES = [
-    ("Transmission & Network Planning", ["utility_tso"]),
-    ("Market Operations & Price Formation", ["utility_iso_rto"]),
-    ("Policy & Regulatory Analysis", [
-        "government_agency", "government_regulator", "international_body", "development_bank",
-        "ngo_foundation",
-    ]),
-    ("Independent & Commissioned Studies", ["consultancy", "vendor"]),
-    ("Academic & Research Studies", ["academic_research", "think_tank"]),
-    ("Unit Commitment & Dispatch", ["utility_generation"]),
-    ("Capacity & Resource Planning", ["energy_company_diversified", "project_developer"]),
-]
-
-DECISION_TYPE_FALLBACK = "Other / General Modeling"
+DECISION_TYPE_FALLBACK = "Not specified"
 
 # Role-based use_case sentences only kick in when a contributor hasn't
 # written a specific one -- same fallback text PLEXOS-catalogue rows have
@@ -170,29 +161,16 @@ def classify_decision_from_text(use_case):
     return None
 
 
-def classify_decision_from_category(category):
-    t = (category or "").strip().lower()
-    for label, keywords in DECISION_TYPE_CATEGORY_RULES:
-        if any(kw == t for kw in keywords):
-            return label
-    return DECISION_TYPE_FALLBACK
-
-
 def resolve_decision(row):
-    """Return (decision_type, decision_basis) for one raw record."""
+    """Return (decision_type, decision_basis) for one raw record: the reviewed decision when the row has one,
+    else keyword rules on a specific use_case ("documented" text, possibly "Not specified")."""
     decision_type = (row.get("decision_type") or "").strip()
     if decision_type:
-        return decision_type, "documented"
-
+        return decision_type, (row.get("decision_basis") or "documented").strip()
     use_case = (row.get("use_case") or "").strip()
     if use_case and use_case not in GENERIC_USE_CASE_TEXTS:
-        # Real, specific evidence exists even if it doesn't match any
-        # keyword rule -- that's still "documented", just unclassified,
-        # not grounds to fall back to a sector-based guess.
-        classified = classify_decision_from_text(use_case)
-        return (classified or DECISION_TYPE_FALLBACK), "documented"
-
-    return classify_decision_from_category(row.get("institution_category", "")), "inferred"
+        return (classify_decision_from_text(use_case) or DECISION_TYPE_FALLBACK), "documented"
+    return DECISION_TYPE_FALLBACK, "inferred"
 
 
 def load_jsonl(path):

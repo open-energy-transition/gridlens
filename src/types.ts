@@ -64,7 +64,7 @@ export interface Filters {
   license: string;
   evidenceStrength: string;
   sourceGroup: string;
-  /** Grid decision type (decision_type; 'Other / General Modeling' = not specified), or 'All'. */
+  /** Grid decision type (decision_type; 'Not specified' = not specified), or 'All'. */
   decision: string;
   /** Project impact: 'high' | 'medium' | 'low', or 'All'. */
   impact: string;
