@@ -1,6 +1,12 @@
 [
   {
     "date": "26 Nov 2026",
+    "tag": "coverage",
+    "title": "46 more projects published, mixed projects split, organization types corrected",
+    "description": "Unpublished entries were read again against the same rules as published ones; 46 whose quote names the tool and shows the organization using it are now published (e.g. MISO with PROMOD, Statnett and Energinet with BID3, EGAT with PowerFactory, IPTO with PSCAD). Seven projects that combined different studies (e.g. two editions of ENTSO-E's adequacy forecast, the Indonesian and Vietnamese energy outlooks) are now separate, and 46 organization types were corrected (e.g. Terna and Litgrid are transmission operators, Ofgem a regulator)."
+  },
+  {
+    "date": "26 Nov 2026",
     "tag": "reclassified",
     "title": "Studied organizations no longer counted as users; clearer titles; evidence re-checked",
     "description": "Organizations whose system was only modelled by others (the subject of a study) are still shown with the project but no longer counted as users of the tool; 18 of them were found to have taken part and now have their real role. 570 project titles that were web addresses, file names or placeholders were rewritten from the sources. 468 projects whose quote did not name the tool were checked against their sources again: on 350 the tool is named, 56 without evidence of the tool were unpublished."
