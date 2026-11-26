@@ -1,6 +1,12 @@
 [
   {
     "date": "26 Nov 2026",
+    "tag": "coverage",
+    "title": "Study dates for 800 more projects",
+    "description": "Undated projects were dated again from their sources: publication dates on the page or in the PDF, journal records (Crossref), and a web search for the published report or paper, each with the passage that states the date. Founding, copyright, update and target years do not count. 90% of projects now have a year, up from 69%; where the date comes from is noted on each entry."
+  },
+  {
+    "date": "26 Nov 2026",
     "tag": "reclassified",
     "title": "Duplicates merged, vendors no longer listed as users",
     "description": "483 projects that were the same study found on several pages (a paper and its preprint, a consultant's and its client's description of one report) are merged into one project with all its organizations, and 46 organizations spelled several ways now have one name. Tool vendors (Energy Exemplar, PSR, AFRY) and a funder (USAID) are no longer listed as users, and tool categories outside a tool's scope are corrected."
