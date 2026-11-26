@@ -67,7 +67,7 @@ explanation of *why*.
 |---|---|---|
 | `id` | yes | Unique, stable identifier, e.g. `ORG-0001` or `ESM-0001`. **Never renumber or reuse an existing id** — research notes elsewhere in the file cross-reference ids by exact string (e.g. "same org, see ORG-AFME-0010"), so renumbering silently breaks that trail. |
 | `institution_name` | yes | The institution's name, in English where there's a common English name, otherwise its own name. |
-| `institution_category` | no (but fill it in) | One of the enum values in `data/schema.json` (`utility_iso_rto`, `utility_tso`, `utility_generation`, `utility_distribution`, `consultancy`, `vendor`, `academic_research`, `think_tank`, `industry_association`, `government_agency`, `government_regulator`, `international_body`, `development_bank`, `ngo_foundation`, `energy_company_diversified`, `project_developer`, `other`). Left blank only for older migrated rows that predate this field — `validate_dataset.py` warns (not errors) on blank, but fill it in for every new entry: it's what Grid Decisions falls back to inferring from when `decision_type` isn't set directly, and it drives the Organization type filter and the impact rating. Use one value per institution (`validate_dataset.py` errors otherwise). |
+| `institution_category` | no (but fill it in) | One of the enum values in `data/schema.json` (`utility_iso_rto`, `utility_tso`, `utility_generation`, `utility_distribution`, `consultancy`, `vendor`, `academic_research`, `think_tank`, `industry_association`, `government_agency`, `government_regulator`, `international_body`, `development_bank`, `ngo_foundation`, `energy_company_diversified`, `project_developer`, `other`). Left blank only for older migrated rows that predate this field — `validate_dataset.py` warns (not errors) on blank, but fill it in for every new entry: it drives the Organization type filter and the impact rating. Use one value per institution (`validate_dataset.py` errors otherwise). |
 | `official_website` | no | Institution's homepage. |
 | `country_label` | yes | Canonical country name. **Check the alias list in `scripts/validate_dataset.py`** (e.g. "USA" vs "United States") before using an unfamiliar spelling — a split spelling silently splits one country into two choropleth entries on the map. Use `"Multi-country (...)"` for regional bodies (e.g. ENTSO-E, WAPP). |
 | `tool_name` | yes | e.g. `PLEXOS`, `PyPSA`, `NEWAVE`, `PowerFactory`. |
@@ -76,8 +76,8 @@ explanation of *why*.
 | `role` | yes | One of: `direct_user`, `commissioner`, `consultant_modeler`, `research_user`, `subject_of_study`, `qa_reviewer`. See role definitions below. |
 | `use_case` | yes | What the tool is actually used for, as specifically as the evidence allows. This is what Grid Decisions classification reads — a generic one-liner gets you a generic (and honestly-labeled "inferred") decision type; a specific sentence with real detail gets classified from the text itself ("documented"). |
 | `summary` | no | One sentence on what the organization did with the tool and which decision it informed, from the evidence only, e.g. "Used PLEXOS to model the 2024 Integrated System Plan." Shown on the Grid Decisions page. |
-| `decision_type` | no | One of the enum values in `data/schema.json` (see the Derived field section below). **Leave blank unless you have real evidence for it** — `scripts/sync_dataset.py` infers one automatically otherwise. |
-| `decision_basis` | no | **Leave blank** — `scripts/sync_dataset.py` sets this to `documented` or `inferred` automatically depending on whether you set `decision_type` yourself or it was inferred. Don't hand-set this to `documented` unless `decision_type` is genuinely backed by `use_case`/`exact_snippet_or_quote`. |
+| `decision_type` | no | One of the enum values in `data/schema.json` **Set it with `decision_basis` when you review a row** (see the Derived field section below); left blank, `scripts/sync_dataset.py` applies keyword rules. |
+| `decision_basis` | no | `documented` or `inferred`; required when `decision_type` is set (see below). |
 | `evidence_strength` | yes | `HIGH`, `MEDIUM`, or `LOW` — set this directly based on the evidence standards below (first-person document = HIGH, vendor case-study/third-party mention = MEDIUM, weak/indirect = LOW). |
 | `source_type` | no | e.g. `research_finding`, `news_release`, `academic_paper`, `procurement_notice`, `official_methodology`. |
 | `source_title` | no | Title of the source document. |
@@ -109,42 +109,36 @@ For a rejected lead, use `status=rejected` rather than a `role` value — keep t
 
 ## Derived field: `decision_type` / `decision_basis`
 
-These two fields answer "what grid decision is this tool actually used
-for" — a different axis from `tool_category` (the model's *technical
-class*) or `role` (the organization's *relationship* to the tool). They
-are **computed by `scripts/sync_dataset.py`** when left blank — see
-`resolve_decision()` in that script for the actual logic.
+`decision_type` answers "which decision did the project's modelling inform?": one primary category per
+project. It is a different axis from `tool_category` (the kind of modelling) and `role` (the organization's
+relationship to the tool); who made a study (a university, a consultancy) is the organization type, not a
+decision.
 
-`decision_type` is one of: `Capacity & Resource Planning`,
-`Unit Commitment & Dispatch`, `Market Operations & Price Formation`,
-`Transmission & Network Planning`, `Renewable Integration & Decarbonization`,
-`Forecasting & Scenario Analysis`, `Policy & Regulatory Analysis`,
-`Academic & Research Studies`, `Independent & Commissioned Studies`,
-`Other / General Modeling`.
+| key | short | use when the project is mainly about |
+|---|---|---|
+| Long-term Pathways & Climate Targets | Long-term pathways | Scenarios for the energy system or power sector over decades: net-zero / decarbonization pathways, NDCs, national energy plans and outlooks, energy-economy or sector-coupling scenarios, 100% renewable studies. |
+| Generation & Storage Investment | Generation & storage | What generation or storage to build, where and when: capacity expansion, integrated resource plans (IRP), least-cost generation expansion plans, renewable build-out or storage sizing for the power system, plant retirement. |
+| Transmission & Distribution Planning | Grid planning | Expanding or reinforcing the network: transmission expansion, interconnectors, network development plans, distribution grid planning, hosting capacity, congestion relief by new lines, load-flow studies for planning. |
+| Resource Adequacy & Security of Supply | Adequacy | Whether there will be enough supply: loss-of-load (LOLE/LOLP/EENS), ELCC / capacity credit, reserve margins, security-of-supply assessments, capacity-mechanism sizing. |
+| System Operation & Flexibility | Operations | How the system runs: dispatch, unit commitment, scheduling, hydro-thermal coordination, reserves and balancing, flexibility needs, operational renewable integration (curtailment, ramping), storage or demand-response operation, outage planning. |
+| Markets & Prices | Markets & prices | Wholesale prices and markets: price forecasts, market simulation, market design, bidding/trading, revenue or valuation of assets from market prices, cross-border trade flows for market analysis. |
+| Grid Connection & Stability | Connection & stability | Physics of connecting and operating equipment: grid connection studies, EMT and RMS dynamics, stability, protection, short circuit, harmonics/power quality, grid-code compliance, HVDC/converter control interaction. |
+| Policy & Regulation | Policy & regulation | Assessing a policy or regulatory decision: subsidies, carbon pricing, tariffs and network charges, regulatory reviews or approvals of plans, market or policy rule changes evaluated with the model. |
+| Not specified | Not specified | The evidence names the tool but not what it informed: training, courses, software development, job ads, method papers with no application, generic "uses tool X". |
 
-Resolution order, per record:
-1. If you set `decision_type` directly in `catalogue.jsonl`, it's trusted
-   as-is and marked `decision_basis="documented"`. Do this when you have
-   real evidence for the specific decision purpose.
-2. Otherwise, if `use_case` is specific (not just the generic role-based
-   fallback sentence), it's classified by keyword rules against that text
-   — still `decision_basis="documented"` even if no keyword matches
-   (real evidence exists, it's just unclassified, landing in
-   `Other / General Modeling`).
-3. Otherwise (no `decision_type`, no specific `use_case` — i.e. all we
-   know is the organization's role and sector), it's inferred from
-   `institution_category` as a last-resort proxy, marked
-   `decision_basis="inferred"`. **This is not a documented claim** —
-   an organization's sector is a reasonable guess at what it uses a tool
-   for, not evidence. Keep this distinction visible in the UI (see
-   `GridDecisions.tsx`'s "Documented"/"Inferred" badges); don't silently
-   upgrade an inferred row to look documented.
+Tie-breaks (pick the first that fits):
+1. Stability/EMT/connection/protection work → Grid Connection & Stability, even inside a planning study.
+2. Adequacy metrics named (LOLE, ELCC, reserve margin, security of supply) → Resource Adequacy.
+3. Grid expansion is the object (lines, interconnectors, network plan, hosting capacity) → Transmission & Distribution Planning.
+4. A power-system build plan (IRP, generation expansion, least-cost plan, storage sizing) → Generation & Storage Investment; economy-wide, multi-sector or climate-target scenarios → Long-term Pathways.
+5. Price forecasts or market design → Markets & Prices; hour-by-hour operation without a price focus → System Operation.
+6. A policy instrument is what is evaluated → Policy & Regulation (a ministry's energy plan itself is Long-term Pathways or Generation & Storage Investment).
+7. Academic papers count by their application (a PyPSA-Eur net-zero paper is Long-term Pathways), not as "research".
 
-If you tighten a historical row's classification later (e.g. by writing a
-real, specific `use_case` for a row that only ever had the generic
-role-based fallback), the next `sync_dataset.py` run will automatically
-pick it up as `documented` — you don't need to touch `decision_basis`
-yourself.
+`decision_basis` is `documented` when the title, use case, summary or quote states the purpose and
+`inferred` when it follows only from context; the UI marks inferred decisions. Rows reviewed this way carry
+both fields. A row without `decision_type` gets one from keyword rules on a specific `use_case`
+(`resolve_decision()` in `scripts/sync_dataset.py`), otherwise `Not specified`.
 
 ## Evidence standards
 

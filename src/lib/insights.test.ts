@@ -11,7 +11,7 @@ function project(tool: string, orgs: ProjectOrg[], extra: Partial<CatalogueRecor
     country_label: 'Spain', institution_name: orgs[0].name, institution_category: orgs[0].institution_category, role: 'direct_user',
     official_website: '', tool_name: tool, tool_category: 'capacity_expansion', use_case: '', summary: '', evidence_strength: 'HIGH',
     source_type: '', source_group: 'industry', source_title: '', source_date: '', source_link: '', exact_snippet_or_quote: '',
-    why_it_supports_the_claim: '', notes: '', dataset_origin: '', decision_type: 'Capacity & Resource Planning', decision_basis: 'documented',
+    why_it_supports_the_claim: '', notes: '', dataset_origin: '', decision_type: 'Generation & Storage Investment', decision_basis: 'documented',
     project_id: Math.random().toString(36), project_title: '', organizations: orgs, countries: ['Spain'], geo_scope: 'national',
     region_label: '', sources: [{ title: '', date: '', link: 'https://example.org/s', quote: '', source_type: '' }], year: null, ...extra,
   };
@@ -24,17 +24,17 @@ const ee = org('Energy Exemplar', 'vendor');
 
 const data = [
   project('PyPSA', [ree, oet], { year: 2025 }),
-  project('PyPSA', [uni], { year: 2024, decision_type: 'Academic & Research Studies' }),
-  project('PLEXOS', [ree, ee], { year: 2019, decision_type: 'Unit Commitment & Dispatch' }),
+  project('PyPSA', [uni], { year: 2024, decision_type: 'Long-term Pathways & Climate Targets' }),
+  project('PLEXOS', [ree, ee], { year: 2019, decision_type: 'System Operation & Flexibility' }),
   project('PLEXOS', [uni], { decision_type: '' }),
 ];
 
 describe('purposeMatrix', () => {
   it('counts projects per tool and decision, without the catch-all by default', () => {
     const m = purposeMatrix(data);
-    expect(m.decisions).toEqual(['Capacity & Resource Planning', 'Unit Commitment & Dispatch', 'Academic & Research Studies']);
-    expect(m.rows.find((r) => r.tool === 'PyPSA')!.counts).toEqual([1, 0, 1]);
-    expect(purposeMatrix(data, true).decisions).toContain('Other / General Modeling');
+    expect(m.decisions).toEqual(['Long-term Pathways & Climate Targets', 'Generation & Storage Investment', 'System Operation & Flexibility']);
+    expect(m.rows.find((r) => r.tool === 'PyPSA')!.counts).toEqual([1, 1, 0]);
+    expect(purposeMatrix(data, true).decisions).toContain('Not specified');
   });
 });
 

@@ -20,6 +20,11 @@ describe('filter query string', () => {
     expect(filtersToSearch({ ...DEFAULT_FILTERS, period: 'All', undated: 'include' })).toBe('?years=All&undated=include');
   });
 
+  it('reads decision types of older links as their new names', () => {
+    expect(searchToFilters('?decision=Capacity+%26+Resource+Planning').decision).toBe('Generation & Storage Investment');
+    expect(searchToFilters('?decision=Other+%2F+General+Modeling').decision).toBe('Not specified');
+  });
+
   it('ignores unknown keys', () => {
     expect(searchToFilters('?country=Spain&utm_source=x')).toEqual({ ...DEFAULT_FILTERS, country: 'Spain' });
   });
@@ -32,7 +37,7 @@ describe('shared filters in the URL', () => {
   });
 
   it('writes the grid decision and impact filters', () => {
-    const f = { ...DEFAULT_FILTERS, decision: 'Transmission & Network Planning', impact: 'high' };
+    const f = { ...DEFAULT_FILTERS, decision: 'Transmission & Distribution Planning', impact: 'high' };
     expect(searchToFilters(filtersToSearch(f))).toEqual(f);
     expect(filtersToSearch(f)).toContain('impact=high');
   });
