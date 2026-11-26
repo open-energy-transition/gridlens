@@ -2,6 +2,12 @@
   {
     "date": "26 Nov 2026",
     "tag": "reclassified",
+    "title": "Duplicates merged, vendors no longer listed as users",
+    "description": "483 projects that were the same study found on several pages (a paper and its preprint, a consultant's and its client's description of one report) are merged into one project with all its organizations, and 46 organizations spelled several ways now have one name. Tool vendors (Energy Exemplar, PSR, AFRY) and a funder (USAID) are no longer listed as users, and tool categories outside a tool's scope are corrected."
+  },
+  {
+    "date": "26 Nov 2026",
+    "tag": "reclassified",
     "title": "New decision categories",
     "description": "Every project is now sorted by the decision its modelling informed, in nine categories: long-term pathways, generation and storage, grid planning, adequacy, operations, markets and prices, connection and stability, policy and regulation, and not specified. Each project was read and classified again from its title, use case and source quote; who made a study (a university, a consultancy) is no longer a category. Projects without a stated purpose fell from 51% to 24%."
   },
