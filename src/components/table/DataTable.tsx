@@ -77,6 +77,11 @@ interface DataTableProps {
   records: CatalogueRecord[];
 }
 
+/** The source's own link, or its archived copy when the link no longer works. */
+function sourceHref(s: { link: string; archive?: string }): string {
+  return s.archive || normalizeLink(s.link);
+}
+
 function normalizeLink(link: string): string {
   const trimmed = link.trim();
   if (!trimmed) return '';
@@ -205,7 +210,8 @@ export default function DataTable({ records }: DataTableProps) {
               <tr key={`${r.project_id}-${i}`} className="hover:bg-ink-900/50">
                 {columns.map((key) => {
                   if (key === 'source_link') {
-                    const link = normalizeLink(safe(r.source_link));
+                    const src = r.sources.find((s) => s.link.trim() === safe(r.source_link).trim());
+                    const link = src ? sourceHref(src) : normalizeLink(safe(r.source_link));
                     return (
                       <td key={key} className="whitespace-nowrap px-4 py-2.5">
                         {link ? (
@@ -215,7 +221,7 @@ export default function DataTable({ records }: DataTableProps) {
                             rel="noreferrer"
                             className="inline-flex items-center gap-1 text-brand-400 hover:text-brand-300"
                           >
-                            Link <ExternalLink size={12} />
+                            {src?.archive ? 'Archived copy' : 'Link'} <ExternalLink size={12} />
                           </a>
                         ) : (
                           <span className="text-ink-600">—</span>
@@ -252,12 +258,13 @@ export default function DataTable({ records }: DataTableProps) {
                           r.sources.map((s, j) => (
                             <span key={j} className={j > 0 ? 'block mt-1' : ''}>
                               {s.link ? (
-                                <a href={normalizeLink(s.link)} target="_blank" rel="noreferrer" className="text-brand-400 hover:text-brand-300 underline">
+                                <a href={sourceHref(s)} target="_blank" rel="noreferrer" className="text-brand-400 hover:text-brand-300 underline">
                                   {s.title || s.link}
                                 </a>
                               ) : (
                                 s.title || '—'
                               )}
+                              {s.link && s.archive && <span className="text-ink-400"> (archived copy)</span>}
                             </span>
                           ))
                         ) : (

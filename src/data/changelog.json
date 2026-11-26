@@ -2,6 +2,12 @@
   {
     "date": "26 Nov 2026",
     "tag": "coverage",
+    "title": "101 more grid operator and regulator projects, organization websites, archived copies of dead links",
+    "description": "Grid operators and regulators with a single documented project were searched again on their own sites and in their planning reports, grid codes and tenders: 101 more documented uses (e.g. NYISO and IESO with PSS/E, ESO Bulgaria with Antares, TransnetBW with BID3, Kahramaa with PLEXOS, CND Honduras with SDDP), each with the quoted passage. 1,690 organizations now link to their website. Every source link was checked; 176 that no longer work now open an archived copy (archive.org)."
+  },
+  {
+    "date": "26 Nov 2026",
+    "tag": "coverage",
     "title": "46 more projects published, mixed projects split, organization types corrected",
     "description": "Unpublished entries were read again against the same rules as published ones; 46 whose quote names the tool and shows the organization using it are now published (e.g. MISO with PROMOD, Statnett and Energinet with BID3, EGAT with PowerFactory, IPTO with PSCAD). Seven projects that combined different studies (e.g. two editions of ENTSO-E's adequacy forecast, the Indonesian and Vietnamese energy outlooks) are now separate, and 46 organization types were corrected (e.g. Terna and Litgrid are transmission operators, Ofgem a regulator)."
   },

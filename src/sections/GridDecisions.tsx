@@ -54,7 +54,7 @@ export function ProjectRow({ r }: { r: CatalogueRecord }) {
       <div className="flex items-center gap-4 sm:flex-col sm:items-end sm:gap-2">
         <ImpactMark impact={projectImpact(r)} />
         {r.sources[0]?.link && (
-          <a href={r.sources[0].link.trim()} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-brand-300 hover:text-brand-200">
+          <a href={r.sources[0].archive || r.sources[0].link.trim()} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs text-brand-300 hover:text-brand-200">
             Source <ArrowUpRight size={12} />
           </a>
         )}

@@ -49,6 +49,8 @@ export interface ProjectSource {
   link: string;
   quote: string;
   source_type: string;
+  /** archive.org copy when the source link no longer works. */
+  archive?: string;
 }
 
 export interface Filters {

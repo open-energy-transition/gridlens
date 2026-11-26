@@ -5,9 +5,17 @@
   "description": "One JSON object per line in data/raw/catalogue.jsonl. See data/DATA_SCHEMA.md for the full field-by-field rationale -- this file is the machine-checkable contract scripts/validate_dataset.py enforces.",
   "type": "object",
   "required": [
-    "id", "institution_name", "country_label", "tool_name", "role",
-    "use_case", "evidence_strength", "source_url", "why_it_supports_the_claim",
-    "status", "historical_or_current"
+    "id",
+    "institution_name",
+    "country_label",
+    "tool_name",
+    "role",
+    "use_case",
+    "evidence_strength",
+    "source_url",
+    "why_it_supports_the_claim",
+    "status",
+    "historical_or_current"
   ],
   "additionalProperties": false,
   "properties": {
@@ -16,25 +24,46 @@
       "pattern": "^[A-Za-z0-9_-]+$",
       "description": "Unique, stable identifier. Never renumber/reuse an existing id -- other rows' `notes` may cross-reference it by exact string (e.g. \"see ORG-AFME-0010\")."
     },
-    "institution_name": { "type": "string", "minLength": 1 },
+    "institution_name": {
+      "type": "string",
+      "minLength": 1
+    },
     "institution_category": {
       "type": "string",
       "enum": [
-        "", "academic_research", "consultancy", "development_bank",
-        "energy_company_diversified", "government_agency", "government_regulator",
-        "industry_association", "international_body", "ngo_foundation",
-        "project_developer", "think_tank", "utility_distribution",
-        "utility_generation", "utility_iso_rto", "utility_tso", "vendor", "other"
+        "",
+        "academic_research",
+        "consultancy",
+        "development_bank",
+        "energy_company_diversified",
+        "government_agency",
+        "government_regulator",
+        "industry_association",
+        "international_body",
+        "ngo_foundation",
+        "project_developer",
+        "think_tank",
+        "utility_distribution",
+        "utility_generation",
+        "utility_iso_rto",
+        "utility_tso",
+        "vendor",
+        "other"
       ],
       "description": "Empty string means not yet classified -- validate_dataset.py warns (not errors) on this, since older migrated rows may not have it yet. Fill it in for every new entry."
     },
-    "official_website": { "type": "string" },
+    "official_website": {
+      "type": "string"
+    },
     "country_label": {
       "type": "string",
       "minLength": 1,
       "description": "Canonical country name. Check data/DATA_SCHEMA.md's alias list before using an unfamiliar spelling."
     },
-    "tool_name": { "type": "string", "minLength": 1 },
+    "tool_name": {
+      "type": "string",
+      "minLength": 1
+    },
     "tool_category": {
       "type": "string",
       "description": "What the modelling was used for: one or more of capacity_expansion, production_cost, power_flow_dynamics, other, separated by '; '; or unspecified when the evidence names the tool but not what it was used for.",
@@ -47,8 +76,12 @@
     "role": {
       "type": "string",
       "enum": [
-        "direct_user", "commissioner", "consultant_modeler",
-        "research_user", "subject_of_study", "qa_reviewer"
+        "direct_user",
+        "commissioner",
+        "consultant_modeler",
+        "research_user",
+        "subject_of_study",
+        "qa_reviewer"
       ]
     },
     "use_case": {
@@ -59,35 +92,78 @@
     "decision_type": {
       "type": "string",
       "enum": [
-        "", "Long-term Pathways & Climate Targets", "Generation & Storage Investment",
-        "Transmission & Distribution Planning", "Resource Adequacy & Security of Supply",
-        "System Operation & Flexibility", "Markets & Prices",
-        "Grid Connection & Stability", "Policy & Regulation",
+        "",
+        "Long-term Pathways & Climate Targets",
+        "Generation & Storage Investment",
+        "Transmission & Distribution Planning",
+        "Resource Adequacy & Security of Supply",
+        "System Operation & Flexibility",
+        "Markets & Prices",
+        "Grid Connection & Stability",
+        "Policy & Regulation",
         "Not specified"
       ],
       "description": "The decision the project's modelling informed (see data/DATA_SCHEMA.md). Set it with decision_basis when you review a row; left blank, scripts/sync_dataset.py applies keyword rules to use_case."
     },
     "decision_basis": {
       "type": "string",
-      "enum": ["", "documented", "inferred"],
+      "enum": [
+        "",
+        "documented",
+        "inferred"
+      ],
       "description": "documented: the title, use case, summary or quote states the purpose; inferred: it follows only from context. Required when decision_type is set."
     },
-    "evidence_strength": { "type": "string", "enum": ["HIGH", "MEDIUM", "LOW"] },
-    "source_type": { "type": "string" },
-    "source_title": { "type": "string" },
-    "source_date": { "type": "string" },
-    "source_url": { "type": "string", "minLength": 1 },
+    "evidence_strength": {
+      "type": "string",
+      "enum": [
+        "HIGH",
+        "MEDIUM",
+        "LOW"
+      ]
+    },
+    "source_type": {
+      "type": "string"
+    },
+    "source_title": {
+      "type": "string"
+    },
+    "source_date": {
+      "type": "string"
+    },
+    "source_url": {
+      "type": "string",
+      "minLength": 1
+    },
+    "archive_url": {
+      "type": "string",
+      "pattern": "^https://web\\.archive\\.org/.+$"
+    },
     "exact_snippet_or_quote": {
       "type": "string",
       "description": "A direct quote, strongly preferred over paraphrase. See data/DATA_SCHEMA.md's evidence standards."
     },
-    "why_it_supports_the_claim": { "type": "string", "minLength": 1 },
+    "why_it_supports_the_claim": {
+      "type": "string",
+      "minLength": 1
+    },
     "status": {
       "type": "string",
-      "enum": ["confirmed", "candidate", "rejected", "gap_confirmed"],
+      "enum": [
+        "confirmed",
+        "candidate",
+        "rejected",
+        "gap_confirmed"
+      ],
       "description": "Only status=confirmed rows sync into the app."
     },
-    "historical_or_current": { "type": "string", "enum": ["current", "historical"] },
+    "historical_or_current": {
+      "type": "string",
+      "enum": [
+        "current",
+        "historical"
+      ]
+    },
     "batch_id": {
       "type": "string",
       "description": "Free-text provenance tag for which research pass/session found this row, e.g. 'weekly_llm_scan_2027w03'. Shown to end users as the record's dataset origin."
@@ -96,7 +172,9 @@
       "type": "string",
       "description": "One sentence on what the organization did with the tool and which decision it informed, from the evidence only (e.g. 'Used PLEXOS to ...')."
     },
-    "notes": { "type": "string" },
+    "notes": {
+      "type": "string"
+    },
     "project_id": {
       "type": "string",
       "description": "Groups multiple rows into one project. Rows with the same project_id and the same tool_name belong to the same project. If omitted, the row's id is used as the project_id."
@@ -107,7 +185,9 @@
     },
     "study_countries": {
       "type": "array",
-      "items": { "type": "string" },
+      "items": {
+        "type": "string"
+      },
       "description": "Country labels the study models (e.g. a multi-country regional study). Distinct from country_label which is the organization's home country."
     },
     "study_year": {
@@ -127,7 +207,11 @@
     },
     "geo_scope": {
       "type": "string",
-      "enum": ["national", "multi_country", "global"],
+      "enum": [
+        "national",
+        "multi_country",
+        "global"
+      ],
       "description": "Geographic scope of the study: 'national' (one country), 'multi_country' (regional or multiple countries), 'global' (worldwide). Auto-derived from country_label if not set."
     }
   }

@@ -83,6 +83,7 @@ explanation of *why*.
 | `source_title` | no | Title of the source document. |
 | `source_date` | no | Date of the source (free text, not strictly validated). |
 | `source_url` | yes | A working URL to the primary evidence (the organization's own document/page preferred over a vendor case study). |
+| `archive_url` | no | archive.org copy of `source_url` when that link no longer works; the site links to it instead. |
 | `exact_snippet_or_quote` | no (but strongly preferred) | A direct quote supporting the claim — see evidence standards below. |
 | `why_it_supports_the_claim` | yes | One sentence connecting the quote/source to the claim being made. |
 | `status` | yes | `confirmed` (syncs into the app), `candidate` (not yet verified, excluded), `rejected` (evidence didn't hold up, excluded — kept in the file, not deleted, so a future wave doesn't repeat the same dead-end search), `gap_confirmed` (actively searched, genuinely no evidence found). |
