@@ -18,6 +18,11 @@ export const ORG_GROUPS: { id: string; label: string; categories: string[] }[] =
 const GROUP_OF = new Map(ORG_GROUPS.flatMap((g) => g.categories.map((c) => [c, g.id] as const)));
 const LABEL_OF = new Map(ORG_GROUPS.map((g) => [g.id, g.label]));
 
+/** Organizations that used or commissioned the modelling; those only modelled by others are not counted as users. */
+export function usersOf<T extends { role?: string }>(orgs: T[]): T[] {
+  return orgs.filter((o) => o.role !== 'subject_of_study');
+}
+
 export function orgGroup(r: Pick<CatalogueRecord, 'institution_category'>): string {
   return GROUP_OF.get(r.institution_category ?? '') ?? 'other';
 }

@@ -147,6 +147,17 @@ describe('countByOrganization', () => {
     const result = countByOrganization([proj1, proj2]);
     expect(result.find(r => r.name === 'ONS')?.count).toBe(2);
   });
+
+  it('does not count an organization that was only the subject of the study', () => {
+    const proj = record({
+      organizations: [
+        { name: 'MIT', role: 'research_user', institution_category: 'academic_research', country_label: 'United States' },
+        { name: 'PLN', role: 'subject_of_study', institution_category: 'utility_generation', country_label: 'Indonesia' },
+      ],
+    });
+    expect(countByOrganization([proj])).toEqual([{ name: 'MIT', count: 1 }]);
+    expect(adoptionByTool([proj])[0].count).toBe(1);
+  });
 });
 
 describe('uniqSorted / uniqueCount', () => {

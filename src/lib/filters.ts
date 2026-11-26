@@ -1,6 +1,6 @@
 import type { CatalogueRecord, Filters } from '../types';
 import { splitCategories } from './toolCategories';
-import { orgGroup, sectorOf } from './orgTypes';
+import { orgGroup, sectorOf, usersOf } from './orgTypes';
 import { toolInfo } from './tools';
 import { coversCountry } from './regions';
 import { decisionOf } from './insights';
@@ -74,7 +74,7 @@ export function countByOrganization(records: CatalogueRecord[]) {
   const counts = new Map<string, number>();
   for (const r of records) {
     const seen = new Set<string>();
-    for (const org of r.organizations) {
+    for (const org of usersOf(r.organizations)) {
       if (org.name && !seen.has(org.name)) {
         seen.add(org.name);
         counts.set(org.name, (counts.get(org.name) ?? 0) + 1);
@@ -102,7 +102,7 @@ export function uniqueCount(records: CatalogueRecord[], field: keyof CatalogueRe
 export function adoptionByTool(records: CatalogueRecord[], sector = 'All') {
   const orgs = new Map<string, Set<string>>();
   for (const r of records) {
-    for (const o of r.organizations) {
+    for (const o of usersOf(r.organizations)) {
       if (sector !== 'All' && sectorOf(o) !== sector) continue;
       if (!orgs.has(r.tool_name)) orgs.set(r.tool_name, new Set());
       orgs.get(r.tool_name)!.add(o.name);

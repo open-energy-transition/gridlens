@@ -161,7 +161,7 @@ export default function Methodology({ catalogue }: { catalogue: CatalogueRecord[
               ))}
               <div><dt className="font-medium text-ink-100">Decision-makers</dt><dd>Grid and system operators, utilities, regulators and ministries: the organizations whose own decisions the modelling informs.</dd></div>
               <div><dt className="font-medium text-ink-100">Grid decision</dt><dd>The kind of decision a project supports, taken from the source. When the source does not state it, the project says “decision inferred”.</dd></div>
-              <div><dt className="font-medium text-ink-100">Adoption</dt><dd>Distinct organizations with at least one documented project. One organization counts once per tool, however many projects it ran.</dd></div>
+              <div><dt className="font-medium text-ink-100">Adoption</dt><dd>Distinct organizations with at least one documented project. One organization counts once per tool, however many projects it ran. Organizations whose system was only modelled by others (the subject of a study) are shown with the project but not counted as users.</dd></div>
               <div><dt className="font-medium text-ink-100">Evidence strength</dt><dd>How directly the source shows the use, as rated when the entry was checked. Every project links its sources, so you can judge for yourself.</dd></div>
             </dl>
           </Block>
