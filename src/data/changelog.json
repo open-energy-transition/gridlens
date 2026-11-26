@@ -2,6 +2,12 @@
   {
     "date": "26 Nov 2026",
     "tag": "added",
+    "title": "pandapower projects from a worldwide search",
+    "description": "A country-by-country search and a deep dive add pandapower projects worldwide: distribution and transmission grid studies by grid operators, utilities, consultancies and universities, mostly in Europe. The University of Kassel and Fraunhofer IEE, which develop pandapower, are not listed as users."
+  },
+  {
+    "date": "26 Nov 2026",
+    "tag": "added",
     "title": "OSeMOSYS projects from a worldwide search",
     "description": "A country-by-country search and a deep dive add OSeMOSYS projects worldwide, mostly national energy and climate plans by governments, ministries and universities in Africa, Latin America and Asia, often built in capacity-building programmes such as Climate Compatible Growth. KTH, where OSeMOSYS was developed, funders and project names are not listed as users."
   },
