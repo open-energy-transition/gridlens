@@ -294,7 +294,8 @@ def project_record(rows):
         link = (r.get("source_url") or "").strip()
         sources.setdefault(link, {"title": (r.get("source_title") or "").strip(), "date": (r.get("source_date") or "").strip(),
                                   "link": link, "quote": (r.get("exact_snippet_or_quote") or "").strip(),
-                                  "source_type": (r.get("source_type") or "").strip()})
+                                  "source_type": (r.get("source_type") or "").strip(),
+                                  "archive": (r.get("archive_url") or "").strip()})
     cats = {c.strip() for r in rows for c in (r.get("tool_category") or "").split(";") if c.strip()}
     if len(cats) > 1:
         cats.discard("unspecified")
