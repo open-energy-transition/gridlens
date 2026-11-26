@@ -1,5 +1,11 @@
 [
   {
+    "date": "26 Nov 2026",
+    "tag": "added",
+    "title": "OSeMOSYS projects from a worldwide search",
+    "description": "A country-by-country search and a deep dive add OSeMOSYS projects worldwide, mostly national energy and climate plans by governments, ministries and universities in Africa, Latin America and Asia, often built in capacity-building programmes such as Climate Compatible Growth. KTH, where OSeMOSYS was developed, funders and project names are not listed as users."
+  },
+  {
     "date": "25 Nov 2026",
     "tag": "removed",
     "title": "INTEGRAL no longer tracked",
