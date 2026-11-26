@@ -1,6 +1,12 @@
 [
   {
     "date": "26 Nov 2026",
+    "tag": "reclassified",
+    "title": "Studied organizations no longer counted as users; clearer titles; evidence re-checked",
+    "description": "Organizations whose system was only modelled by others (the subject of a study) are still shown with the project but no longer counted as users of the tool; 18 of them were found to have taken part and now have their real role. 570 project titles that were web addresses, file names or placeholders were rewritten from the sources. 468 projects whose quote did not name the tool were checked against their sources again: on 350 the tool is named, 56 without evidence of the tool were unpublished."
+  },
+  {
+    "date": "26 Nov 2026",
     "tag": "coverage",
     "title": "Study dates for 800 more projects",
     "description": "Undated projects were dated again from their sources: publication dates on the page or in the PDF, journal records (Crossref), and a web search for the published report or paper, each with the passage that states the date. Founding, copyright, update and target years do not count. 90% of projects now have a year, up from 69%; where the date comes from is noted on each entry."

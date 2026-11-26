@@ -12,6 +12,7 @@ import Momentum from '../sections/Momentum';
 import Geographic from '../sections/Geographic';
 import GridDecisions from '../sections/GridDecisions';
 import Builders from '../sections/Builders';
+import { usersOf } from '../lib/orgTypes';
 
 const THIS_YEAR = new Date().getFullYear();
 
@@ -73,7 +74,7 @@ function ToolUpdateStats() {
 
 export default function Overview({ catalogue }: { catalogue: CatalogueRecord[] }) {
   const facts = useMemo(() => {
-    const orgs = new Set(catalogue.flatMap((r) => r.organizations.map((o) => o.name)));
+    const orgs = new Set(catalogue.flatMap((r) => usersOf(r.organizations).map((o) => o.name)));
     const now = openShare(catalogue, THIS_YEAR - 1, THIS_YEAR - 1);
     const then = openShare(catalogue, THIS_YEAR - 6, THIS_YEAR - 6);
     return {

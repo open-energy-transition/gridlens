@@ -1,5 +1,5 @@
 import type { CatalogueRecord, ProjectOrg } from '../types';
-import { orgGroup } from './orgTypes';
+import { orgGroup, usersOf } from './orgTypes';
 import { impactOf, projectImpact } from './impact';
 import { isOpenSource, TOOLS } from './tools';
 
@@ -101,7 +101,7 @@ export interface OrgEntry {
 export function organizationDirectory(records: CatalogueRecord[]): OrgEntry[] {
   const byName = new Map<string, OrgEntry & { toolSet: Set<string>; latest: number; countryCounts: Map<string, number> }>();
   for (const r of records) {
-    for (const o of r.organizations) {
+    for (const o of usersOf(r.organizations)) {
       let e = byName.get(o.name);
       if (!e) {
         e = { name: o.name, group: orgGroup(o), countries: [], website: '', tools: [], toolSet: new Set(), projects: 0,
@@ -166,7 +166,7 @@ export function toolStats(records: CatalogueRecord[], thisYear = new Date().getF
   const from = thisYear - 9;
   return TOOLS.map((t) => {
     const rs = records.filter((r) => r.tool_name === t.name);
-    const orgs = new Map(rs.flatMap((r) => r.organizations).map((o) => [o.name, o]));
+    const orgs = new Map(rs.flatMap((r) => usersOf(r.organizations)).map((o) => [o.name, o]));
     const years = rs.map((r) => r.year).filter((y): y is number => !!y);
     const decisions = new Map<string, number>();
     for (const r of rs) {
