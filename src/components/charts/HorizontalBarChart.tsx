@@ -19,13 +19,15 @@ interface HorizontalBarChartProps {
   ranked?: boolean;
   /** Optional element before each name, e.g. a logo. */
   icon?: (name: string) => ReactNode;
+  /** Optional split of each bar into parts (adding up to its count), drawn left to right, e.g. by sector. */
+  segmentsOf?: (name: string) => { label: string; count: number; color: string }[];
 }
 
 /**
  * Ranked bars. On wide screens the name sits left of the bar, as in a leaderboard;
  * on phones the name is above its bar so long names are never cut off.
  */
-export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorOf, hrefOf, unit = '', label = '', ranked = false, icon }: HorizontalBarChartProps) {
+export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorOf, hrefOf, unit = '', label = '', ranked = false, icon, segmentsOf }: HorizontalBarChartProps) {
   const fill = colorFor(colorIndex);
   const max = Math.max(1, ...data.map((d) => d.count));
   return (
@@ -49,12 +51,16 @@ export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorO
             </span>
             <span className="tabular text-right text-sm text-ink-300 sm:order-last">{d.count}</span>
             <div className="col-span-2 h-1.5 rounded-sm bg-ink-800/60 sm:col-span-1 sm:h-[18px]" aria-hidden="true">
-              <div className="h-full rounded-sm transition-[width] duration-500" style={{ width: `${Math.max(1.5, (100 * d.count) / max)}%`, background: colorOf?.(d.name) ?? fill }} />
+              <div className="flex h-full overflow-hidden rounded-sm transition-[width] duration-500" style={{ width: `${Math.max(1.5, (100 * d.count) / max)}%` }}>
+                {(segmentsOf?.(d.name) ?? [{ label: '', count: d.count, color: colorOf?.(d.name) ?? fill }]).filter((s) => s.count > 0).map((s) => (
+                  <div key={s.label} className="h-full" style={{ width: `${(100 * s.count) / Math.max(1, d.count)}%`, background: s.color }} />
+                ))}
+              </div>
             </div>
           </>
         );
         return (
-          <li key={d.name} title={`${d.name}: ${d.count} ${unit}`.trim()}>
+          <li key={d.name} title={`${d.name}: ${d.count} ${unit}${segmentsOf ? ` (${segmentsOf(d.name).filter((s) => s.count).map((s) => `${s.label} ${s.count}`).join(', ')})` : ''}`.trim()}>
             {href ? <Link href={href} className={`group/row ${row}`}>{inner}</Link> : <div className={row}>{inner}</div>}
           </li>
         );

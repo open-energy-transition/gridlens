@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { adoptionByTool } from '../../lib/filters';
+import { adoptionBySector, adoptionByTool } from '../../lib/filters';
 import { useChart } from '../../lib/chartFilters';
 import { SECTORS } from '../../lib/orgTypes';
 import { isOpenSource } from '../../lib/tools';
@@ -20,14 +20,38 @@ export function LicenceLegend() {
   );
 }
 
+/** Shades of a bar's colour per sector: solid for industry & government, lighter for academia, faint for other. */
+const SECTOR_SHADES = [
+  { id: 'industry', label: 'Industry & government', alpha: 'ff' },
+  { id: 'academia', label: 'Academia & research', alpha: '73' },
+  { id: 'other', label: 'Other', alpha: '33' },
+] as const;
+
+function SectorLegend() {
+  return (
+    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-400">
+      {SECTOR_SHADES.map((s) => (
+        <span key={s.id} className="flex items-center gap-1.5">
+          <span className="flex h-2.5 w-5 overflow-hidden rounded-sm">
+            <span className="w-1/2" style={{ background: OPEN_SOURCE + s.alpha }} /><span className="w-1/2" style={{ background: PROPRIETARY + s.alpha }} />
+          </span>
+          {s.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 /** Tools ranked by how many organizations use them; sector and licence are quick switches for this chart's filters. */
 export default function AdoptionRanking() {
   const { filters, setFilters, records } = useChart('adoption');
   const data = useMemo(() => adoptionByTool(records, filters.sector), [records, filters.sector]);
+  // With every sector shown, each bar is split into industry, academia and other.
+  const split = useMemo(() => (filters.sector === 'All' ? adoptionBySector(records) : null), [records, filters.sector]);
   return (
     <ChartCard
       id="adoption"
-      data={() => data.map((d) => ({ tool: d.name, licence: isOpenSource(d.name) ? 'open source' : 'proprietary', organizations: d.count }))}
+      data={() => data.map((d) => ({ tool: d.name, licence: isOpenSource(d.name) ? 'open source' : 'proprietary', organizations: d.count, ...(split?.get(d.name) ?? {}) }))}
       years
       title="Most adopted tools"
       description="Organizations per tool, each counted once."
@@ -40,12 +64,17 @@ export default function AdoptionRanking() {
         </>
       }
     >
-      <div className="mb-4"><LicenceLegend /></div>
+      <div className="mb-4 flex flex-wrap gap-x-8 gap-y-2"><LicenceLegend />{split && <SectorLegend />}</div>
       {data.length === 0 ? (
         <EmptyState />
       ) : (
         <HorizontalBarChart ranked data={data} label="Tool" unit="organizations using it" icon={(n) => <ToolLogo name={n} size={20} />} hrefOf={(n) => `/tools/${slug(n)}`}
-          colorOf={(n) => (isOpenSource(n) ? OPEN_SOURCE : PROPRIETARY)} />
+          colorOf={(n) => (isOpenSource(n) ? OPEN_SOURCE : PROPRIETARY)}
+          segmentsOf={split ? (n) => {
+            const base = isOpenSource(n) ? OPEN_SOURCE : PROPRIETARY;
+            const c = split.get(n) ?? { industry: 0, academia: 0, other: 0 };
+            return SECTOR_SHADES.map((s) => ({ label: s.label, count: c[s.id], color: base + s.alpha }));
+          } : undefined} />
       )}
     </ChartCard>
   );
