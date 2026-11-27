@@ -7,12 +7,12 @@ const org = (name: string, institution_category: string, role = 'direct_user') =
 const rec = (tool_name: string, organizations: ReturnType<typeof org>[]) => ({ tool_name, organizations } as unknown as CatalogueRecord);
 
 describe('adoptionBySector', () => {
-  it('splits each tool into industry, academia and other, adding up to its adoption count', () => {
+  it('splits each tool into industry and academia, adding up to its adoption count', () => {
     const records = [
       rec('PyPSA', [org('TSO', 'utility_tso'), org('Uni', 'academic_research')]),
       rec('PyPSA', [org('Uni', 'academic_research'), org('Assoc', 'industry_association'), org('Studied', 'utility_tso', 'subject_of_study')]),
     ];
-    expect(adoptionBySector(records).get('PyPSA')).toEqual({ industry: 1, academia: 1, other: 1 });
+    expect(adoptionBySector(records).get('PyPSA')).toEqual({ industry: 2, academia: 1 });
     expect(adoptionByTool(records)[0].count).toBe(3);
   });
 });

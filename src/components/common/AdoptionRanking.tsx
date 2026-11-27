@@ -20,22 +20,19 @@ export function LicenceLegend() {
   );
 }
 
-/** Shades of a bar's colour per sector: solid for industry & government, lighter for academia, faint for other. */
+/** Shades of a bar's licence colour per sector: solid for industry & government, lighter for academia & research. */
 const SECTOR_SHADES = [
   { id: 'industry', label: 'Industry & government', alpha: 'ff' },
   { id: 'academia', label: 'Academia & research', alpha: '73' },
-  { id: 'other', label: 'Other', alpha: '33' },
 ] as const;
 
-function SectorLegend() {
+/** On phones the bars have no room for the arrow labels, so the two shades get a small key instead. */
+function SectorKey() {
   return (
-    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-400">
+    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-ink-400 sm:hidden">
       {SECTOR_SHADES.map((s) => (
         <span key={s.id} className="flex items-center gap-1.5">
-          <span className="flex h-2.5 w-5 overflow-hidden rounded-sm">
-            <span className="w-1/2" style={{ background: OPEN_SOURCE + s.alpha }} /><span className="w-1/2" style={{ background: PROPRIETARY + s.alpha }} />
-          </span>
-          {s.label}
+          <span className="h-2.5 w-2.5 rounded-sm" style={{ background: PROPRIETARY + s.alpha }} />{s.label}
         </span>
       ))}
     </div>
@@ -64,7 +61,7 @@ export default function AdoptionRanking() {
         </>
       }
     >
-      <div className="mb-4 flex flex-wrap gap-x-8 gap-y-2"><LicenceLegend />{split && <SectorLegend />}</div>
+      <div className="mb-4 flex flex-wrap gap-x-8 gap-y-2"><LicenceLegend />{split && <SectorKey />}</div>
       {data.length === 0 ? (
         <EmptyState />
       ) : (
@@ -72,9 +69,10 @@ export default function AdoptionRanking() {
           colorOf={(n) => (isOpenSource(n) ? OPEN_SOURCE : PROPRIETARY)}
           segmentsOf={split ? (n) => {
             const base = isOpenSource(n) ? OPEN_SOURCE : PROPRIETARY;
-            const c = split.get(n) ?? { industry: 0, academia: 0, other: 0 };
+            const c = split.get(n) ?? { industry: 0, academia: 0 };
             return SECTOR_SHADES.map((s) => ({ label: s.label, count: c[s.id], color: base + s.alpha }));
-          } : undefined} />
+          } : undefined}
+          caption={split ? { start: 'Industry & government', end: 'Academia & research' } : undefined} />
       )}
     </ChartCard>
   );

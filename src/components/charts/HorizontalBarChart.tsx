@@ -21,13 +21,15 @@ interface HorizontalBarChartProps {
   icon?: (name: string) => ReactNode;
   /** Optional split of each bar into parts (adding up to its count), drawn left to right, e.g. by sector. */
   segmentsOf?: (name: string) => { label: string; count: number; color: string }[];
+  /** Labels with arrows above the first bar's two ends, naming its first and last segment (wide screens). */
+  caption?: { start: string; end: string };
 }
 
 /**
  * Ranked bars. On wide screens the name sits left of the bar, as in a leaderboard;
  * on phones the name is above its bar so long names are never cut off.
  */
-export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorOf, hrefOf, unit = '', label = '', ranked = false, icon, segmentsOf }: HorizontalBarChartProps) {
+export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorOf, hrefOf, unit = '', label = '', ranked = false, icon, segmentsOf, caption }: HorizontalBarChartProps) {
   const fill = colorFor(colorIndex);
   const max = Math.max(1, ...data.map((d) => d.count));
   return (
@@ -50,7 +52,13 @@ export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorO
               {badge?.(d.name)}
             </span>
             <span className="tabular text-right text-sm text-ink-300 sm:order-last">{d.count}</span>
-            <div className="col-span-2 h-1.5 rounded-sm bg-ink-800/60 sm:col-span-1 sm:h-[18px]" aria-hidden="true">
+            <div className="relative col-span-2 h-1.5 rounded-sm bg-ink-800/60 sm:col-span-1 sm:h-[18px]" aria-hidden="true">
+              {caption && i === 0 && (
+                <div className="absolute bottom-full mb-1 hidden justify-between gap-4 whitespace-nowrap text-[11px] leading-none text-ink-400 sm:flex"
+                  style={{ width: `${Math.max(1.5, (100 * d.count) / max)}%` }}>
+                  <span>↓ {caption.start}</span><span>{caption.end} ↓</span>
+                </div>
+              )}
               <div className="flex h-full overflow-hidden rounded-sm transition-[width] duration-500" style={{ width: `${Math.max(1.5, (100 * d.count) / max)}%` }}>
                 {(segmentsOf?.(d.name) ?? [{ label: '', count: d.count, color: colorOf?.(d.name) ?? fill }]).filter((s) => s.count > 0).map((s) => (
                   <div key={s.label} className="h-full" style={{ width: `${(100 * s.count) / Math.max(1, d.count)}%`, background: s.color }} />
@@ -60,7 +68,7 @@ export default function HorizontalBarChart({ data, colorIndex = 0, badge, colorO
           </>
         );
         return (
-          <li key={d.name} title={`${d.name}: ${d.count} ${unit}${segmentsOf ? ` (${segmentsOf(d.name).filter((s) => s.count).map((s) => `${s.label} ${s.count}`).join(', ')})` : ''}`.trim()}>
+          <li key={d.name} className={caption && i === 0 ? 'sm:pt-5' : undefined} title={`${d.name}: ${d.count} ${unit}${segmentsOf ? ` (${segmentsOf(d.name).filter((s) => s.count).map((s) => `${s.label} ${s.count}`).join(', ')})` : ''}`.trim()}>
             {href ? <Link href={href} className={`group/row ${row}`}>{inner}</Link> : <div className={row}>{inner}</div>}
           </li>
         );
