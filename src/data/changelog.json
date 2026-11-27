@@ -2,6 +2,12 @@
   {
     "date": "26 Nov 2026",
     "tag": "added",
+    "title": "8 projects from tool vendors' and communities' own pages",
+    "description": "Customer stories, case studies and reference lists on the tool vendors' and communities' sites were read for named users not yet in the data: 8 new projects, e.g. Statnett's and Svenska kraftnät's BID3 market analyses, Mott MacDonald's PLEXOS power sector master plan for Uzbekistan, EWEC, PJM and E3 with PLEXOS, SMA's PowerFactory EMT benchmark and NREL's LEAP scenarios of US federal energy use. Each entry quotes the vendor's or community's page."
+  },
+  {
+    "date": "26 Nov 2026",
+    "tag": "added",
     "title": "PSS/E: 171 more projects from a country-by-country search",
     "description": "Every country was searched for documented use of Siemens PSS/E since 2010: grid operators' development plans and grid codes, regulators' rules, tenders and licence renewals, development-bank studies and theses. PSS/E now has 219 projects in 99 countries from 193 organizations, among them CEPS, Fingrid, Statnett, Elering, Litgrid, Ukrenergo, KOSTT, EirGrid, UETCL, Kenya Power and Nigeria's regulator NERC, which requires PSS/E for technical audits. Each entry quotes the passage naming PSS/E."
   },
