@@ -3,6 +3,8 @@ import { useChart } from '../lib/chartFilters';
 import { DECISION_INFO, OTHER_DECISION, purposeMatrix } from '../lib/insights';
 import { Link, navigate, slug } from '../lib/router';
 import { isOpenSource } from '../lib/tools';
+import { alphaHex, OPEN_SOURCE, PROPRIETARY } from '../lib/colors';
+import { LicenceLegend } from '../components/common/AdoptionRanking';
 import ChartCard from '../components/chart/ChartCard';
 import Segmented from '../components/chart/Segmented';
 import EmptyState from '../components/common/EmptyState';
@@ -31,6 +33,7 @@ export default function PurposeMatrix() {
       fields={['country', 'period', 'impact', 'sector', 'license', 'orgType', 'evidenceStrength', 'search']}
       actions={<Segmented label="Show" value={mode} onChange={setMode} options={[{ id: 'count', label: 'Projects' }, { id: 'share', label: '% of tool' }]} />}
     >
+      <div className="mb-3"><LicenceLegend /></div>
       {m.rows.length === 0 ? (
         <EmptyState />
       ) : (
@@ -71,7 +74,9 @@ export default function PurposeMatrix() {
                         className={`tabular h-9 cursor-pointer rounded-[3px] text-center text-xs transition-[opacity,box-shadow] duration-150 ${
                           at && at.r !== ri && at.c !== j ? 'opacity-40' : ''} ${at?.r === ri && at?.c === j ? 'shadow-[0_0_0_2px_#f4efe6]' : ''}`}
                         style={{
-                          background: !c ? 'rgba(31, 34, 52, 0.5)' : unknown ? `rgba(125, 134, 168, ${0.12 + 0.45 * strength})` : `rgba(242, 112, 63, ${0.1 + 0.8 * strength})`,
+                          // Licence colour as in the other charts; the not-specified column stays neutral grey.
+                          background: !c ? 'rgba(31, 34, 52, 0.5)' : unknown ? `rgba(205, 202, 211, ${0.06 + 0.3 * strength})`
+                            : (isOpenSource(row.tool) ? OPEN_SOURCE : PROPRIETARY) + alphaHex(0.1 + 0.8 * strength),
                           color: !unknown && strength > 0.45 ? '#080a13' : '#cdcad3',
                         }}>
                         {label}

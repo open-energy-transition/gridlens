@@ -35,7 +35,7 @@ export function ToolList({ tools }: { tools?: Map<string, number> }) {
 export default function Geographic() {
   // The map keeps every country visible so another one can be picked; the country filter only marks it.
   const { records, filters, setFilters } = useChart('map', ['country']);
-  const [metricParam, setMetric] = useUrlState('map_show', 'tools');
+  const [metricParam, setMetric] = useUrlState('map_show', 'records');
   const metric = metricParam as Metric;
 
   const { valueByCountry, mapValueByAtlasName, maxValue, rows, multiCountryCount, globalCount, atlasTools, atlasLabel } = useMemo(() => {
@@ -103,7 +103,7 @@ export default function Geographic() {
           label="Metric"
           value={metric}
           onChange={(v) => setMetric(v as Metric)}
-          options={[{ id: 'tools', label: 'Distinct tools' }, { id: 'records', label: 'Projects' }]}
+          options={[{ id: 'records', label: 'Projects' }, { id: 'tools', label: 'Distinct tools' }]}
         />
       }
     >

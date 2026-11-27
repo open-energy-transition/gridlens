@@ -110,3 +110,19 @@ export function adoptionByTool(records: CatalogueRecord[], sector = 'All') {
   }
   return [...orgs].map(([name, s]) => ({ name, count: s.size })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
+
+/** Per tool, its distinct user organizations by sector; the two add up to the tool's adoption count. */
+export function adoptionBySector(records: CatalogueRecord[]): Map<string, { industry: number; academia: number }> {
+  const sectors = new Map<string, Map<string, string>>();
+  for (const r of records) {
+    for (const o of usersOf(r.organizations)) {
+      if (!sectors.has(r.tool_name)) sectors.set(r.tool_name, new Map());
+      sectors.get(r.tool_name)!.set(o.name, sectorOf(o));
+    }
+  }
+  return new Map([...sectors].map(([tool, byOrg]) => {
+    const n = { industry: 0, academia: 0 };
+    for (const s of byOrg.values()) n[s === 'academia' ? 'academia' : 'industry'] += 1;
+    return [tool, n];
+  }));
+}

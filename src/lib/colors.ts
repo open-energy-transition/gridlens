@@ -20,6 +20,11 @@ export const ACCENT_DARK = '#ad4320';
 export const OPEN_SOURCE = '#f2703f';
 export const PROPRIETARY = '#7d86a8';
 
+/** Two-digit hex alpha for a 0..1 opacity, to append to a #rrggbb colour. */
+export function alphaHex(a: number): string {
+  return Math.round(Math.min(1, Math.max(0, a)) * 255).toString(16).padStart(2, '0');
+}
+
 export function colorFor(index: number): string {
   return PALETTE[index % PALETTE.length];
 }

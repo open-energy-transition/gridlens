@@ -29,10 +29,11 @@ export function orgGroup(r: Pick<CatalogueRecord, 'institution_category'>): stri
 
 /**
  * Two broad sectors for "who adopts this tool": industry & government (grid operators, utilities,
- * regulators, ministries, consultancies, international bodies) and academia & research.
+ * regulators, ministries, consultancies, international bodies, industry associations and other
+ * organizations) and academia & research. Every organization is in exactly one of them.
  */
 export const SECTORS: { id: string; label: string; groups: string[] }[] = [
-  { id: 'industry', label: 'Industry & government', groups: ['grid_operator', 'utility', 'regulator', 'government', 'consultancy', 'international'] },
+  { id: 'industry', label: 'Industry & government', groups: ['grid_operator', 'utility', 'regulator', 'government', 'consultancy', 'international', 'other'] },
   { id: 'academia', label: 'Academia & research', groups: ['research'] },
 ];
 const SECTOR_OF = new Map(SECTORS.flatMap((s) => s.groups.map((g) => [g, s.id] as const)));
