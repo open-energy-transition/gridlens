@@ -55,7 +55,7 @@ scripts/
   fetch_contributors.py           Refreshes src/data/contributors.json: merged pull requests, commits, reviews and issues per organization and month in each open-source tool's GitHub organizations (names/links in data/contributor_orgs.json)
   export_known_institutions.py    Writes research/known_institutions.csv (not committed) -- give this to research agents as context to avoid re-finding/duplicating known orgs
   check_evidence.py               Re-checks sources: quotes still on the page, dead links (+ archive.org copies), date evidence for undated rows
-  audit_dataset.py                Audits the published data for recurring errors (CI fails on vendors-as-users, out-of-scope categories, future years, placeholder titles)
+  audit_dataset.py                Audits the published data for recurring errors (CI fails on out-of-scope categories, future years, placeholder titles; lists vendors-as-users for review)
 
 src/                              The React + TypeScript app (Vite + Tailwind v4)
   data/catalogue.json             What the app imports — generated, never hand-edit

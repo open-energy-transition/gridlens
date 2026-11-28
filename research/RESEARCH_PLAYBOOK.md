@@ -151,9 +151,10 @@ evidence, the model only judges short excerpts, and a script checks the model's 
 - **Search cheaply before searching deeply.** Per country, three plain searches first; run the full search
   only when a hit names both the tool and the country. This skipped 40-60% of the countries for some tools
   without losing findings in a replay of earlier waves.
-- **Readers make the same mistakes; give them these rules.** Not users: the tool's vendor, resellers and
-  distributors, funders, data providers, and organizations whose system others modelled (`subject_of_study`,
-  shown but not counted). One canonical name per organization ("Government of Kenya", not four spellings), and
+- **Readers make the same mistakes; give them these rules.** Not users: resellers and
+  distributors, funders, data providers, training or course participants, and organizations whose system others
+  modelled (`subject_of_study`, shown but not counted). Vendors and developers count when their own team ran the
+  tool for a study; buying or renewing a licence counts, a tender seeking consultants does not. One canonical name per organization ("Government of Kenya", not four spellings), and
   never merge organizations across countries. Match ambiguous tool names case-sensitively (LEAP, TIMES; "SDDP"
   in lower case is usually the algorithm, not PSR's tool).
 - **Dates.** `python3 scripts/check_evidence.py dates` collects Crossref dates, page and PDF metadata and text
