@@ -1,5 +1,5 @@
 [
-  {"name": "PLEXOS", "vendor": "Energy Exemplar", "license": "proprietary", "url": "https://www.energyexemplar.com/plexos", "last_searched": "2026-11-18", "categories": ["capacity_expansion", "production_cost"]},
+  {"name": "PLEXOS", "vendor": "Energy Exemplar", "license": "proprietary", "url": "https://www.energyexemplar.com/plexos", "last_searched": "2026-11-28", "categories": ["capacity_expansion", "production_cost"]},
   {"name": "PyPSA", "vendor": "PyPSA community", "license": "open_source", "licenseName": "MIT", "url": "https://pypsa.org", "last_searched": "2026-11-17", "github_orgs": ["PyPSA", "pypsa-meets-earth"], "categories": ["capacity_expansion", "production_cost", "power_flow_dynamics"]},
   {"name": "SDDP", "vendor": "PSR", "license": "proprietary", "url": "https://www.psr-inc.com/en/software/sddp/", "last_searched": "2026-11-28", "categories": ["capacity_expansion", "production_cost"]},
   {"name": "Bid3", "vendor": "AFRY", "license": "proprietary", "url": "https://afry.com/en/service/bid3-power-market-modelling", "last_searched": "2026-11-13", "categories": ["production_cost"]},
