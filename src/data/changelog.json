@@ -2,6 +2,12 @@
   {
     "date": "28 Nov 2026",
     "tag": "reclassified",
+    "title": "Decision categories re-checked; 18 held-back projects published",
+    "description": "The decision category of 516 projects added by the automated pipeline was re-checked; 128 changed (mostly to System operation and Grid planning). 18 held-back findings with clear evidence are now published, e.g. APG's regional investment plan, Illinois Power Agency's resource adequacy study and South Africa's IRP review."
+  },
+  {
+    "date": "28 Nov 2026",
+    "tag": "reclassified",
     "title": "One name per organization; ambiguous tool names checked",
     "description": "74 spellings of the same organization merged (e.g. DNV, Jacobs, USEA, TNB, university departments into their university), so each organization is counted once. Rows where SDDP meant the optimisation method rather than PSR's software, or LEAP an unrelated acronym, are no longer counted."
   },
