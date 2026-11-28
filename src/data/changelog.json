@@ -2,6 +2,12 @@
   {
     "date": "28 Nov 2026",
     "tag": "added",
+    "title": "SDDP: older planning and operation studies",
+    "description": "Search for SDDP documents from 2010 on: system operators and ministries in Central and South America, Pakistan, New Zealand and World Bank studies. Papers about the stochastic dual dynamic programming method itself are not counted as SDDP use."
+  },
+  {
+    "date": "28 Nov 2026",
+    "tag": "added",
     "title": "OpenDSS: distribution utilities and universities worldwide",
     "description": "Worldwide search for OpenDSS users: distribution utilities (Brazil, Ecuador, Australia, UK, Korea), national labs (NREL, PNNL, ORNL, Sandia) and over 100 universities, mostly hosting-capacity, DER-integration and power-quality studies."
   },
