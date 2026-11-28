@@ -1,7 +1,7 @@
 [
   {"name": "PLEXOS", "vendor": "Energy Exemplar", "license": "proprietary", "url": "https://www.energyexemplar.com/plexos", "last_searched": "2026-11-18", "categories": ["capacity_expansion", "production_cost"]},
   {"name": "PyPSA", "vendor": "PyPSA community", "license": "open_source", "licenseName": "MIT", "url": "https://pypsa.org", "last_searched": "2026-11-17", "github_orgs": ["PyPSA", "pypsa-meets-earth"], "categories": ["capacity_expansion", "production_cost", "power_flow_dynamics"]},
-  {"name": "SDDP", "vendor": "PSR", "license": "proprietary", "url": "https://www.psr-inc.com/en/software/sddp/", "last_searched": "2026-11-15", "categories": ["capacity_expansion", "production_cost"]},
+  {"name": "SDDP", "vendor": "PSR", "license": "proprietary", "url": "https://www.psr-inc.com/en/software/sddp/", "last_searched": "2026-11-28", "categories": ["capacity_expansion", "production_cost"]},
   {"name": "Bid3", "vendor": "AFRY", "license": "proprietary", "url": "https://afry.com/en/service/bid3-power-market-modelling", "last_searched": "2026-11-13", "categories": ["production_cost"]},
   {"name": "PROMOD", "vendor": "Hitachi Energy", "license": "proprietary", "url": "https://www.hitachienergy.com/products-and-solutions/energy-portfolio-management/enterprise/promod", "last_searched": "2026-11-15", "categories": ["production_cost"]},
   {"name": "PSS/E", "vendor": "Siemens", "license": "proprietary", "url": "https://www.siemens.com/pss-e", "last_searched": "2026-11-26", "categories": ["power_flow_dynamics"]},
