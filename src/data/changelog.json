@@ -1,6 +1,12 @@
 [
   {
     "date": "28 Nov 2026",
+    "tag": "reclassified",
+    "title": "One name per organization; ambiguous tool names checked",
+    "description": "74 spellings of the same organization merged (e.g. DNV, Jacobs, USEA, TNB, university departments into their university), so each organization is counted once. Rows where SDDP meant the optimisation method rather than PSR's software, or LEAP an unrelated acronym, are no longer counted."
+  },
+  {
+    "date": "28 Nov 2026",
     "tag": "added",
     "title": "PLEXOS: older studies from 2010 on",
     "description": "Search for PLEXOS documents from 2010 on: regulators, system operators, ministries and consultancies across Europe, Asia, Africa and the Americas, including the Irish SEM market model and national power development plans."
