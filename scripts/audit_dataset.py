@@ -37,7 +37,8 @@ def audit(projects, tools, year_now):
         tool, pid = p["tool_name"], p["project_id"]
         vendor = (tools.get(tool, {}).get("vendor") or "").lower()
         for o in p["organizations"]:
-            if vendor and " community" not in vendor and vendor in o["name"].lower() and o["role"] != "subject_of_study":
+            # whole words only: the OpenDSS vendor "EPRI" is not "KEPRI"
+            if vendor and " community" not in vendor and re.search(rf"\b{re.escape(vendor)}\b", o["name"].lower()) and o["role"] != "subject_of_study":
                 found["vendor_as_user"].append((tool, pid, o["name"]))
             if o.get("institution_category") == "other":
                 found["type_other"].append((tool, pid, o["name"]))

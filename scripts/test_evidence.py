@@ -82,6 +82,7 @@ class Audit(unittest.TestCase):
             project(project_id="C", tool_category="power_flow_dynamics"),
             project(project_id="Y", year=2031),
             project(project_id="T", project_title="Microsoft Word - Draft_Report_4.doc"),
+            project(project_id="K", organizations=[{"name": "Energy Exemplary Institute", "role": "direct_user", "institution_category": "academic_research"}]),
         )
         self.assertEqual([r[1] for r in found["vendor_as_user"]], ["V"])
         self.assertEqual([r[1] for r in found["category_out_of_scope"]], ["C"])
