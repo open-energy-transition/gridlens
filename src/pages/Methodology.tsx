@@ -81,7 +81,7 @@ export default function Methodology({ catalogue }: { catalogue: CatalogueRecord[
           <Block id="sources" title="Where the evidence comes from">
             <ul className="list-disc space-y-2 pl-5">
               <li><strong>Organizations’ own publications</strong>: reports, plans, studies and news on their websites, found by searching each country and by reading the sites of heavy users.</li>
-              <li><strong>Vendor and community case studies</strong>, credited to the client that used the tool, never to the vendor itself.</li>
+              <li><strong>Vendor and community case studies</strong>, credited to the client that used the tool, and to the vendor only when its own team ran the study.</li>
               <li><strong>Scholarly publications</strong> from <a className="text-brand-300 hover:text-brand-200" href="https://openalex.org" target="_blank" rel="noreferrer">OpenAlex</a> whose abstract reports using a tool, credited to the authors’ institutions.</li>
               <li><strong>Public user lists</strong> maintained by tool communities, each entry checked against its own source.</li>
               <li><strong>Code contributions</strong> to open-source tools from the public GitHub API (see <a className="text-brand-300 hover:text-brand-200" href="#contributions">code contributions</a>).</li>

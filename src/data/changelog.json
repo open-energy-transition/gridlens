@@ -2,6 +2,12 @@
   {
     "date": "28 Nov 2026",
     "tag": "reclassified",
+    "title": "Training, studied-only and funder mentions no longer count as use",
+    "description": "A random-sample audit found that about 1 in 7 published projects did not show real use of the tool. 1,066 flagged rows were reviewed: 548 are no longer counted (training or courses only, organization only studied by others, funder or data provider only, job ads, sales pages, tool only cited). Where the evidence names who did the modelling, that organization is credited instead (21 rows). Roles were corrected on 215 rows, mostly university co-authors now shown as research users and clients as commissioners. Buying or renewing a licence still counts as use, and vendors running their own tool for a study count as users."
+  },
+  {
+    "date": "28 Nov 2026",
+    "tag": "reclassified",
     "title": "Decision categories re-checked; 18 held-back projects published",
     "description": "The decision category of 516 projects added by the automated pipeline was re-checked; 128 changed (mostly to System operation and Grid planning). 18 held-back findings with clear evidence are now published, e.g. APG's regional investment plan, Illinois Power Agency's resource adequacy study and South Africa's IRP review."
   },

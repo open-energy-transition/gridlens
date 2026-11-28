@@ -20,7 +20,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from check_evidence import ALIASES, names_tool  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
-STRICT = ("vendor_as_user", "category_out_of_scope", "future_year", "placeholder_title")
+STRICT = ("category_out_of_scope", "future_year", "placeholder_title")
 JUNK_TITLE = re.compile(r"^(https?://|www\.)|\.(pdf|docx?|pptx?|xlsx?)\b|^Microsoft (Word|PowerPoint)|^Untitled|^\S+\.\S+/\S+"
                         r"|^(Home|News|Noticias|Slide \d+|PowerPoint Presentation|Presentation|Document)$", re.I)
 GRID = {"utility_tso", "utility_iso_rto", "utility_distribution", "government_regulator"}
